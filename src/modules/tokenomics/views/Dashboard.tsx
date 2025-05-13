@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useState } from "react";
 import Image from "next/image";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 // Create client-side only chart components
 const TokenDistributionChart = dynamic(
@@ -236,7 +237,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <ThemeSwitcher />
               <a
-                href="#"
+                href="https://guide.penumbra.zone/"
                 className="flex items-center text-sm text-primary hover:text-primary/80"
               >
                 <span className="mr-1">Docs</span>
@@ -395,12 +396,12 @@ export default function Dashboard() {
 
             <Card className="bg-background/60 border-border backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="text-primary">Inflation Rate</CardTitle>
-                <CardDescription>Token inflation over time</CardDescription>
+                <CardTitle className="text-primary">Burn Metrics</CardTitle>
+                <CardDescription>Token burn by source</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-[400px]">
-                  <InflationRateChart data={priceHistory || []} />
+                  <BurnMetricsChart data={burnMetrics || defaultBurnMetrics} />
                 </div>
               </CardContent>
             </Card>
@@ -420,33 +421,6 @@ export default function Dashboard() {
               <CardContent>
                 <div className="h-[400px]">
                   <TokenDistributionChart data={distribution || []} />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-background/60 border-border backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-primary">Burn Metrics</CardTitle>
-                <CardDescription>Token burn by source</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[400px]">
-                  <BurnMetricsChart data={burnMetrics || defaultBurnMetrics} />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Price History and LQT Metrics */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="bg-background/60 border-border backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-primary">Price History</CardTitle>
-                <CardDescription>Token price over time</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[400px]">
-                  <PriceHistoryChart data={priceHistory || []} />
                 </div>
               </CardContent>
             </Card>
@@ -497,6 +471,138 @@ export default function Dashboard() {
                     </div>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Price History and Inflation Rate */}
+          <div className="grid grid-cols-1 gap-6">
+            <Card className="bg-background/60 border-border backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-primary">Token Metrics</CardTitle>
+                <CardDescription>Key performance indicators</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="price" className="w-full">
+                  <TabsList className="grid grid-cols-2 mb-6">
+                    <TabsTrigger value="price">Price History</TabsTrigger>
+                    <TabsTrigger value="inflation">Inflation Rate</TabsTrigger>
+                  </TabsList>
+
+                  {/* Price History Tab (existing) */}
+                  <TabsContent value="price" className="space-y-4">
+                    <Card className="bg-background/60 border-border backdrop-blur-sm">
+                      <CardHeader>
+                        <CardTitle className="text-primary">
+                          Price History
+                        </CardTitle>
+                        <CardDescription>Token price over time</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="h-[400px]">
+                          <PriceHistoryChart data={priceHistory || []} />
+                        </div>
+                        {/* Metrics grid below chart */}
+                        {priceHistory && priceHistory.length > 0 && (
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                            {/* Current Price */}
+                            <Card className="bg-background/40 border-border">
+                              <CardContent className="p-4">
+                                <div className="text-xs text-muted-foreground">
+                                  Current Price
+                                </div>
+                                <div className="text-lg font-bold text-foreground">
+                                  $
+                                  {priceHistory[
+                                    priceHistory.length - 1
+                                  ].price.toFixed(2)}
+                                </div>
+                              </CardContent>
+                            </Card>
+                            {/* All-Time High */}
+                            <Card className="bg-background/40 border-border">
+                              <CardContent className="p-4">
+                                <div className="text-xs text-muted-foreground">
+                                  All-Time High
+                                </div>
+                                <div className="text-lg font-bold text-foreground">
+                                  $
+                                  {Math.max(
+                                    ...priceHistory.map((p) => p.price)
+                                  ).toFixed(2)}
+                                </div>
+                              </CardContent>
+                            </Card>
+                            {/* All-Time Low */}
+                            <Card className="bg-background/40 border-border">
+                              <CardContent className="p-4">
+                                <div className="text-xs text-muted-foreground">
+                                  All-Time Low
+                                </div>
+                                <div className="text-lg font-bold text-foreground">
+                                  $
+                                  {Math.min(
+                                    ...priceHistory.map((p) => p.price)
+                                  ).toFixed(2)}
+                                </div>
+                              </CardContent>
+                            </Card>
+                            {/* 30d Change */}
+                            <Card className="bg-background/40 border-border">
+                              <CardContent className="p-4">
+                                <div className="text-xs text-muted-foreground">
+                                  30d Change
+                                </div>
+                                <div
+                                  className={`text-lg font-bold ${
+                                    priceHistory[priceHistory.length - 1]
+                                      .price -
+                                      (priceHistory[priceHistory.length - 31]
+                                        ?.price ?? priceHistory[0].price) >=
+                                    0
+                                      ? "text-emerald-400"
+                                      : "text-red-400"
+                                  }`}
+                                >
+                                  {(() => {
+                                    const now =
+                                      priceHistory[priceHistory.length - 1]
+                                        .price;
+                                    const prev =
+                                      priceHistory[priceHistory.length - 31]
+                                        ?.price ?? priceHistory[0].price;
+                                    const change = ((now - prev) / prev) * 100;
+                                    return `${
+                                      change >= 0 ? "+" : ""
+                                    }${change.toFixed(1)}%`;
+                                  })()}
+                                </div>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="inflation" className="space-y-4">
+                    <Card className="bg-background/60 border-border backdrop-blur-sm">
+                      <CardHeader>
+                        <CardTitle className="text-primary">
+                          Inflation Rate
+                        </CardTitle>
+                        <CardDescription>
+                          Token inflation over time
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="h-[400px]">
+                          <InflationRateChart data={priceHistory || []} />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
           </div>

@@ -2,6 +2,7 @@
 
 import type { EChartsOption } from "echarts";
 import ReactECharts from "echarts-for-react";
+import { useState } from "react";
 
 export interface BarLineChartData {
   x: string;
@@ -19,6 +20,8 @@ interface BarLineChartProps {
   lineColor?: string;
   areaGradientColors?: [string, string];
   minYZero?: boolean;
+  dayOptions?: number[];
+  defaultDays?: number;
 }
 
 export default function BarLineChart({
@@ -32,9 +35,16 @@ export default function BarLineChart({
   lineColor = "#10b981",
   areaGradientColors = ["rgba(16,185,129,0.18)", "rgba(16,185,129,0.01)"],
   minYZero = true,
+  dayOptions = [7, 30, 90],
+  defaultDays = 30,
 }: BarLineChartProps) {
+  const [days, setDays] = useState(defaultDays);
+
+  // Only show the last N days
+  const filteredData = data.slice(-days);
+
   // Dynamic y-axis min/max
-  const values = data.map((item) => item.y);
+  const values = filteredData.map((item) => item.y);
   const minValue = values.length ? Math.min(...values) : 0;
   const maxValue = values.length ? Math.max(...values) : 3;
   const yMin = minYZero
@@ -44,17 +54,18 @@ export default function BarLineChart({
   const interval = (yMax - yMin) / 5;
 
   // X-axis label logic
-  const xAxisLabels =
-    xLabels && xLabels.length === 4
-      ? data.length >= 4
-        ? [
-            data[0].x,
-            data[Math.floor(data.length / 3)].x,
-            data[Math.floor((2 * data.length) / 3)].x,
-            data[data.length - 1].x,
-          ]
-        : data.map((item) => item.x)
-      : undefined;
+  const xAxisLabels = [
+    filteredData[0].x, // leftmost
+    filteredData[Math.floor(filteredData.length / 3)].x,
+    filteredData[Math.floor((2 * filteredData.length) / 3)].x,
+    filteredData[filteredData.length - 1].x, // rightmost
+  ];
+  const xAxisLabelNames = [
+    `${days}d`,
+    `${Math.round((2 * days) / 3)}d`,
+    `${Math.round(days / 3)}d`,
+    "Now",
+  ];
 
   const option: EChartsOption = {
     backgroundColor: "transparent",
@@ -83,19 +94,14 @@ export default function BarLineChart({
     },
     xAxis: {
       type: "category",
-      data: data.map((item) => item.x),
+      data: filteredData.map((item) => item.x),
       axisLabel: {
         color: "#a3a3a3",
         fontSize: 12,
-        formatter: (value: string, idx: number) => {
-          if (xAxisLabels) {
-            if (value === xAxisLabels[0]) return "30d";
-            if (value === xAxisLabels[1]) return "20d";
-            if (value === xAxisLabels[2]) return "10d";
-            if (value === xAxisLabels[3]) return "Now";
-            return "";
-          }
-          return value;
+        formatter: (value: string) => {
+          const idx = xAxisLabels.indexOf(value);
+          if (idx !== -1) return xAxisLabelNames[idx];
+          return "";
         },
         margin: 16,
       },
@@ -128,10 +134,10 @@ export default function BarLineChart({
       {
         name: `${areaLabel} Bars`,
         type: "bar",
-        data: data.map((item) => item.y),
+        data: filteredData.map((item) => item.y),
         barWidth: "70%",
         itemStyle: {
-          borderRadius: [4, 4, 0, 0],
+          borderRadius: [0, 0, 0, 0],
           color: {
             type: "linear",
             x: 0,
@@ -154,7 +160,7 @@ export default function BarLineChart({
       {
         name: `${areaLabel} Line`,
         type: "line",
-        data: data.map((item) => item.y),
+        data: filteredData.map((item) => item.y),
         smooth: true,
         symbol: "circle",
         symbolSize: 6,
@@ -165,7 +171,7 @@ export default function BarLineChart({
         itemStyle: {
           color: lineColor,
           borderColor: "#fff",
-          borderWidth: 1,
+          borderWidth: 0,
         },
         areaStyle: {
           color: {
@@ -189,6 +195,22 @@ export default function BarLineChart({
 
   return (
     <div style={{ height: "100%", width: "100%" }}>
+      {/* Days filter */}
+      <div className="flex items-center gap-2 mb-2">
+        {dayOptions.map((opt) => (
+          <button
+            key={opt}
+            className={`px-3 py-1 rounded-md text-xs font-medium border transition-colors ${
+              days === opt
+                ? "bg-emerald-600 text-white border-emerald-600"
+                : "bg-background/60 text-emerald-400 border-emerald-700 hover:bg-emerald-900/10"
+            }`}
+            onClick={() => setDays(opt)}
+          >
+            {opt}d
+          </button>
+        ))}
+      </div>
       {/* @ts-ignore */}
       <ReactECharts
         option={option}
