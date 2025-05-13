@@ -3,19 +3,23 @@
 import React from "react";
 import type { EChartsOption } from "echarts";
 import ReactECharts from "echarts-for-react";
-import { TokenDistribution } from "@/store/api/tokenomicsApi";
 import { useTheme } from "next-themes";
 
-interface TokenDistributionChartProps {
-  data: TokenDistribution[];
+interface SupplyAllocationChartProps {
+  genesisAllocation: number;
+  issuedSinceLaunch: number;
 }
 
-export default function TokenDistributionChart({
-  data,
-}: TokenDistributionChartProps) {
+export default function SupplyAllocationChart({
+  genesisAllocation,
+  issuedSinceLaunch,
+}: SupplyAllocationChartProps) {
   const { resolvedTheme } = useTheme();
-
   const isDark = resolvedTheme === "dark";
+
+  const totalSupply = genesisAllocation + issuedSinceLaunch;
+  const genesisPercentage = (genesisAllocation / totalSupply) * 100;
+  const issuedPercentage = (issuedSinceLaunch / totalSupply) * 100;
 
   const option: EChartsOption = {
     tooltip: {
@@ -32,14 +36,20 @@ export default function TokenDistributionChart({
     },
     series: [
       {
-        name: "Token Distribution",
+        name: "Supply Allocation",
         type: "pie",
         radius: "60%",
         center: ["60%", "60%"],
-        data: data.map((item) => ({
-          value: item.percentage,
-          name: `${item.category}: ${item.percentage}%`,
-        })),
+        data: [
+          {
+            value: genesisAllocation,
+            name: `Genesis Allocation: ${genesisPercentage.toFixed(1)}%`,
+          },
+          {
+            value: issuedSinceLaunch,
+            name: `Issued Since Launch: ${issuedPercentage.toFixed(1)}%`,
+          },
+        ],
         label: {
           color: isDark ? "#fff" : "#222",
         },
