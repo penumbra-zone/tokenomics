@@ -1,4 +1,4 @@
-import Dashboard from '@/modules/tokenomics/views/Dashboard';
+import Dashboard from "@/modules/tokenomics/views/Dashboard";
 
 export default function Home() {
   return <Dashboard />;
