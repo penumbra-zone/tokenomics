@@ -184,7 +184,7 @@ export default function Dashboard() {
         }`}
       >
         <div className="flex flex-col h-full">
-          <div className="relative w-full h-24 border-b border-border bg-gradient-to-r from-primary/10 to-amber-100/10 dark:from-primary/30 dark:to-amber-900/10">
+          <div className="relative w-full h-24 border-b border-border bg-gradient-to-r to-primary/40 from-black">
             <Image
               src="/penumbra-logo.svg"
               alt="Penumbra Logo"
