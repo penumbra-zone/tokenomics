@@ -57,8 +57,8 @@ export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
         textStyle: { color: textColor },
       },
       grid: {
-        left: 120,
-        right: 32,
+        left: 20,
+        right: 50,
         top: 32,
         bottom: 24,
         containLabel: true,
@@ -80,6 +80,7 @@ export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
         axisLine: { show: false },
         axisTick: { show: false },
         axisLabel: {
+          align: "right",
           color: textColor,
           fontWeight: 600,
           fontSize: 15,

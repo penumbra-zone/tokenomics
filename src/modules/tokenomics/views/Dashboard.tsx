@@ -69,6 +69,19 @@ const InflationRateChart = dynamic(
   { ssr: false }
 );
 
+// Import our card components
+import {
+  TotalSupplyCard,
+  CirculatingSupplyCard,
+  MarketCapCard,
+  TotalBurnedCard,
+  SupplyAllocationCard,
+  BurnMetricsCard,
+  TokenDistributionCard,
+  LQTMetricsCard,
+  TokenMetricsCard,
+} from "@/modules/tokenomics/components/cards";
+
 export default function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const {
@@ -292,319 +305,59 @@ export default function Dashboard() {
         <main className="p-6">
           {/* Overview cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card className="bg-background/60 border-border backdrop-blur-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-primary text-lg">
-                  Total Supply
-                </CardTitle>
-                <CardDescription>Maximum token supply</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">
-                  {supply?.totalSupply.toLocaleString()}
-                </div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Genesis: {supply?.genesisAllocation.toLocaleString()}
-                </div>
-              </CardContent>
-            </Card>
+            <TotalSupplyCard
+              totalSupply={supply?.totalSupply || 0}
+              genesisAllocation={supply?.genesisAllocation || 0}
+            />
 
-            <Card className="bg-background/60 border-border backdrop-blur-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-primary text-lg">
-                  Circulating Supply
-                </CardTitle>
-                <CardDescription>Currently in circulation</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">
-                  {circulatingSupply.toLocaleString()}
-                </div>
-                <div className="flex items-center justify-between mt-2">
-                  <div className="text-xs text-muted-foreground">
-                    {(
-                      (circulatingSupply / (supply?.totalSupply || 1)) *
-                      100
-                    ).toFixed(1)}
-                    % of total
-                  </div>
-                </div>
-                <Progress
-                  value={(circulatingSupply / (supply?.totalSupply || 1)) * 100}
-                  className="h-1 mt-2"
-                />
-              </CardContent>
-            </Card>
+            <CirculatingSupplyCard
+              circulatingSupply={circulatingSupply}
+              totalSupply={supply?.totalSupply || 0}
+            />
 
-            <Card className="bg-background/60 border-border backdrop-blur-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-primary text-lg">
-                  Market Cap
-                </CardTitle>
-                <CardDescription>Current valuation</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">
-                  ${socialMetrics?.marketCap.toLocaleString()}
-                </div>
-                <div className="flex items-center justify-between mt-2">
-                  <div className="text-xs text-muted-foreground">
-                    Price: ${socialMetrics?.price.toFixed(2)}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <MarketCapCard
+              marketCap={socialMetrics?.marketCap || 0}
+              price={socialMetrics?.price || 0}
+            />
 
-            <Card className="bg-background/60 border-border backdrop-blur-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-primary text-lg">
-                  Total Burned
-                </CardTitle>
-                <CardDescription>Tokens removed from supply</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">
-                  {burnMetrics?.totalBurned.toLocaleString()}
-                </div>
-                <div className="flex items-center justify-between mt-2">
-                  <div className="text-xs text-muted-foreground">
-                    Rate: {burnMetrics?.burnRate.toFixed(4)}/block
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <TotalBurnedCard
+              totalBurned={burnMetrics?.totalBurned || 0}
+              burnRate={burnMetrics?.burnRate || 0}
+            />
           </div>
 
           {/* Main Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <Card className="bg-background/60 border-border backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-primary">
-                  Supply Allocation
-                </CardTitle>
-                <CardDescription>Genesis vs Issued tokens</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[400px]">
-                  <SupplyAllocationChart
-                    genesisAllocation={supply?.genesisAllocation || 0}
-                    issuedSinceLaunch={supply?.issuedSinceLaunch || 0}
-                  />
-                </div>
-              </CardContent>
-            </Card>
+            <SupplyAllocationCard
+              genesisAllocation={supply?.genesisAllocation || 0}
+              issuedSinceLaunch={supply?.issuedSinceLaunch || 0}
+            />
 
-            <Card className="bg-background/60 border-border backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-primary">Burn Metrics</CardTitle>
-                <CardDescription>Token burn by source</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[400px]">
-                  <BurnMetricsChart data={burnMetrics || defaultBurnMetrics} />
-                </div>
-              </CardContent>
-            </Card>
+            <BurnMetricsCard data={burnMetrics || defaultBurnMetrics} />
           </div>
 
           {/* Distribution and Burn Metrics */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <Card className="bg-background/60 border-border backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-primary">
-                  Token Distribution
-                </CardTitle>
-                <CardDescription>
-                  Allocation of total token supply
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[400px]">
-                  <TokenDistributionChart data={distribution || []} />
-                </div>
-              </CardContent>
-            </Card>
+            <TokenDistributionCard data={distribution || []} />
 
-            <Card className="bg-background/60 border-border backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-primary">
-                  Liquidity Tournament Metrics
-                </CardTitle>
-                <CardDescription>LQT rewards and voting power</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        Available Rewards
-                      </p>
-                      <p className="text-xl font-bold text-foreground">
-                        {lqtMetrics?.availableRewards.toLocaleString()}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        Total Voting Power
-                      </p>
-                      <p className="text-xl font-bold text-foreground">
-                        {lqtMetrics?.votingPower.total.toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        Delegator Rewards
-                      </p>
-                      <p className="text-xl font-bold text-foreground">
-                        {lqtMetrics?.delegatorRewards.toLocaleString()}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        LP Rewards
-                      </p>
-                      <p className="text-xl font-bold text-foreground">
-                        {lqtMetrics?.lpRewards.toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <LQTMetricsCard
+              data={
+                lqtMetrics || {
+                  availableRewards: 0,
+                  votingPower: { total: 0 },
+                  delegatorRewards: 0,
+                  lpRewards: 0,
+                }
+              }
+            />
           </div>
 
           {/* Price History and Inflation Rate */}
           <div className="grid grid-cols-1 gap-6">
-            <Card className="bg-background/60 border-border backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-primary">Token Metrics</CardTitle>
-                <CardDescription>Key performance indicators</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="price" className="w-full">
-                  <TabsList className="grid grid-cols-2 mb-6">
-                    <TabsTrigger value="price">Price History</TabsTrigger>
-                    <TabsTrigger value="inflation">Inflation Rate</TabsTrigger>
-                  </TabsList>
-
-                  {/* Price History Tab (existing) */}
-                  <TabsContent value="price" className="space-y-4">
-                    <Card className="bg-background/60 border-border backdrop-blur-sm">
-                      <CardHeader>
-                        <CardTitle className="text-primary">
-                          Price History
-                        </CardTitle>
-                        <CardDescription>Token price over time</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="h-[400px]">
-                          <PriceHistoryChart data={priceHistory || []} />
-                        </div>
-                        {/* Metrics grid below chart */}
-                        {priceHistory && priceHistory.length > 0 && (
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-                            {/* Current Price */}
-                            <Card className="bg-background/40 border-border">
-                              <CardContent className="p-4">
-                                <div className="text-xs text-muted-foreground">
-                                  Current Price
-                                </div>
-                                <div className="text-lg font-bold text-foreground">
-                                  $
-                                  {priceHistory[
-                                    priceHistory.length - 1
-                                  ].price.toFixed(2)}
-                                </div>
-                              </CardContent>
-                            </Card>
-                            {/* All-Time High */}
-                            <Card className="bg-background/40 border-border">
-                              <CardContent className="p-4">
-                                <div className="text-xs text-muted-foreground">
-                                  All-Time High
-                                </div>
-                                <div className="text-lg font-bold text-foreground">
-                                  $
-                                  {Math.max(
-                                    ...priceHistory.map((p) => p.price)
-                                  ).toFixed(2)}
-                                </div>
-                              </CardContent>
-                            </Card>
-                            {/* All-Time Low */}
-                            <Card className="bg-background/40 border-border">
-                              <CardContent className="p-4">
-                                <div className="text-xs text-muted-foreground">
-                                  All-Time Low
-                                </div>
-                                <div className="text-lg font-bold text-foreground">
-                                  $
-                                  {Math.min(
-                                    ...priceHistory.map((p) => p.price)
-                                  ).toFixed(2)}
-                                </div>
-                              </CardContent>
-                            </Card>
-                            {/* 30d Change */}
-                            <Card className="bg-background/40 border-border">
-                              <CardContent className="p-4">
-                                <div className="text-xs text-muted-foreground">
-                                  30d Change
-                                </div>
-                                <div
-                                  className={`text-lg font-bold ${
-                                    priceHistory[priceHistory.length - 1]
-                                      .price -
-                                      (priceHistory[priceHistory.length - 31]
-                                        ?.price ?? priceHistory[0].price) >=
-                                    0
-                                      ? "text-emerald-400"
-                                      : "text-red-400"
-                                  }`}
-                                >
-                                  {(() => {
-                                    const now =
-                                      priceHistory[priceHistory.length - 1]
-                                        .price;
-                                    const prev =
-                                      priceHistory[priceHistory.length - 31]
-                                        ?.price ?? priceHistory[0].price;
-                                    const change = ((now - prev) / prev) * 100;
-                                    return `${
-                                      change >= 0 ? "+" : ""
-                                    }${change.toFixed(1)}%`;
-                                  })()}
-                                </div>
-                              </CardContent>
-                            </Card>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
-
-                  <TabsContent value="inflation" className="space-y-4">
-                    <Card className="bg-background/60 border-border backdrop-blur-sm">
-                      <CardHeader>
-                        <CardTitle className="text-primary">
-                          Inflation Rate
-                        </CardTitle>
-                        <CardDescription>
-                          Token inflation over time
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="h-[400px]">
-                          <InflationRateChart data={priceHistory || []} />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
+            <TokenMetricsCard
+              priceHistoryData={priceHistory || []}
+              inflationRateData={priceHistory || []}
+            />
           </div>
         </main>
       </div>
