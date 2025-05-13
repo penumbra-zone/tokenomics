@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as echarts from "echarts";
 import { useTheme } from "next-themes";
 import { BurnMetrics } from "@/store/api/tokenomicsApi";
@@ -9,15 +9,60 @@ interface BurnMetricsChartProps {
 
 export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
   const chartRef = useRef<HTMLDivElement>(null);
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
+  const [primaryColor, setPrimaryColor] = useState("#f49c43");
+
+  // Get CSS variable for primary color
+  useEffect(() => {
+    const rootStyles = getComputedStyle(document.documentElement);
+    const primaryHsl = rootStyles.getPropertyValue("--primary").trim();
+
+    // Convert HSL values to hex
+    const [h, s, l] = primaryHsl.split(" ").map((val) => parseFloat(val));
+    setPrimaryColor(hslToHex(h, s, l));
+  }, [resolvedTheme]);
+
+  // HSL to Hex conversion helper
+  function hslToHex(h: number, s: number, l: number) {
+    s /= 100;
+    l /= 100;
+    const a = s * Math.min(l, 1 - l);
+    const f = (n: number) => {
+      const k = (n + h / 30) % 12;
+      const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+      return Math.round(255 * color)
+        .toString(16)
+        .padStart(2, "0");
+    };
+    return `#${f(0)}${f(8)}${f(4)}`;
+  }
+
+  // Hex to RGB helper for rgba
+  function hexToRgb(hex: string) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(
+          result[3],
+          16
+        )}`
+      : "244, 156, 67"; // Fallback to amber
+  }
 
   useEffect(() => {
     if (!chartRef.current) return;
     const chart = echarts.init(chartRef.current, undefined, {
       renderer: "svg",
     });
-    const isDark = theme === "dark";
+    const isDark = resolvedTheme === "dark";
     const textColor = isDark ? "#fff" : "#222";
+
+    // Adjust the lighter shade for the gradient
+    function getLighterShade(hex: string) {
+      const rgb = hexToRgb(hex).split(", ").map(Number);
+      const lighter = rgb.map((val) => Math.min(255, val + 40));
+      return `rgb(${lighter.join(", ")})`;
+    }
+
     const barGradient = {
       type: "linear",
       x: 0,
@@ -27,11 +72,11 @@ export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
       colorStops: [
         {
           offset: 0,
-          color: isDark ? "#34d399" : "#059669", // Emerald
+          color: primaryColor, // Primary color
         },
         {
           offset: 1,
-          color: isDark ? "#0f766e" : "#5eead4", // Teal
+          color: getLighterShade(primaryColor), // Lighter shade of primary
         },
       ],
     };
@@ -53,7 +98,7 @@ export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
         trigger: "axis",
         axisPointer: { type: "shadow" },
         backgroundColor: isDark ? "#222" : "#fff",
-        borderColor: isDark ? "#34d399" : "#059669",
+        borderColor: primaryColor,
         textStyle: { color: textColor },
       },
       grid: {
@@ -96,7 +141,9 @@ export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
             color: barGradient,
             borderRadius: 0,
             shadowBlur: 8,
-            shadowColor: isDark ? "#34d39933" : "#05966922",
+            shadowColor: `rgba(${hexToRgb(primaryColor)}, ${
+              isDark ? 0.33 : 0.22
+            })`,
           },
           emphasis: {
             itemStyle: {
@@ -114,7 +161,7 @@ export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
       chart.dispose();
       window.removeEventListener("resize", handleResize);
     };
-  }, [data, theme]);
+  }, [data, resolvedTheme, primaryColor]);
 
   return (
     <div

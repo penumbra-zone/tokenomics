@@ -178,9 +178,9 @@ export default function Dashboard() {
       {/* Background effect */}
       <div className="absolute inset-0 z-0 opacity-30">
         <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] bg-repeat opacity-10"></div>
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/20 via-transparent to-amber-900/20"></div>
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/20 via-transparent to-secondary/20"></div>
         <div className="absolute top-1/4 -left-1/4 w-1/2 h-1/2 rounded-full bg-primary/10 blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-0 w-1/2 h-1/2 rounded-full bg-amber-700/10 blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-0 w-1/2 h-1/2 rounded-full bg-secondary/10 blur-3xl"></div>
       </div>
 
       {/* Mobile sidebar toggle */}

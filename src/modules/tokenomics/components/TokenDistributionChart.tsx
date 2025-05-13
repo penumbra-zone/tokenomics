@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as echarts from "echarts";
 import { useTheme } from "next-themes";
 import { TokenDistribution } from "@/store/api/tokenomicsApi";
@@ -13,21 +13,83 @@ export default function TokenDistributionChart({
   data,
 }: TokenDistributionChartProps) {
   const chartRef = useRef<HTMLDivElement>(null);
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
+  const [primaryColor, setPrimaryColor] = useState("#f49c43");
+  const [secondaryColor, setSecondaryColor] = useState("#2a7a8c");
+
+  // Get CSS variable for primary color
+  useEffect(() => {
+    const rootStyles = getComputedStyle(document.documentElement);
+    const primaryHsl = rootStyles.getPropertyValue("--primary").trim();
+    const secondaryHsl = rootStyles.getPropertyValue("--secondary").trim();
+
+    // Convert HSL values to hex
+    const [h, s, l] = primaryHsl.split(" ").map((val) => parseFloat(val));
+    setPrimaryColor(hslToHex(h, s, l));
+
+    const [hSec, sSec, lSec] = secondaryHsl
+      .split(" ")
+      .map((val) => parseFloat(val));
+    setSecondaryColor(hslToHex(hSec, sSec, lSec));
+  }, [resolvedTheme]);
+
+  // HSL to Hex conversion helper
+  function hslToHex(h: number, s: number, l: number) {
+    s /= 100;
+    l /= 100;
+    const a = s * Math.min(l, 1 - l);
+    const f = (n: number) => {
+      const k = (n + h / 30) % 12;
+      const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+      return Math.round(255 * color)
+        .toString(16)
+        .padStart(2, "0");
+    };
+    return `#${f(0)}${f(8)}${f(4)}`;
+  }
+
+  // Get a color palette with highly contrasting colors for better visibility
+  function getDistinctColors(isDark: boolean) {
+    // Define a set of high-contrast colors that work well together
+    return isDark
+      ? [
+          "#f49c43", // Primary orange
+          "#3EBBCA", // Bright teal - much brighter for dark mode
+          "#DB5461", // Raspberry
+          "#9FD356", // Lime
+          "#7C77B9", // Purple
+          "#FFBC42", // Yellow
+        ]
+      : [
+          "#f49c43", // Primary orange
+          "#2a7a8c", // Secondary teal
+          "#C23F5E", // Crimson
+          "#66A33D", // Green
+          "#6B60E0", // Indigo
+          "#ED9A2A", // Golden
+        ];
+  }
+
+  // Hex to RGB helper
+  function hexToRgb(hex: string) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(
+          result[3],
+          16
+        )}`
+      : "244, 156, 67"; // Fallback to primary
+  }
 
   useEffect(() => {
     if (!chartRef.current) return;
     const chart = echarts.init(chartRef.current, undefined, {
       renderer: "svg",
     });
-    const isDark = theme === "dark";
+    const isDark = resolvedTheme === "dark";
     const textColor = isDark ? "#fff" : "#222";
-    const colors = [
-      "#10b981", // Community - emerald
-      "#f59e42", // Team & Advisors - amber
-      "#059669", // Foundation - green
-      "#ea580c", // Ecosystem - orange
-    ];
+    const colors = getDistinctColors(isDark);
+
     const total = data.reduce((sum, item) => sum + item.amount, 0);
     chart.setOption({
       backgroundColor: "transparent",
@@ -39,7 +101,7 @@ export default function TokenDistributionChart({
             params.percent
           }%)`,
         backgroundColor: isDark ? "#222" : "#fff",
-        borderColor: isDark ? "#10b981" : "#059669",
+        borderColor: primaryColor,
         textStyle: { color: textColor },
       },
       legend: {
@@ -103,15 +165,14 @@ export default function TokenDistributionChart({
       chart.dispose();
       window.removeEventListener("resize", handleResize);
     };
-  }, [data, theme]);
+  }, [data, resolvedTheme, primaryColor, secondaryColor]);
 
-  // Custom legend below the chart
-  const legendColors = [
-    "bg-emerald-500",
-    "bg-amber-500",
-    "bg-emerald-700",
-    "bg-amber-700",
-  ];
+  // Custom colors for the legend - using inline style for exact color matching
+  const getLegendStyle = (index: number) => {
+    const isDark = resolvedTheme === "dark";
+    const colors = getDistinctColors(isDark);
+    return { backgroundColor: colors[index % colors.length] };
+  };
 
   const total = data.reduce((sum, item) => sum + item.amount, 0);
 
@@ -124,11 +185,7 @@ export default function TokenDistributionChart({
       <div className="flex flex-wrap justify-center gap-6 mt-4">
         {data.map((item, i) => (
           <div key={item.category} className="flex items-center gap-2">
-            <span
-              className={`w-3 h-3 rounded-full ${
-                legendColors[i % legendColors.length]
-              }`}
-            />
+            <span className="w-3 h-3 rounded-full" style={getLegendStyle(i)} />
             <span className="text-sm font-medium text-foreground">
               {item.category}
             </span>

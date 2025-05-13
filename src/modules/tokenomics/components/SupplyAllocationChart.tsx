@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as echarts from "echarts";
 import { useTheme } from "next-themes";
 
@@ -14,7 +14,40 @@ export default function SupplyAllocationChart({
   issuedSinceLaunch,
 }: SupplyAllocationChartProps) {
   const chartRef = useRef<HTMLDivElement>(null);
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
+  const [primaryColor, setPrimaryColor] = useState("#f49c43");
+  const [secondaryColor, setSecondaryColor] = useState("#2a7a8c");
+
+  // Get CSS variable for primary color
+  useEffect(() => {
+    const rootStyles = getComputedStyle(document.documentElement);
+    const primaryHsl = rootStyles.getPropertyValue("--primary").trim();
+    const secondaryHsl = rootStyles.getPropertyValue("--secondary").trim();
+
+    // Convert HSL values to hex
+    const [h, s, l] = primaryHsl.split(" ").map((val) => parseFloat(val));
+    setPrimaryColor(hslToHex(h, s, l));
+
+    const [hSec, sSec, lSec] = secondaryHsl
+      .split(" ")
+      .map((val) => parseFloat(val));
+    setSecondaryColor(hslToHex(hSec, sSec, lSec));
+  }, [resolvedTheme]);
+
+  // HSL to Hex conversion helper
+  function hslToHex(h: number, s: number, l: number) {
+    s /= 100;
+    l /= 100;
+    const a = s * Math.min(l, 1 - l);
+    const f = (n: number) => {
+      const k = (n + h / 30) % 12;
+      const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+      return Math.round(255 * color)
+        .toString(16)
+        .padStart(2, "0");
+    };
+    return `#${f(0)}${f(8)}${f(4)}`;
+  }
 
   useEffect(() => {
     if (!chartRef.current) return;
@@ -22,13 +55,13 @@ export default function SupplyAllocationChart({
       renderer: "svg",
     });
 
-    const isDark = theme === "dark";
+    const isDark = resolvedTheme === "dark";
     const backgroundColor = "transparent";
     const textColor = isDark ? "#fff" : "#222";
-    const legendTextColor = isDark ? "#a7ffeb" : "#00796b";
+    const legendTextColor = isDark ? primaryColor : primaryColor;
     const colors = [
-      isDark ? "#34d399" : "#059669", // Emerald
-      isDark ? "#fbbf24" : "#f59e42", // Amber
+      primaryColor, // Primary color
+      secondaryColor, // Secondary color - Teal
     ];
 
     const total = genesisAllocation + issuedSinceLaunch;
@@ -51,7 +84,7 @@ export default function SupplyAllocationChart({
         trigger: "item",
         formatter: "{b}: {c} ({d}%)",
         backgroundColor: isDark ? "#222" : "#fff",
-        borderColor: isDark ? "#34d399" : "#059669",
+        borderColor: primaryColor,
         textStyle: { color: textColor },
       },
       legend: {
@@ -79,8 +112,8 @@ export default function SupplyAllocationChart({
             borderWidth: 2,
             shadowBlur: 10,
             shadowColor: isDark
-              ? "rgba(52,211,153,0.15)"
-              : "rgba(5,150,105,0.10)",
+              ? `rgba(${hexToRgb(primaryColor)},0.15)`
+              : `rgba(${hexToRgb(primaryColor)},0.10)`,
           },
           label: {
             show: true,
@@ -127,7 +160,24 @@ export default function SupplyAllocationChart({
       chart.dispose();
       window.removeEventListener("resize", handleResize);
     };
-  }, [genesisAllocation, issuedSinceLaunch, theme]);
+  }, [
+    genesisAllocation,
+    issuedSinceLaunch,
+    resolvedTheme,
+    primaryColor,
+    secondaryColor,
+  ]);
+
+  // Hex to RGB helper for rgba
+  function hexToRgb(hex: string) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(
+          result[3],
+          16
+        )}`
+      : "244, 156, 67"; // Fallback to primary color
+  }
 
   return (
     <div

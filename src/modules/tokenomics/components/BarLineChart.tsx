@@ -2,7 +2,8 @@
 
 import type { EChartsOption } from "echarts";
 import ReactECharts from "echarts-for-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
 
 export interface BarLineChartData {
   x: string;
@@ -31,14 +32,72 @@ export default function BarLineChart({
   tooltipFormatter,
   areaLabel = "Value",
   yPadding = 0.2,
-  barGradientColors = ["rgba(16,185,129,0.15)", "rgba(16,185,129,0.7)"],
-  lineColor = "#10b981",
-  areaGradientColors = ["rgba(16,185,129,0.18)", "rgba(16,185,129,0.01)"],
+  barGradientColors,
+  lineColor,
+  areaGradientColors,
   minYZero = true,
   dayOptions = [7, 30, 90],
   defaultDays = 30,
 }: BarLineChartProps) {
   const [days, setDays] = useState(defaultDays);
+  const { resolvedTheme } = useTheme();
+  const [themeColors, setThemeColors] = useState({
+    primaryColor: "#f49c43", // Default primary color
+    barGradient: ["rgba(244,156,67,0.15)", "rgba(244,156,67,0.7)"],
+    areaGradient: ["rgba(244,156,67,0.18)", "rgba(244,156,67,0.01)"],
+  });
+
+  // Get CSS variable for primary color
+  useEffect(() => {
+    const getPrimaryColor = () => {
+      const rootStyles = getComputedStyle(document.documentElement);
+      const primaryHsl = rootStyles.getPropertyValue("--primary").trim();
+
+      // Convert HSL values to hex
+      const [h, s, l] = primaryHsl.split(" ").map((val) => parseFloat(val));
+      const primaryColor = hslToHex(h, s, l);
+
+      return {
+        primaryColor,
+        barGradient: [
+          `rgba(${hexToRgb(primaryColor)},0.15)`,
+          `rgba(${hexToRgb(primaryColor)},0.7)`,
+        ],
+        areaGradient: [
+          `rgba(${hexToRgb(primaryColor)},0.18)`,
+          `rgba(${hexToRgb(primaryColor)},0.01)`,
+        ],
+      };
+    };
+
+    setThemeColors(getPrimaryColor());
+  }, [resolvedTheme]);
+
+  // HSL to Hex conversion helper
+  function hslToHex(h: number, s: number, l: number) {
+    s /= 100;
+    l /= 100;
+    const a = s * Math.min(l, 1 - l);
+    const f = (n: number) => {
+      const k = (n + h / 30) % 12;
+      const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+      return Math.round(255 * color)
+        .toString(16)
+        .padStart(2, "0");
+    };
+    return `#${f(0)}${f(8)}${f(4)}`;
+  }
+
+  // Hex to RGB helper for rgba
+  function hexToRgb(hex: string) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(
+          result[3],
+          16
+        )}`
+      : "244, 156, 67"; // Fallback to amber
+  }
 
   // Only show the last N days
   const filteredData = data.slice(-days);
@@ -55,24 +114,25 @@ export default function BarLineChart({
 
   // X-axis label logic
   const xAxisLabels = [
-    filteredData[0].x, // leftmost
-    filteredData[Math.floor(filteredData.length / 3)].x,
-    filteredData[Math.floor((2 * filteredData.length) / 3)].x,
-    filteredData[filteredData.length - 1].x, // rightmost
-  ];
+    filteredData[0]?.x, // leftmost
+    filteredData[Math.floor(filteredData.length / 3)]?.x,
+    filteredData[Math.floor((2 * filteredData.length) / 3)]?.x,
+    filteredData[filteredData.length - 1]?.x, // rightmost
+  ].filter(Boolean);
+
   const xAxisLabelNames = [
     `${days}d`,
     `${Math.round((2 * days) / 3)}d`,
     `${Math.round(days / 3)}d`,
     "Now",
-  ];
+  ].slice(0, xAxisLabels.length);
 
   const option: EChartsOption = {
     backgroundColor: "transparent",
     tooltip: {
       trigger: "axis",
       backgroundColor: "#18181b",
-      borderColor: lineColor,
+      borderColor: lineColor || themeColors.primaryColor,
       borderWidth: 1,
       textStyle: { color: "#fff" },
       formatter: tooltipFormatter
@@ -145,14 +205,20 @@ export default function BarLineChart({
             x2: 0,
             y2: 0,
             colorStops: [
-              { offset: 0, color: barGradientColors[0] },
-              { offset: 1, color: barGradientColors[1] },
+              {
+                offset: 0,
+                color: barGradientColors?.[0] || themeColors.barGradient[0],
+              },
+              {
+                offset: 1,
+                color: barGradientColors?.[1] || themeColors.barGradient[1],
+              },
             ],
           },
         },
         emphasis: {
           itemStyle: {
-            color: lineColor,
+            color: lineColor || themeColors.primaryColor,
           },
         },
         z: 1,
@@ -166,10 +232,10 @@ export default function BarLineChart({
         symbolSize: 6,
         lineStyle: {
           width: 3,
-          color: lineColor,
+          color: lineColor || themeColors.primaryColor,
         },
         itemStyle: {
-          color: lineColor,
+          color: lineColor || themeColors.primaryColor,
           borderColor: "#fff",
           borderWidth: 0,
         },
@@ -181,8 +247,14 @@ export default function BarLineChart({
             x2: 0,
             y2: 1,
             colorStops: [
-              { offset: 0, color: areaGradientColors[0] },
-              { offset: 1, color: areaGradientColors[1] },
+              {
+                offset: 0,
+                color: areaGradientColors?.[0] || themeColors.areaGradient[0],
+              },
+              {
+                offset: 1,
+                color: areaGradientColors?.[1] || themeColors.areaGradient[1],
+              },
             ],
           },
         },
@@ -202,8 +274,8 @@ export default function BarLineChart({
             key={opt}
             className={`px-3 py-1 rounded-md text-xs font-medium border transition-colors ${
               days === opt
-                ? "bg-emerald-600 text-white border-emerald-600"
-                : "bg-background/60 text-emerald-400 border-emerald-700 hover:bg-emerald-900/10"
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-background/60 text-primary border-primary/40 hover:bg-primary/10"
             }`}
             onClick={() => setDays(opt)}
           >
