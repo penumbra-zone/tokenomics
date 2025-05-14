@@ -5,6 +5,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/common/components/ui/Card";
+import AnimatedNumber from "@/components/AnimatedNumber";
 
 interface TotalSupplyCardProps {
   totalSupply: number;
@@ -23,10 +24,10 @@ export function TotalSupplyCard({
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold text-foreground">
-          {totalSupply.toLocaleString()}
+          <AnimatedNumber value={totalSupply} />
         </div>
         <div className="text-xs text-muted-foreground mt-1">
-          Genesis: {genesisAllocation.toLocaleString()}
+          Genesis: <AnimatedNumber value={genesisAllocation} />
         </div>
       </CardContent>
     </Card>

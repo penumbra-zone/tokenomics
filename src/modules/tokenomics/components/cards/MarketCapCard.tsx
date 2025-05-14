@@ -5,6 +5,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/common/components/ui/Card";
+import AnimatedNumber from "@/components/AnimatedNumber";
 
 interface MarketCapCardProps {
   marketCap: number;
@@ -20,11 +21,17 @@ export function MarketCapCard({ marketCap, price }: MarketCapCardProps) {
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold text-foreground">
-          ${marketCap.toLocaleString()}
+          <AnimatedNumber
+            value={marketCap}
+            format={(v) =>
+              `$${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+            }
+          />
         </div>
         <div className="flex items-center justify-between mt-2">
           <div className="text-xs text-muted-foreground">
-            Price: ${price.toFixed(2)}
+            Price:{" "}
+            <AnimatedNumber value={price} format={(v) => `$${v.toFixed(2)}`} />
           </div>
         </div>
       </CardContent>

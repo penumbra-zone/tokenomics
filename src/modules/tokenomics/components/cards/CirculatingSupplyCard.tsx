@@ -6,6 +6,7 @@ import {
   CardDescription,
 } from "@/common/components/ui/Card";
 import { Progress } from "@/components/ui/progress";
+import AnimatedNumber from "@/components/AnimatedNumber";
 
 interface CirculatingSupplyCardProps {
   circulatingSupply: number;
@@ -28,11 +29,14 @@ export function CirculatingSupplyCard({
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold text-foreground">
-          {circulatingSupply.toLocaleString()}
+          <AnimatedNumber value={circulatingSupply} />
         </div>
         <div className="flex items-center justify-between mt-2">
           <div className="text-xs text-muted-foreground">
-            {percentage.toFixed(1)}% of total
+            <AnimatedNumber
+              value={percentage}
+              format={(v) => `${v.toFixed(1)}% of total`}
+            />
           </div>
         </div>
         <Progress value={percentage} className="h-1 mt-2" />
