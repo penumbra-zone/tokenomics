@@ -232,7 +232,7 @@ export default function BarLineChart({
             key={opt}
             className={`px-3 py-1 rounded-md text-xs font-medium border transition-colors ${
               days === opt
-                ? "bg-primary text-primary-foreground border-primary"
+                ? "bg-primary text-black border-primary"
                 : "bg-background/60 text-primary border-primary/40 hover:bg-primary/10"
             }`}
             onClick={() => setDays(opt)}
