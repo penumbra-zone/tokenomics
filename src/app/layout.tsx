@@ -7,7 +7,7 @@ import { Providers } from "./providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Nebula Tokenomics Dashboard",
+  title: "Penumbra Tokenomics Dashboard",
   description: "A comprehensive dashboard for token metrics and distribution",
 };
 

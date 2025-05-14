@@ -58,7 +58,7 @@ export default function SupplyAllocationChart({
     const isDark = resolvedTheme === "dark";
     const backgroundColor = "transparent";
     const textColor = isDark ? "#fff" : "#222";
-    const legendTextColor = isDark ? primaryColor : primaryColor;
+    const legendTextColor = textColor;
     const colors = [
       primaryColor, // Primary color
       secondaryColor, // Secondary color - Teal
