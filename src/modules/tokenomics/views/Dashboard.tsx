@@ -198,7 +198,7 @@ export default function Dashboard() {
         }`}
       >
         <div className="flex flex-col h-full">
-          <div className="relative w-full h-24 border-b border-border bg-gradient-to-r to-primary/40 from-black">
+          <div className="relative w-full h-24 border-b border-border bg-background">
             <Image
               src="/penumbra-logo.svg"
               alt="Penumbra Logo"
@@ -247,8 +247,7 @@ export default function Dashboard() {
           </nav>
 
           <div className="p-4 border-t border-border">
-            <div className="flex items-center justify-between">
-              <ThemeSwitcher />
+            <div className="flex items-center justify-end">
               <a
                 href="https://guide.penumbra.zone/"
                 className="flex items-center text-sm text-primary hover:text-primary/80"
