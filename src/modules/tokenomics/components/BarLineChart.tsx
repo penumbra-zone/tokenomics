@@ -4,6 +4,8 @@ import type { EChartsOption } from "echarts";
 import ReactECharts from "echarts-for-react";
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
+import { getPrimaryThemeColors } from "@/common/helpers/colorUtils";
+import { COLORS, CHART_PALETTES } from "@/common/helpers/colors";
 
 export interface BarLineChartData {
   x: string;
@@ -23,6 +25,7 @@ interface BarLineChartProps {
   minYZero?: boolean;
   dayOptions?: number[];
   defaultDays?: number;
+  chartPalette?: keyof typeof CHART_PALETTES;
 }
 
 export default function BarLineChart({
@@ -38,66 +41,20 @@ export default function BarLineChart({
   minYZero = true,
   dayOptions = [7, 30, 90],
   defaultDays = 30,
+  chartPalette = "sequential",
 }: BarLineChartProps) {
   const [days, setDays] = useState(defaultDays);
   const { resolvedTheme } = useTheme();
   const [themeColors, setThemeColors] = useState({
-    primaryColor: "#f49c43", // Default primary color
-    barGradient: ["rgba(244,156,67,0.15)", "rgba(244,156,67,0.7)"],
-    areaGradient: ["rgba(244,156,67,0.18)", "rgba(244,156,67,0.01)"],
+    primaryColor: COLORS.primary.DEFAULT,
+    barGradient: COLORS.gradients.primaryBar,
+    areaGradient: COLORS.gradients.primaryFade,
   });
 
   // Get CSS variable for primary color
   useEffect(() => {
-    const getPrimaryColor = () => {
-      const rootStyles = getComputedStyle(document.documentElement);
-      const primaryHsl = rootStyles.getPropertyValue("--primary").trim();
-
-      // Convert HSL values to hex
-      const [h, s, l] = primaryHsl.split(" ").map((val) => parseFloat(val));
-      const primaryColor = hslToHex(h, s, l);
-
-      return {
-        primaryColor,
-        barGradient: [
-          `rgba(${hexToRgb(primaryColor)},0.15)`,
-          `rgba(${hexToRgb(primaryColor)},0.7)`,
-        ],
-        areaGradient: [
-          `rgba(${hexToRgb(primaryColor)},0.18)`,
-          `rgba(${hexToRgb(primaryColor)},0.01)`,
-        ],
-      };
-    };
-
-    setThemeColors(getPrimaryColor());
+    setThemeColors(getPrimaryThemeColors());
   }, [resolvedTheme]);
-
-  // HSL to Hex conversion helper
-  function hslToHex(h: number, s: number, l: number) {
-    s /= 100;
-    l /= 100;
-    const a = s * Math.min(l, 1 - l);
-    const f = (n: number) => {
-      const k = (n + h / 30) % 12;
-      const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-      return Math.round(255 * color)
-        .toString(16)
-        .padStart(2, "0");
-    };
-    return `#${f(0)}${f(8)}${f(4)}`;
-  }
-
-  // Hex to RGB helper for rgba
-  function hexToRgb(hex: string) {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result
-      ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(
-          result[3],
-          16
-        )}`
-      : "244, 156, 67"; // Fallback to amber
-  }
 
   // Only show the last N days
   const filteredData = data.slice(-days);
@@ -156,7 +113,7 @@ export default function BarLineChart({
       type: "category",
       data: filteredData.map((item) => item.x),
       axisLabel: {
-        color: "#a3a3a3",
+        color: COLORS.neutral[400], // Using neutral color from our palette
         fontSize: 12,
         formatter: (value: string) => {
           const idx = xAxisLabels.indexOf(value);
@@ -175,7 +132,7 @@ export default function BarLineChart({
       max: yMax,
       interval: interval,
       axisLabel: {
-        color: "#a3a3a3",
+        color: COLORS.neutral[400], // Using neutral color from our palette
         fontSize: 12,
         formatter: yLabelFormatter,
         margin: 12,
@@ -185,7 +142,7 @@ export default function BarLineChart({
       splitLine: {
         show: true,
         lineStyle: {
-          color: "#262626",
+          color: COLORS.neutral[800], // Using neutral color from our palette
           type: "dashed",
         },
       },
@@ -261,6 +218,7 @@ export default function BarLineChart({
         z: 2,
       },
     ],
+    color: CHART_PALETTES[chartPalette],
     legend: { show: false },
     toolbox: { show: false },
   };

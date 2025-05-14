@@ -31,8 +31,10 @@ export function SupplyAllocationCard({
       <CardContent>
         <div className="h-[400px]">
           <SupplyAllocationChart
-            genesisAllocation={genesisAllocation}
-            issuedSinceLaunch={issuedSinceLaunch}
+            data={[
+              { category: "Genesis Allocation", amount: genesisAllocation },
+              { category: "Issued Since Launch", amount: issuedSinceLaunch },
+            ]}
           />
         </div>
       </CardContent>
