@@ -1,32 +1,12 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
+
+import { PindexerConnection } from "@/lib/db/pindexer";
+
+export const dynamic = "auto";
+export const revalidate = 6;
 
 export async function GET() {
-  // Mock data for now - replace with actual data fetching logic
-  const data = {
-    availableRewards: 10000000,
-    delegatorRewards: 5000000,
-    lpRewards: 3000000,
-    votingPower: {
-      total: 800000000,
-      byAsset: [
-        {
-          asset: 'PEN',
-          votes: 500000000,
-          share: 0.625
-        },
-        {
-          asset: 'USDC',
-          votes: 200000000,
-          share: 0.25
-        },
-        {
-          asset: 'ETH',
-          votes: 100000000,
-          share: 0.125
-        }
-      ]
-    }
-  };
-
+  const db = new PindexerConnection();
+  const data = await db.getLqtMetrics();
   return NextResponse.json(data);
-} 
+}

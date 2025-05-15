@@ -1,15 +1,12 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
+
+import { PindexerConnection } from "@/lib/db/pindexer";
+
+export const dynamic = "auto";
+export const revalidate = 6;
 
 export async function GET() {
-  // Mock data for now - replace with actual data fetching logic
-  const data = {
-    totalSupply: 1000000000,
-    circulatingSupply: 900000000,
-    marketCap: 500000000,
-    price: 0.5,
-    inflationRate: 0.02,
-    burnRate: 0.0001
-  };
-
+  const db = new PindexerConnection();
+  const data = await db.getSocialMetrics();
   return NextResponse.json(data);
-} 
+}

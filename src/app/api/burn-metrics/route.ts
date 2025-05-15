@@ -1,22 +1,12 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
+
+import { PindexerConnection } from "@/lib/db/pindexer";
+
+export const dynamic = "auto";
+export const revalidate = 6;
 
 export async function GET() {
-  // Mock data for now - replace with actual data fetching logic
-  const data = {
-    totalBurned: 50000000,
-    bySource: {
-      transactionFees: 20000000,
-      dexArbitrage: 15000000,
-      auctionBurns: 10000000,
-      dexBurns: 5000000
-    },
-    burnRate: 0.0001,
-    historicalBurnRate: [
-      { timestamp: '2024-01-01', rate: 0.00008 },
-      { timestamp: '2024-02-01', rate: 0.00009 },
-      { timestamp: '2024-03-01', rate: 0.0001 }
-    ]
-  };
-
+  const db = new PindexerConnection();
+  const data = await db.getBurnMetrics();
   return NextResponse.json(data);
-} 
+}
