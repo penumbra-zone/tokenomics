@@ -1,6 +1,8 @@
 import type React from "react";
+
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+
 import "./globals.css";
 import { Providers } from "./providers";
 
@@ -21,9 +23,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.svg" sizes="any" />
       </head>
-      <body
-        className={`${inter.className} min-h-screen bg-background text-foreground`}
-      >
+      <body className={`${inter.className} min-h-screen bg-background text-foreground`}>
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -1,11 +1,12 @@
+import dynamic from "next/dynamic";
+
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/common/components/ui/Card";
-import dynamic from "next/dynamic";
 import { PriceHistory } from "@/store/api/tokenomicsApi";
 
 // Import chart component with SSR disabled
@@ -35,9 +36,7 @@ export function PriceHistoryCard({ data }: PriceHistoryCardProps) {
             {/* Current Price */}
             <Card className="bg-background/40 border-border">
               <CardContent className="p-4">
-                <div className="text-xs text-muted-foreground">
-                  Current Price
-                </div>
+                <div className="text-xs text-muted-foreground">Current Price</div>
                 <div className="text-lg font-bold text-foreground">
                   ${data[data.length - 1].price.toFixed(2)}
                 </div>
@@ -46,9 +45,7 @@ export function PriceHistoryCard({ data }: PriceHistoryCardProps) {
             {/* All-Time High */}
             <Card className="bg-background/40 border-border">
               <CardContent className="p-4">
-                <div className="text-xs text-muted-foreground">
-                  All-Time High
-                </div>
+                <div className="text-xs text-muted-foreground">All-Time High</div>
                 <div className="text-lg font-bold text-foreground">
                   ${Math.max(...data.map((p) => p.price)).toFixed(2)}
                 </div>
@@ -57,9 +54,7 @@ export function PriceHistoryCard({ data }: PriceHistoryCardProps) {
             {/* All-Time Low */}
             <Card className="bg-background/40 border-border">
               <CardContent className="p-4">
-                <div className="text-xs text-muted-foreground">
-                  All-Time Low
-                </div>
+                <div className="text-xs text-muted-foreground">All-Time Low</div>
                 <div className="text-lg font-bold text-foreground">
                   ${Math.min(...data.map((p) => p.price)).toFixed(2)}
                 </div>

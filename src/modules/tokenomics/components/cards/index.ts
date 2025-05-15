@@ -8,4 +8,4 @@ export * from "./TokenDistributionCard";
 export * from "./LQTMetricsCard";
 export * from "./PriceHistoryCard";
 export * from "./InflationRateCard";
-export * from "./TokenMetricsCard"; 
+export * from "./TokenMetricsCard";

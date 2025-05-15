@@ -1,11 +1,12 @@
+import dynamic from "next/dynamic";
+
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/common/components/ui/Card";
-import dynamic from "next/dynamic";
 
 // Import chart component with SSR disabled
 const SupplyAllocationChart = dynamic(

@@ -1,6 +1,7 @@
 "use client";
 
 import { PriceHistory } from "@/store/api/tokenomicsApi";
+
 import BarLineChart from "./BarLineChart";
 
 interface PriceHistoryChartProps {
@@ -30,9 +31,7 @@ export default function PriceHistoryChart({ data }: PriceHistoryChartProps) {
       tooltipFormatter={(params) => {
         const bar = params.find((p: any) => p.seriesType === "bar");
         const line = params.find((p: any) => p.seriesType === "line");
-        return `${
-          bar.axisValueLabel || bar.name
-        }<br/>Price: <b>$${line.data.toFixed(2)}</b>`;
+        return `${bar.axisValueLabel || bar.name}<br/>Price: <b>$${line.data.toFixed(2)}</b>`;
       }}
       areaLabel="Price"
       yPadding={0.2}

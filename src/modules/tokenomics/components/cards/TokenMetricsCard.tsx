@@ -1,24 +1,22 @@
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/common/components/ui/Card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { PriceHistoryCard } from "./PriceHistoryCard";
-import { InflationRateCard } from "./InflationRateCard";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PriceHistory } from "@/store/api/tokenomicsApi";
+
+import { InflationRateCard } from "./InflationRateCard";
+import { PriceHistoryCard } from "./PriceHistoryCard";
 
 interface TokenMetricsCardProps {
   priceHistoryData: PriceHistory[];
   inflationRateData: PriceHistory[];
 }
 
-export function TokenMetricsCard({
-  priceHistoryData,
-  inflationRateData,
-}: TokenMetricsCardProps) {
+export function TokenMetricsCard({ priceHistoryData, inflationRateData }: TokenMetricsCardProps) {
   return (
     <Card className="bg-background/60 border-border backdrop-blur-sm">
       <CardHeader>

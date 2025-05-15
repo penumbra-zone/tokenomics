@@ -2,7 +2,6 @@
  * Color utility functions for converting between different color formats
  * and manipulating colors throughout the application.
  */
-
 import { COLORS } from "./colors";
 
 /**
@@ -34,10 +33,7 @@ export function hslToHex(h: number, s: number, l: number): string {
 export function hexToRgb(hex: string): string {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result
-    ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(
-        result[3],
-        16
-      )}`
+    ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
     : "244, 156, 67"; // Fallback to orange
 }
 
@@ -148,14 +144,7 @@ export function getPrimaryThemeColors() {
  */
 export function getColorPalette(): string[] {
   const rootStyles = getComputedStyle(document.documentElement);
-  const cssVars = [
-    "--primary",
-    "--secondary",
-    "--destructive",
-    "--accent",
-    "--muted",
-    "--card",
-  ];
+  const cssVars = ["--primary", "--secondary", "--destructive", "--accent", "--muted", "--card"];
 
   // Get colors and convert from HSL to hex
   const colors = cssVars
@@ -181,7 +170,7 @@ export function getColorPalette(): string[] {
 
     return [...colors, ...variations];
   }
-  
+
   // Fallback to predefined chart palette if CSS variables aren't available
   return colors.length > 0 ? colors : COLORS.charts.categorical;
-} 
+}

@@ -1,7 +1,6 @@
 /**
  * Central color definitions and theme color management for the application
  */
-
 import { hslToHex } from "./colorUtils";
 
 /**
@@ -14,21 +13,21 @@ export const COLORS = {
     light: "#f7b472",
     dark: "#d67e2a",
   },
-  
+
   // Secondary color (teal)
   secondary: {
     DEFAULT: "#2a7a8c",
     light: "#3b97ac",
     dark: "#1c5a67",
   },
-  
+
   // UI color definitions
   destructive: {
     DEFAULT: "#ef4444", // Red
     light: "#f87171",
     dark: "#b91c1c",
   },
-  
+
   // Neutral shades
   neutral: {
     50: "#fafafa",
@@ -43,7 +42,7 @@ export const COLORS = {
     900: "#171717",
     950: "#0a0a0a",
   },
-  
+
   // Chart color palettes
   charts: {
     // Main palette for donut/pie charts
@@ -55,14 +54,14 @@ export const COLORS = {
       "#10b981", // Green
       "#0ea5e9", // Blue
     ],
-    
+
     // Palette for sequential data (low to high)
     sequential: [
       "#f7b472", // Light primary
       "#f49c43", // Primary
       "#d67e2a", // Dark primary
     ],
-    
+
     // For diverging data (negative/positive)
     diverging: [
       "#ef4444", // Red (negative)
@@ -70,7 +69,7 @@ export const COLORS = {
       "#10b981", // Green (positive)
     ],
   },
-  
+
   // Background gradients
   gradients: {
     primaryFade: ["rgba(244,156,67,0.18)", "rgba(244,156,67,0.01)"],
@@ -84,12 +83,12 @@ export const COLORS = {
  */
 export function getCurrentThemeColors() {
   const rootStyles = getComputedStyle(document.documentElement);
-  
+
   // Get CSS variables and convert to hex
   const getColorFromCssVar = (variable: string) => {
     const hslValue = rootStyles.getPropertyValue(variable).trim();
     if (!hslValue) return "";
-    
+
     try {
       const [h, s, l] = hslValue.split(" ").map((val) => parseFloat(val));
       return hslToHex(h, s, l);
@@ -97,7 +96,7 @@ export function getCurrentThemeColors() {
       return "";
     }
   };
-  
+
   return {
     primary: getColorFromCssVar("--primary"),
     secondary: getColorFromCssVar("--secondary"),
@@ -116,7 +115,7 @@ export function getCurrentThemeColors() {
 export const CHART_PALETTES = {
   // Default palette for most charts
   default: COLORS.charts.categorical,
-  
+
   // For financial/token data
   tokenomics: [
     COLORS.primary.DEFAULT,
@@ -126,10 +125,10 @@ export const CHART_PALETTES = {
     "#10b981", // Green
     "#0ea5e9", // Blue
   ],
-  
+
   // For comparing positive/negative values
   comparison: COLORS.charts.diverging,
-  
+
   // For showing sequential data like time series
   sequential: COLORS.charts.sequential,
-}; 
+};

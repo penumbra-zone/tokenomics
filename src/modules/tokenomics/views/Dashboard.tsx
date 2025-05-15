@@ -1,94 +1,50 @@
 "use client";
 
 import {
-  useGetSupplyMetricsQuery,
-  useGetTokenDistributionQuery,
-  useGetPriceHistoryQuery,
-  useGetBurnMetricsQuery,
-  useGetLQTMetricsQuery,
-  useGetSocialMetricsQuery,
-  BurnMetrics,
-} from "@/store/api/tokenomicsApi";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/common/components/ui/Card";
-import { ThemeSwitcher } from "@/components/theme-switcher";
-import dynamic from "next/dynamic";
-import { Button } from "@/components/ui/button";
-import {
-  Share2,
+  BarChart3,
   CircleDollarSign,
-  Wallet,
-  Menu,
-  Coins,
+  ExternalLink,
   GanttChartSquare,
-  PieChart,
   LineChart,
   Lock,
-  BarChart3,
-  ExternalLink,
+  Menu,
+  PieChart,
+  Share2,
 } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import { useState } from "react";
+
+import dynamic from "next/dynamic";
 import Image from "next/image";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
-// Create client-side only chart components
-const TokenDistributionChart = dynamic(
-  () => import("@/modules/tokenomics/components/TokenDistributionChart"),
-  { ssr: false }
-);
-
-const PriceHistoryChart = dynamic(
-  () => import("@/modules/tokenomics/components/PriceHistoryChart"),
-  { ssr: false }
-);
-
-const SupplyAllocationChart = dynamic(
-  () => import("@/modules/tokenomics/components/SupplyAllocationChart"),
-  { ssr: false }
-);
-
-const BurnMetricsChart = dynamic(
-  () => import("@/modules/tokenomics/components/BurnMetricsChart"),
-  { ssr: false }
-);
-
-const InflationRateChart = dynamic(
-  () => import("@/modules/tokenomics/components/InflationRateChart"),
-  { ssr: false }
-);
-
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { formatNumber } from "@/lib/utils";
 // Import our card components
 import {
-  TotalSupplyCard,
-  CirculatingSupplyCard,
-  MarketCapCard,
-  TotalBurnedCard,
-  SupplyAllocationCard,
   BurnMetricsCard,
-  TokenDistributionCard,
+  CirculatingSupplyCard,
   LQTMetricsCard,
+  MarketCapCard,
+  SupplyAllocationCard,
+  TokenDistributionCard,
   TokenMetricsCard,
+  TotalBurnedCard,
+  TotalSupplyCard,
 } from "@/modules/tokenomics/components/cards";
+import {
+  BurnMetrics,
+  useGetBurnMetricsQuery,
+  useGetLQTMetricsQuery,
+  useGetPriceHistoryQuery,
+  useGetSocialMetricsQuery,
+  useGetSupplyMetricsQuery,
+  useGetTokenDistributionQuery,
+} from "@/store/api/tokenomicsApi";
 
 export default function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const {
-    data: supply,
-    isLoading: supplyLoading,
-    error: supplyError,
-  } = useGetSupplyMetricsQuery();
+  const { data: supply, isLoading: supplyLoading, error: supplyError } = useGetSupplyMetricsQuery();
   const {
     data: distribution,
     isLoading: distributionLoading,
@@ -99,16 +55,8 @@ export default function Dashboard() {
     isLoading: priceHistoryLoading,
     error: priceHistoryError,
   } = useGetPriceHistoryQuery();
-  const {
-    data: burnMetrics,
-    isLoading: burnLoading,
-    error: burnError,
-  } = useGetBurnMetricsQuery();
-  const {
-    data: lqtMetrics,
-    isLoading: lqtLoading,
-    error: lqtError,
-  } = useGetLQTMetricsQuery();
+  const { data: burnMetrics, isLoading: burnLoading, error: burnError } = useGetBurnMetricsQuery();
+  const { data: lqtMetrics, isLoading: lqtLoading, error: lqtError } = useGetLQTMetricsQuery();
   const {
     data: socialMetrics,
     isLoading: socialLoading,
@@ -123,12 +71,7 @@ export default function Dashboard() {
     lqtLoading ||
     socialLoading;
   const hasError =
-    supplyError ||
-    distributionError ||
-    priceHistoryError ||
-    burnError ||
-    lqtError ||
-    socialError;
+    supplyError || distributionError || priceHistoryError || burnError || lqtError || socialError;
 
   if (isLoading) {
     return (
@@ -150,7 +93,9 @@ export default function Dashboard() {
     if (navigator.share) {
       navigator.share({
         title: "Penumbra Tokenomics Dashboard",
-        text: `Check out Penumbra's tokenomics! Total Supply: ${socialMetrics?.totalSupply.toLocaleString()}, Market Cap: $${socialMetrics?.marketCap.toLocaleString()}`,
+        text: `Check out Penumbra's tokenomics! Total Supply: ${formatNumber(
+          socialMetrics?.totalSupply || 0
+        )}, Market Cap: $${formatNumber(socialMetrics?.marketCap || 0)}`,
         url: window.location.href,
       });
     }
@@ -265,9 +210,7 @@ export default function Dashboard() {
         {/* Header */}
         <header className="sticky top-0 z-30 bg-background/50 backdrop-blur-lg border-b border-border">
           <div className="flex items-center justify-between px-6 py-4">
-            <h1 className="text-xl font-bold text-foreground">
-              Tokenomics Dashboard
-            </h1>
+            <h1 className="text-xl font-bold text-foreground">Tokenomics Dashboard</h1>
             <div className="flex items-center space-x-4">
               <TooltipProvider>
                 <Tooltip>
@@ -278,7 +221,7 @@ export default function Dashboard() {
                       className="border-primary/50 text-primary hover:bg-primary/20 hover:text-primary/80"
                     >
                       <CircleDollarSign className="h-4 w-4 mr-2" />
-                      <span>${socialMetrics?.price.toFixed(2)}</span>
+                      <span>${formatNumber(socialMetrics?.price || 0, 2)}</span>
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>

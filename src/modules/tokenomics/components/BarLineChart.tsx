@@ -2,10 +2,13 @@
 
 import type { EChartsOption } from "echarts";
 import ReactECharts from "echarts-for-react";
-import { useState, useEffect } from "react";
+
+import { useEffect, useState } from "react";
+
 import { useTheme } from "next-themes";
+
 import { getPrimaryThemeColors } from "@/common/helpers/colorUtils";
-import { COLORS, CHART_PALETTES } from "@/common/helpers/colors";
+import { CHART_PALETTES, COLORS } from "@/common/helpers/colors";
 
 export interface BarLineChartData {
   x: string;
@@ -63,9 +66,7 @@ export default function BarLineChart({
   const values = filteredData.map((item) => item.y);
   const minValue = values.length ? Math.min(...values) : 0;
   const maxValue = values.length ? Math.max(...values) : 3;
-  const yMin = minYZero
-    ? Math.max(0, minValue - yPadding)
-    : minValue - yPadding;
+  const yMin = minYZero ? Math.max(0, minValue - yPadding) : minValue - yPadding;
   const yMax = maxValue + yPadding;
   const interval = (yMax - yMin) / 5;
 

@@ -68,9 +68,7 @@ export default function AnimatedNumber({
 
   return (
     <span className={className}>
-      {format
-        ? format(display)
-        : display.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+      {format ? format(display) : display.toLocaleString(undefined, { maximumFractionDigits: 2 })}
     </span>
   );
 }

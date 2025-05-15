@@ -1,4 +1,5 @@
 import { PriceHistory } from "@/store/api/tokenomicsApi";
+
 import BarLineChart from "./BarLineChart";
 
 interface InflationRateChartProps {

@@ -1,21 +1,19 @@
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/common/components/ui/Card";
 import AnimatedNumber from "@/components/AnimatedNumber";
+import { formatNumber } from "@/lib/utils";
 
 interface TotalBurnedCardProps {
   totalBurned: number;
   burnRate: number;
 }
 
-export function TotalBurnedCard({
-  totalBurned,
-  burnRate,
-}: TotalBurnedCardProps) {
+export function TotalBurnedCard({ totalBurned, burnRate }: TotalBurnedCardProps) {
   return (
     <Card className="bg-background/60 border-border backdrop-blur-sm">
       <CardHeader className="pb-2">
@@ -24,15 +22,11 @@ export function TotalBurnedCard({
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold text-foreground">
-          <AnimatedNumber value={totalBurned} />
+          <AnimatedNumber value={totalBurned} format={(v) => formatNumber(v)} />
         </div>
         <div className="flex items-center justify-between mt-2">
           <div className="text-xs text-muted-foreground">
-            Rate:{" "}
-            <AnimatedNumber
-              value={burnRate}
-              format={(v) => `${v.toFixed(4)}/block`}
-            />
+            Rate: <AnimatedNumber value={burnRate} format={(v) => `${formatNumber(v, 4)}/block`} />
           </div>
         </div>
       </CardContent>

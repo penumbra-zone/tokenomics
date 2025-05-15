@@ -1,19 +1,20 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
 import * as echarts from "echarts";
+
+import React, { useEffect, useRef, useState } from "react";
+
 import { useTheme } from "next-themes";
-import { TokenDistribution } from "@/store/api/tokenomicsApi";
+
 import { getColorPalette, hexToRgb } from "@/common/helpers/colorUtils";
 import { CHART_PALETTES, COLORS } from "@/common/helpers/colors";
+import { TokenDistribution } from "@/store/api/tokenomicsApi";
 
 interface TokenDistributionChartProps {
   data: TokenDistribution[];
 }
 
-export default function TokenDistributionChart({
-  data,
-}: TokenDistributionChartProps) {
+export default function TokenDistributionChart({ data }: TokenDistributionChartProps) {
   const chartRef = useRef<HTMLDivElement>(null);
   const { resolvedTheme } = useTheme();
   const [themeColors, setThemeColors] = useState<string[]>([]);
@@ -22,9 +23,7 @@ export default function TokenDistributionChart({
   useEffect(() => {
     // Use tokenomics palette as fallback if dynamic colors fail
     const dynamicColors = getColorPalette();
-    setThemeColors(
-      dynamicColors.length >= 4 ? dynamicColors : CHART_PALETTES.tokenomics
-    );
+    setThemeColors(dynamicColors.length >= 4 ? dynamicColors : CHART_PALETTES.tokenomics);
   }, [resolvedTheme]);
 
   useEffect(() => {
@@ -43,9 +42,7 @@ export default function TokenDistributionChart({
       tooltip: {
         trigger: "item",
         formatter: (params: any) =>
-          `${params.name}: ${params.value.toLocaleString()} (${
-            params.percent
-          }%)`,
+          `${params.name}: ${params.value.toLocaleString()} (${params.percent}%)`,
         backgroundColor: isDark ? "#222" : "#fff",
         borderColor: themeColors[0], // primary color
         textStyle: { color: textColor },
@@ -116,8 +113,7 @@ export default function TokenDistributionChart({
   // Use the dynamically generated colors for the legend
   const getLegendStyle = (index: number) => {
     return {
-      backgroundColor:
-        themeColors[index % themeColors.length] || "currentColor",
+      backgroundColor: themeColors[index % themeColors.length] || "currentColor",
     };
   };
 
@@ -133,9 +129,7 @@ export default function TokenDistributionChart({
         {data.map((item, i) => (
           <div key={item.category} className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full" style={getLegendStyle(i)} />
-            <span className="text-sm font-medium text-foreground">
-              {item.category}
-            </span>
+            <span className="text-sm font-medium text-foreground">{item.category}</span>
             <span className="text-xs text-muted-foreground">
               {((item.amount / (total || 1)) * 100).toFixed(0)}%
             </span>

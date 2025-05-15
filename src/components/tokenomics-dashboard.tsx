@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   BarChart3,
   CircleDollarSign,
@@ -15,24 +14,16 @@ import {
   Sun,
   Wallet,
 } from "lucide-react";
+
+import { useState } from "react";
+
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function TokenomicsDashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -68,9 +59,7 @@ export default function TokenomicsDashboard() {
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-amber-500 flex items-center justify-center">
                 <Coins className="h-4 w-4 text-black" />
               </div>
-              <span className="text-xl font-bold tracking-wider text-white">
-                NEBULA
-              </span>
+              <span className="text-xl font-bold tracking-wider text-white">NEBULA</span>
             </div>
           </div>
 
@@ -141,9 +130,7 @@ export default function TokenomicsDashboard() {
         {/* Header */}
         <header className="sticky top-0 z-30 bg-black/50 backdrop-blur-lg border-b border-emerald-900/30">
           <div className="flex items-center justify-between px-6 py-4">
-            <h1 className="text-xl font-bold text-white">
-              Tokenomics Dashboard
-            </h1>
+            <h1 className="text-xl font-bold text-white">Tokenomics Dashboard</h1>
             <div className="flex items-center space-x-4">
               <TooltipProvider>
                 <Tooltip>
@@ -181,32 +168,24 @@ export default function TokenomicsDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <Card className="bg-black/60 border-emerald-900/30 backdrop-blur-sm">
               <CardHeader className="pb-2">
-                <CardTitle className="text-emerald-400 text-lg">
-                  Total Supply
-                </CardTitle>
+                <CardTitle className="text-emerald-400 text-lg">Total Supply</CardTitle>
                 <CardDescription>Maximum token supply</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">100,000,000</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  NEBULA Tokens
-                </div>
+                <div className="text-xs text-muted-foreground mt-1">NEBULA Tokens</div>
               </CardContent>
             </Card>
 
             <Card className="bg-black/60 border-emerald-900/30 backdrop-blur-sm">
               <CardHeader className="pb-2">
-                <CardTitle className="text-emerald-400 text-lg">
-                  Circulating Supply
-                </CardTitle>
+                <CardTitle className="text-emerald-400 text-lg">Circulating Supply</CardTitle>
                 <CardDescription>Currently in circulation</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">42,750,000</div>
                 <div className="flex items-center justify-between mt-2">
-                  <div className="text-xs text-muted-foreground">
-                    42.75% of total
-                  </div>
+                  <div className="text-xs text-muted-foreground">42.75% of total</div>
                   <div className="text-xs text-emerald-400">↑ 1.2% (24h)</div>
                 </div>
                 <Progress value={42.75} className="h-1 mt-2" />
@@ -215,17 +194,13 @@ export default function TokenomicsDashboard() {
 
             <Card className="bg-black/60 border-emerald-900/30 backdrop-blur-sm">
               <CardHeader className="pb-2">
-                <CardTitle className="text-emerald-400 text-lg">
-                  Market Cap
-                </CardTitle>
+                <CardTitle className="text-emerald-400 text-lg">Market Cap</CardTitle>
                 <CardDescription>Current valuation</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">$105,592,500</div>
                 <div className="flex items-center justify-between mt-2">
-                  <div className="text-xs text-muted-foreground">
-                    Fully diluted: $247M
-                  </div>
+                  <div className="text-xs text-muted-foreground">Fully diluted: $247M</div>
                   <div className="text-xs text-amber-400">↓ 2.4% (24h)</div>
                 </div>
               </CardContent>
@@ -233,17 +208,13 @@ export default function TokenomicsDashboard() {
 
             <Card className="bg-black/60 border-emerald-900/30 backdrop-blur-sm">
               <CardHeader className="pb-2">
-                <CardTitle className="text-emerald-400 text-lg">
-                  Staking APY
-                </CardTitle>
+                <CardTitle className="text-emerald-400 text-lg">Staking APY</CardTitle>
                 <CardDescription>Current staking rewards</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">12.4%</div>
                 <div className="flex items-center justify-between mt-2">
-                  <div className="text-xs text-muted-foreground">
-                    24.5M tokens staked
-                  </div>
+                  <div className="text-xs text-muted-foreground">24.5M tokens staked</div>
                   <div className="text-xs text-emerald-400">↑ 0.3% (24h)</div>
                 </div>
               </CardContent>
@@ -254,12 +225,8 @@ export default function TokenomicsDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <Card className="bg-black/60 border-emerald-900/30 backdrop-blur-sm lg:col-span-2">
               <CardHeader>
-                <CardTitle className="text-emerald-400">
-                  Token Distribution
-                </CardTitle>
-                <CardDescription>
-                  Allocation of total token supply
-                </CardDescription>
+                <CardTitle className="text-emerald-400">Token Distribution</CardTitle>
+                <CardDescription>Allocation of total token supply</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-80 w-full flex items-center justify-center">
@@ -282,9 +249,7 @@ export default function TokenomicsDashboard() {
                     <div className="absolute inset-[15%] rounded-full bg-black/80 backdrop-blur-sm flex items-center justify-center">
                       <div className="text-center">
                         <div className="text-xl font-bold">100M</div>
-                        <div className="text-xs text-muted-foreground">
-                          Total Supply
-                        </div>
+                        <div className="text-xs text-muted-foreground">Total Supply</div>
                       </div>
                     </div>
                   </div>
@@ -325,9 +290,7 @@ export default function TokenomicsDashboard() {
 
             <Card className="bg-black/60 border-emerald-900/30 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="text-emerald-400">
-                  Vesting Schedule
-                </CardTitle>
+                <CardTitle className="text-emerald-400">Vesting Schedule</CardTitle>
                 <CardDescription>Token unlock timeline</CardDescription>
               </CardHeader>
               <CardContent>
@@ -366,9 +329,7 @@ export default function TokenomicsDashboard() {
                 </div>
 
                 <div className="mt-6">
-                  <div className="text-sm font-medium mb-2">
-                    Next Unlock Events
-                  </div>
+                  <div className="text-sm font-medium mb-2">Next Unlock Events</div>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between text-xs">
                       <div className="flex items-center">
@@ -401,9 +362,7 @@ export default function TokenomicsDashboard() {
           <div className="grid grid-cols-1 gap-6">
             <Card className="bg-black/60 border-emerald-900/30 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="text-emerald-400">
-                  Token Metrics
-                </CardTitle>
+                <CardTitle className="text-emerald-400">Token Metrics</CardTitle>
                 <CardDescription>Key performance indicators</CardDescription>
               </CardHeader>
               <CardContent>
@@ -421,8 +380,7 @@ export default function TokenomicsDashboard() {
                       <div className="absolute inset-0 flex items-end">
                         <div className="w-full h-full flex items-end">
                           {Array.from({ length: 30 }).map((_, i) => {
-                            const height =
-                              30 + Math.sin(i * 0.3) * 20 + Math.random() * 30;
+                            const height = 30 + Math.sin(i * 0.3) * 20 + Math.random() * 30;
                             return (
                               <div
                                 key={i}
@@ -435,10 +393,7 @@ export default function TokenomicsDashboard() {
 
                         {/* Chart line */}
                         <div className="absolute inset-0 flex items-end">
-                          <svg
-                            className="w-full h-full"
-                            preserveAspectRatio="none"
-                          >
+                          <svg className="w-full h-full" preserveAspectRatio="none">
                             <path
                               d={`M0,${70 + Math.sin(0) * 20} ${Array.from({
                                 length: 30,
@@ -478,36 +433,26 @@ export default function TokenomicsDashboard() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <Card className="bg-black/40 border-emerald-900/20">
                         <CardContent className="p-4">
-                          <div className="text-xs text-muted-foreground">
-                            Current Price
-                          </div>
+                          <div className="text-xs text-muted-foreground">Current Price</div>
                           <div className="text-lg font-bold">$2.47</div>
                         </CardContent>
                       </Card>
                       <Card className="bg-black/40 border-emerald-900/20">
                         <CardContent className="p-4">
-                          <div className="text-xs text-muted-foreground">
-                            All-Time High
-                          </div>
+                          <div className="text-xs text-muted-foreground">All-Time High</div>
                           <div className="text-lg font-bold">$4.82</div>
                         </CardContent>
                       </Card>
                       <Card className="bg-black/40 border-emerald-900/20">
                         <CardContent className="p-4">
-                          <div className="text-xs text-muted-foreground">
-                            All-Time Low
-                          </div>
+                          <div className="text-xs text-muted-foreground">All-Time Low</div>
                           <div className="text-lg font-bold">$0.95</div>
                         </CardContent>
                       </Card>
                       <Card className="bg-black/40 border-emerald-900/20">
                         <CardContent className="p-4">
-                          <div className="text-xs text-muted-foreground">
-                            30d Change
-                          </div>
-                          <div className="text-lg font-bold text-emerald-400">
-                            +12.8%
-                          </div>
+                          <div className="text-xs text-muted-foreground">30d Change</div>
+                          <div className="text-lg font-bold text-emerald-400">+12.8%</div>
                         </CardContent>
                       </Card>
                     </div>

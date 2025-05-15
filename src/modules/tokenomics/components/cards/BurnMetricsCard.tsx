@@ -1,18 +1,18 @@
+import dynamic from "next/dynamic";
+
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/common/components/ui/Card";
-import dynamic from "next/dynamic";
 import { BurnMetrics } from "@/store/api/tokenomicsApi";
 
 // Import chart component with SSR disabled
-const BurnMetricsChart = dynamic(
-  () => import("@/modules/tokenomics/components/BurnMetricsChart"),
-  { ssr: false }
-);
+const BurnMetricsChart = dynamic(() => import("@/modules/tokenomics/components/BurnMetricsChart"), {
+  ssr: false,
+});
 
 interface BurnMetricsCardProps {
   data: BurnMetrics;

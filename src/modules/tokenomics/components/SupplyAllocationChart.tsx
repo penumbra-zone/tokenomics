@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
 import * as echarts from "echarts";
+
+import React, { useEffect, useRef } from "react";
+
 import { useTheme } from "next-themes";
-import {
-  getColorPalette,
-  hexToRgb,
-  shiftHue,
-} from "@/common/helpers/colorUtils";
+
+import { getColorPalette, hexToRgb, shiftHue } from "@/common/helpers/colorUtils";
 import { COLORS } from "@/common/helpers/colors";
 
 // Define the SupplyAllocation interface
@@ -20,9 +19,7 @@ interface SupplyAllocationChartProps {
   data: SupplyAllocation[];
 }
 
-export default function SupplyAllocationChart({
-  data,
-}: SupplyAllocationChartProps) {
+export default function SupplyAllocationChart({ data }: SupplyAllocationChartProps) {
   const chartRef = useRef<HTMLDivElement>(null);
   const { resolvedTheme } = useTheme();
 
@@ -53,9 +50,7 @@ export default function SupplyAllocationChart({
         trigger: "item",
         formatter: (params: any) => {
           // Use any for params if specific type is complex
-          return `${params.name}: ${params.value.toLocaleString()} (${
-            params.percent
-          }%)`;
+          return `${params.name}: ${params.value.toLocaleString()} (${params.percent}%)`;
         },
         backgroundColor: isDark ? COLORS.neutral[800] : COLORS.neutral[50],
         borderColor: COLORS.primary.DEFAULT,
@@ -81,9 +76,7 @@ export default function SupplyAllocationChart({
               if (total === 0) return "-";
               // Example: Display total in millions if large, or just the number
               const displayTotal =
-                total > 1000000
-                  ? `${(total / 1000000).toFixed(1)}M`
-                  : total.toLocaleString();
+                total > 1000000 ? `${(total / 1000000).toFixed(1)}M` : total.toLocaleString();
               return `${displayTotal}\nTotal Supply`;
             },
             color: isDark ? COLORS.neutral[50] : COLORS.neutral[900],
@@ -120,33 +113,23 @@ export default function SupplyAllocationChart({
 
   // Regenerate palette for legend to ensure consistency if data order changes
   // or if the number of items affects palette generation logic for series differently
-  const legendColorPalette = Array.from(
-    { length: legendData.length },
-    (_, i) => {
-      if (legendData.length === 1) return COLORS.primary.DEFAULT;
-      if (i === 0) return COLORS.primary.DEFAULT; // First item (largest) gets primary
-      // For others, we might want a more deliberate palette or stick to the shifted hue
-      // This example uses the same logic as series for simplicity.
-      // Consider if legend should map directly to series colors if series data isn't re-sorted for chart.
-      const originalIndex = data.findIndex(
-        (d) => d.category === legendData[i].category
-      );
-      if (originalIndex === 0) return COLORS.primary.DEFAULT;
-      if (originalIndex === data.length - 1 && data.length > 1)
-        return COLORS.secondary.DEFAULT;
+  const legendColorPalette = Array.from({ length: legendData.length }, (_, i) => {
+    if (legendData.length === 1) return COLORS.primary.DEFAULT;
+    if (i === 0) return COLORS.primary.DEFAULT; // First item (largest) gets primary
+    // For others, we might want a more deliberate palette or stick to the shifted hue
+    // This example uses the same logic as series for simplicity.
+    // Consider if legend should map directly to series colors if series data isn't re-sorted for chart.
+    const originalIndex = data.findIndex((d) => d.category === legendData[i].category);
+    if (originalIndex === 0) return COLORS.primary.DEFAULT;
+    if (originalIndex === data.length - 1 && data.length > 1) return COLORS.secondary.DEFAULT;
 
-      const shiftAmount = (30 * originalIndex) / Math.max(1, data.length - 1);
-      return shiftHue(COLORS.primary.DEFAULT, shiftAmount);
-    }
-  );
+    const shiftAmount = (30 * originalIndex) / Math.max(1, data.length - 1);
+    return shiftHue(COLORS.primary.DEFAULT, shiftAmount);
+  });
 
   return (
     <div className="w-full h-full rounded-xl bg-background/60 border border-border shadow p-4 flex flex-col">
-      <div
-        ref={chartRef}
-        className="w-full flex-grow"
-        style={{ minHeight: 200 }}
-      />
+      <div ref={chartRef} className="w-full flex-grow" style={{ minHeight: 200 }} />
       {data.length > 0 && (
         <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-4 pt-2 border-t border-border/50">
           {legendData.map((item, i) => (
@@ -155,14 +138,9 @@ export default function SupplyAllocationChart({
                 className="w-3 h-3 rounded-full"
                 style={{ backgroundColor: legendColorPalette[i] }}
               />
-              <span className="text-sm font-medium text-foreground">
-                {item.category}
-              </span>
+              <span className="text-sm font-medium text-foreground">{item.category}</span>
               <span className="text-xs text-muted-foreground">
-                {totalForLegend > 0
-                  ? ((item.amount / totalForLegend) * 100).toFixed(1)
-                  : 0}
-                %
+                {totalForLegend > 0 ? ((item.amount / totalForLegend) * 100).toFixed(1) : 0}%
               </span>
             </div>
           ))}

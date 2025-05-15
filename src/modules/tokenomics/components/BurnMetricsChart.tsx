@@ -1,6 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
 import * as echarts from "echarts";
+
+import React, { useEffect, useRef, useState } from "react";
+
 import { useTheme } from "next-themes";
+
+import { formatNumber } from "@/lib/utils";
 import { BurnMetrics } from "@/store/api/tokenomicsApi";
 
 interface BurnMetricsChartProps {
@@ -41,10 +45,7 @@ export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
   function hexToRgb(hex: string) {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result
-      ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(
-          result[3],
-          16
-        )}`
+      ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
       : "244, 156, 67"; // Fallback to amber
   }
 
@@ -80,12 +81,7 @@ export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
         },
       ],
     };
-    const categories = [
-      "Transaction Fees",
-      "DEX Arbitrage",
-      "Auction Burns",
-      "DEX Burns",
-    ];
+    const categories = ["Transaction Fees", "DEX Arbitrage", "Auction Burns", "DEX Burns"];
     const values = [
       data.bySource.transactionFees,
       data.bySource.dexArbitrage,
@@ -96,10 +92,16 @@ export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
       backgroundColor: "transparent",
       tooltip: {
         trigger: "axis",
-        axisPointer: { type: "shadow" },
+        axisPointer: {
+          type: "none",
+        },
         backgroundColor: isDark ? "#222" : "#fff",
         borderColor: primaryColor,
         textStyle: { color: textColor },
+        formatter: (params: any) => {
+          const value = params[0].value;
+          return `${params[0].name}<br/>Burned: ${formatNumber(value)}`;
+        },
       },
       grid: {
         left: 20,
@@ -116,7 +118,7 @@ export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
           color: textColor,
           fontWeight: 500,
           fontSize: 13,
-          formatter: (value: number) => value.toLocaleString(),
+          formatter: (value: number) => formatNumber(value),
         },
       },
       yAxis: {
@@ -141,14 +143,16 @@ export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
             color: barGradient,
             borderRadius: 0,
             shadowBlur: 8,
-            shadowColor: `rgba(${hexToRgb(primaryColor)}, ${
-              isDark ? 0.33 : 0.22
-            })`,
+            shadowColor: `rgba(${hexToRgb(primaryColor)}, ${isDark ? 0.33 : 0.22})`,
           },
           emphasis: {
             itemStyle: {
               opacity: 0.9,
+              shadowBlur: 12,
+              shadowColor: `rgba(${hexToRgb(primaryColor)}, ${isDark ? 0.5 : 0.4})`,
             },
+            focus: "series",
+            blurScope: "coordinateSystem",
           },
         },
       ],
