@@ -41,10 +41,20 @@ export class PindexerConnection extends AbstractPindexerConnection {
     // Circulating supply: totalSupply minus all burned tokens (from burn metrics)
     const circulatingSupply = totalSupply - burn.totalBurned;
 
-    // Placeholder for price (replace with real price source if available)
-    const price = 0.5;
-    // Market cap: totalSupply * price
-    const marketCap = totalSupply * price;
+    // Get latest price and market cap from insights_supply
+    const { rows } = await this.query<{
+      price: string | number;
+      market_cap: string | number;
+    }>(
+      `SELECT price, market_cap 
+       FROM insights_supply 
+       WHERE price IS NOT NULL 
+       ORDER BY height DESC 
+       LIMIT 1`
+    );
+
+    const price = Number(rows[0]?.price) || 0;
+    const marketCap = Number(rows[0]?.market_cap) || 0;
 
     // --- Inflation Rate Calculation ---
     let inflationRate = await this.getInflationRate(totalSupply);
@@ -154,26 +164,72 @@ export class PindexerConnection extends AbstractPindexerConnection {
     };
   }
 
-  async getPriceHistory(days: number = 90): Promise<PriceHistoryEntry[]> {
-    // TODO: Replace with real SQL query
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - (days - 1));
-    let price = 2.0;
-    let marketCap = 200_000_000;
-    const data: PriceHistoryEntry[] = [];
-    for (let i = 0; i < days; i++) {
-      const change = (Math.random() - 0.5) * 0.08;
-      price = Math.max(0.5, price + change);
-      marketCap = Math.round(price * 100_000_000 + (Math.random() - 0.5) * 1_000_000);
-      const date = new Date(startDate);
-      date.setDate(startDate.getDate() + i);
-      data.push({
-        date: date.toISOString().slice(0, 10),
-        price: Number(price.toFixed(2)),
-        marketCap,
-      });
-    }
-    return data;
+  private async getBlockHeightRange(days: number): Promise<{ startHeight: number; endHeight: number }> {
+    const { rows } = await this.query<{
+      start_height: string | number;
+      end_height: string | number;
+    }>(
+      `WITH time_range AS (
+        SELECT 
+          (SELECT height FROM block_details ORDER BY timestamp DESC LIMIT 1) as end_height,
+          (SELECT height FROM block_details 
+           WHERE timestamp <= NOW() - INTERVAL '${days} days'
+           ORDER BY timestamp DESC LIMIT 1) as start_height
+      )
+      SELECT * FROM time_range`
+    );
+
+    return {
+      startHeight: Number(rows[0]?.start_height) || 0,
+      endHeight: Number(rows[0]?.end_height) || 0
+    };
+  }
+
+  private async getBlockTimestamp(height: number): Promise<string> {
+    const { rows } = await this.query<{ timestamp: string }>(
+      `SELECT timestamp 
+       FROM block_details 
+       WHERE height = $1`,
+      [height]
+    );
+    return rows[0]?.timestamp || new Date().toISOString();
+  }
+
+  async getPriceHistory(days: number = 30): Promise<PriceHistoryEntry[]> {
+    const { startHeight, endHeight } = await this.getBlockHeightRange(days);
+
+    // Get one price point per day using window functions
+    const { rows } = await this.query<{
+      height: string | number;
+      price: string | number;
+      market_cap: string | number;
+      date: string;
+    }>(
+      `WITH daily_blocks AS (
+        SELECT 
+          i.height,
+          i.price,
+          i.market_cap,
+          DATE(b.timestamp) as date,
+          ROW_NUMBER() OVER (PARTITION BY DATE(b.timestamp) ORDER BY b.height DESC) as rn
+        FROM insights_supply i
+        JOIN block_details b ON i.height = b.height
+        WHERE i.price IS NOT NULL
+          AND i.height >= $1
+          AND i.height <= $2
+      )
+      SELECT height, price, market_cap, date
+      FROM daily_blocks
+      WHERE rn = 1
+      ORDER BY date ASC`,
+      [startHeight, endHeight]
+    );
+
+    return rows.map((row) => ({
+      date: row.date,
+      price: Number(row.price),
+      marketCap: Number(row.market_cap),
+    }));
   }
 
   async getTokenDistribution(): Promise<TokenDistribution[]> {
