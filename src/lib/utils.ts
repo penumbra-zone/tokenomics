@@ -12,16 +12,13 @@ export function formatNumber(num: number, decimals: number = 1): string {
 
   if (absNum >= 1e12) {
     return `${sign}${(absNum / 1e12).toFixed(decimals)}T`;
-  }
-  if (absNum >= 1e9) {
+  } else if (absNum >= 1e9) {
     return `${sign}${(absNum / 1e9).toFixed(decimals)}B`;
-  }
-  if (absNum >= 1e6) {
+  } else if (absNum >= 1e6) {
     return `${sign}${(absNum / 1e6).toFixed(decimals)}M`;
-  }
-  if (absNum >= 1e3) {
+  } else if (absNum >= 1e3) {
     return `${sign}${(absNum / 1e3).toFixed(decimals)}K`;
+  } else {
+    return num.toFixed(decimals).toString();
   }
-
-  return num.toString();
 }

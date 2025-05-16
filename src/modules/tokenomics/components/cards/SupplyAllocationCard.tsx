@@ -7,6 +7,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/common/components/ui/Card";
+import { LoadingOverlay } from "@/common/components/ui/LoadingOverlay";
+import { LoadingSpinner } from "@/common/components/ui/LoadingSpinner";
+import { useGetSupplyMetricsQuery } from "@/store/api/tokenomicsApi";
 
 // Import chart component with SSR disabled
 const SupplyAllocationChart = dynamic(
@@ -14,29 +17,34 @@ const SupplyAllocationChart = dynamic(
   { ssr: false }
 );
 
-interface SupplyAllocationCardProps {
-  genesisAllocation: number;
-  issuedSinceLaunch: number;
-}
+export function SupplyAllocationCard() {
+  const { data: supply, isLoading, isFetching } = useGetSupplyMetricsQuery();
 
-export function SupplyAllocationCard({
-  genesisAllocation,
-  issuedSinceLaunch,
-}: SupplyAllocationCardProps) {
+  const showLoadingOverlay = isFetching && !supply;
+
   return (
     <Card className="bg-background/60 border-border backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="text-primary">Supply Allocation</CardTitle>
         <CardDescription>Genesis vs Issued tokens</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="relative">
         <div className="h-[400px]">
-          <SupplyAllocationChart
-            data={[
-              { category: "Genesis Allocation", amount: genesisAllocation },
-              { category: "Issued Since Launch", amount: issuedSinceLaunch },
-            ]}
-          />
+          {isLoading ? (
+            <LoadingSpinner className="h-full" />
+          ) : (
+            supply && (
+              <>
+                <SupplyAllocationChart
+                  data={[
+                    { category: "Genesis Allocation", amount: supply.genesisAllocation },
+                    { category: "Issued Since Launch", amount: supply.issuedSinceLaunch },
+                  ]}
+                />
+                {showLoadingOverlay && <LoadingOverlay />}
+              </>
+            )
+          )}
         </div>
       </CardContent>
     </Card>

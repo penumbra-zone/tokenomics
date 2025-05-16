@@ -7,6 +7,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/common/components/ui/Card";
+import { LoadingOverlay } from "@/common/components/ui/LoadingOverlay";
+import { LoadingSpinner } from "@/common/components/ui/LoadingSpinner";
+import { useGetTokenDistributionQuery } from "@/store/api/tokenomicsApi";
 
 // Import chart component with SSR disabled
 const TokenDistributionChart = dynamic(
@@ -14,20 +17,29 @@ const TokenDistributionChart = dynamic(
   { ssr: false }
 );
 
-interface TokenDistributionCardProps {
-  data: any[]; // Replace with the correct type for distribution data
-}
+export function TokenDistributionCard() {
+  const { data: distribution, isLoading, isFetching } = useGetTokenDistributionQuery();
 
-export function TokenDistributionCard({ data }: TokenDistributionCardProps) {
+  const showLoadingOverlay = isFetching && !distribution;
+
   return (
     <Card className="bg-background/60 border-border backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="text-primary">Token Distribution</CardTitle>
         <CardDescription>Allocation of total token supply</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="relative">
         <div className="h-[400px]">
-          <TokenDistributionChart data={data} />
+          {isLoading ? (
+            <LoadingSpinner className="h-full" />
+          ) : (
+            distribution && (
+              <>
+                <TokenDistributionChart data={distribution} />
+                {showLoadingOverlay && <LoadingOverlay />}
+              </>
+            )
+          )}
         </div>
       </CardContent>
     </Card>

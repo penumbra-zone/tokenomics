@@ -25,7 +25,7 @@ export function TokenMetricsCard() {
   };
 
   // Only show loading overlay if we're fetching and don't have enough data
-  const showLoadingOverlay =
+  const showLoadingOverlay = 
     isFetching && (!priceHistoryData || priceHistoryData.length < selectedDays);
 
   return (
@@ -58,14 +58,14 @@ export function TokenMetricsCard() {
           </TabsContent>
 
           <TabsContent value="inflation" className="space-y-4">
-            <div className="relative">
+            <div className="relative min-h-[400px] w-full">
               {isLoading ? (
                 <LoadingSpinner className="h-[400px]" />
               ) : (
                 priceHistoryData && (
                   <>
                     <InflationRateCard data={priceHistoryData} onDaysChange={handleDaysChange} />
-                    {showLoadingOverlay && <LoadingOverlay />}
+                    {showLoadingOverlay && <LoadingOverlay className="min-h-[400px] w-full" />}
                   </>
                 )
               )}

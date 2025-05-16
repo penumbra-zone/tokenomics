@@ -32,62 +32,13 @@ import {
   TotalBurnedCard,
   TotalSupplyCard,
 } from "@/modules/tokenomics/components/cards";
-import {
-  BurnMetrics,
-  useGetBurnMetricsQuery,
-  useGetLQTMetricsQuery,
-  useGetPriceHistoryQuery,
-  useGetSocialMetricsQuery,
-  useGetSupplyMetricsQuery,
-  useGetTokenDistributionQuery,
-} from "@/store/api/tokenomicsApi";
+import { useGetSocialMetricsQuery } from "@/store/api/tokenomicsApi";
+import { LoadingSpinner } from "@/common/components/ui/LoadingSpinner";
+import { LoadingOverlay } from "@/common/components/ui/LoadingOverlay";
 
 export default function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { data: supply, isLoading: supplyLoading, error: supplyError } = useGetSupplyMetricsQuery();
-  const {
-    data: distribution,
-    isLoading: distributionLoading,
-    error: distributionError,
-  } = useGetTokenDistributionQuery();
-  const {
-    data: priceHistory,
-    isLoading: priceHistoryLoading,
-    error: priceHistoryError,
-  } = useGetPriceHistoryQuery();
-  const { data: burnMetrics, isLoading: burnLoading, error: burnError } = useGetBurnMetricsQuery();
-  const { data: lqtMetrics, isLoading: lqtLoading, error: lqtError } = useGetLQTMetricsQuery();
-  const {
-    data: socialMetrics,
-    isLoading: socialLoading,
-    error: socialError,
-  } = useGetSocialMetricsQuery();
-
-  const isLoading =
-    supplyLoading ||
-    distributionLoading ||
-    priceHistoryLoading ||
-    burnLoading ||
-    lqtLoading ||
-    socialLoading;
-  const hasError =
-    supplyError || distributionError || priceHistoryError || burnError || lqtError || socialError;
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl">Loading dashboard data...</div>
-      </div>
-    );
-  }
-
-  if (hasError) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl text-red-500">Error loading dashboard data</div>
-      </div>
-    );
-  }
+  const { data: socialMetrics, isLoading: socialLoading, error: socialError } = useGetSocialMetricsQuery();
 
   const handleShare = () => {
     if (navigator.share) {
@@ -99,23 +50,6 @@ export default function Dashboard() {
         url: window.location.href,
       });
     }
-  };
-
-  const circulatingSupply =
-    supply?.totalSupply && supply?.unstakedSupply?.base
-      ? supply.totalSupply - supply.unstakedSupply.base
-      : 0;
-
-  const defaultBurnMetrics: BurnMetrics = {
-    totalBurned: 0,
-    bySource: {
-      transactionFees: 0,
-      dexArbitrage: 0,
-      auctionBurns: 0,
-      dexBurns: 0,
-    },
-    burnRate: 0,
-    historicalBurnRate: [],
   };
 
   return (
@@ -219,9 +153,16 @@ export default function Dashboard() {
                       variant="outline"
                       size="sm"
                       className="border-primary/50 text-primary hover:bg-primary/20 hover:text-primary/80"
+                      disabled={socialLoading}
                     >
-                      <CircleDollarSign className="h-4 w-4 mr-2" />
-                      <span>${formatNumber(socialMetrics?.price || 0, 2)}</span>
+                      {socialLoading ? (
+                        <LoadingSpinner className="h-4 w-4" size="sm" />
+                      ) : (
+                        <>
+                          <CircleDollarSign className="h-4 w-4 mr-1" />
+                          <span>${formatNumber(socialMetrics?.price || 0, 2)}</span>
+                        </>
+                      )}
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -234,10 +175,17 @@ export default function Dashboard() {
                 onClick={handleShare}
                 variant="outline"
                 size="sm"
+                disabled={socialLoading}
                 className="border-primary/50 text-primary hover:bg-primary/20 hover:text-primary/80"
               >
-                <Share2 className="h-4 w-4 mr-2" />
-                Share
+                {socialLoading ? (
+                  <LoadingSpinner className="h-4 w-4" size="sm" />
+                ) : (
+                  <>
+                    <Share2 className="h-4 w-4 mr-1" />
+                    Share
+                  </>
+                )}
               </Button>
             </div>
           </div>
@@ -247,59 +195,27 @@ export default function Dashboard() {
         <main className="p-6">
           {/* Overview cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <TotalSupplyCard
-              totalSupply={supply?.totalSupply || 0}
-              genesisAllocation={supply?.genesisAllocation || 0}
-            />
-
-            <CirculatingSupplyCard
-              circulatingSupply={circulatingSupply}
-              totalSupply={supply?.totalSupply || 0}
-            />
-
-            <MarketCapCard
-              marketCap={socialMetrics?.marketCap || 0}
-              price={socialMetrics?.price || 0}
-            />
-
-            <TotalBurnedCard
-              totalBurned={burnMetrics?.totalBurned || 0}
-              burnRate={burnMetrics?.burnRate || 0}
-            />
+            <TotalSupplyCard />
+            <CirculatingSupplyCard />
+            <MarketCapCard />
+            <TotalBurnedCard />
           </div>
 
           {/* Main Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <SupplyAllocationCard
-              genesisAllocation={supply?.genesisAllocation || 0}
-              issuedSinceLaunch={supply?.issuedSinceLaunch || 0}
-            />
-
-            <BurnMetricsCard data={burnMetrics || defaultBurnMetrics} />
+            <SupplyAllocationCard />
+            <BurnMetricsCard />
           </div>
 
           {/* Distribution and Burn Metrics */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <TokenDistributionCard data={distribution || []} />
-
-            <LQTMetricsCard
-              data={
-                lqtMetrics || {
-                  availableRewards: 0,
-                  votingPower: { total: 0 },
-                  delegatorRewards: 0,
-                  lpRewards: 0,
-                }
-              }
-            />
+            <TokenDistributionCard />
+            <LQTMetricsCard />
           </div>
 
           {/* Price History and Inflation Rate */}
           <div className="grid grid-cols-1 gap-6">
-            <TokenMetricsCard
-              priceHistoryData={priceHistory || []}
-              inflationRateData={priceHistory || []}
-            />
+            <TokenMetricsCard />
           </div>
         </main>
       </div>
