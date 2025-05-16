@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import {
   Card,
   CardContent,
@@ -5,18 +7,27 @@ import {
   CardHeader,
   CardTitle,
 } from "@/common/components/ui/Card";
+import { LoadingOverlay } from "@/common/components/ui/LoadingOverlay";
+import { LoadingSpinner } from "@/common/components/ui/LoadingSpinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PriceHistory } from "@/store/api/tokenomicsApi";
+import { useGetPriceHistoryQuery } from "@/store/api/tokenomicsApi";
 
 import { InflationRateCard } from "./InflationRateCard";
 import { PriceHistoryCard } from "./PriceHistoryCard";
 
-interface TokenMetricsCardProps {
-  priceHistoryData: PriceHistory[];
-  inflationRateData: PriceHistory[];
-}
+export function TokenMetricsCard() {
+  const [selectedDays, setSelectedDays] = useState(30);
+  const { data: priceHistoryData, isLoading, isFetching } = useGetPriceHistoryQuery(selectedDays);
 
-export function TokenMetricsCard({ priceHistoryData, inflationRateData }: TokenMetricsCardProps) {
+  const handleDaysChange = (days: number) => {
+    setSelectedDays(days);
+  };
+
+  // Only show loading overlay if we're fetching and don't have enough data
+  const showLoadingOverlay =
+    isFetching && (!priceHistoryData || priceHistoryData.length < selectedDays);
+
   return (
     <Card className="bg-background/60 border-border backdrop-blur-sm">
       <CardHeader>
@@ -32,11 +43,33 @@ export function TokenMetricsCard({ priceHistoryData, inflationRateData }: TokenM
 
           {/* Price History Tab */}
           <TabsContent value="price" className="space-y-4">
-            <PriceHistoryCard data={priceHistoryData} />
+            <div className="relative">
+              {isLoading ? (
+                <LoadingSpinner className="h-[400px]" />
+              ) : (
+                priceHistoryData && (
+                  <>
+                    <PriceHistoryCard data={priceHistoryData} onDaysChange={handleDaysChange} />
+                    {showLoadingOverlay && <LoadingOverlay />}
+                  </>
+                )
+              )}
+            </div>
           </TabsContent>
 
           <TabsContent value="inflation" className="space-y-4">
-            <InflationRateCard data={inflationRateData} />
+            <div className="relative">
+              {isLoading ? (
+                <LoadingSpinner className="h-[400px]" />
+              ) : (
+                priceHistoryData && (
+                  <>
+                    <InflationRateCard data={priceHistoryData} onDaysChange={handleDaysChange} />
+                    {showLoadingOverlay && <LoadingOverlay />}
+                  </>
+                )
+              )}
+            </div>
           </TabsContent>
         </Tabs>
       </CardContent>

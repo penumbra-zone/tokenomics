@@ -17,7 +17,6 @@ export interface BarLineChartData {
 
 interface BarLineChartProps {
   data: BarLineChartData[];
-  xLabels?: string[];
   yLabelFormatter?: (value: number) => string;
   tooltipFormatter?: (params: any[]) => string;
   areaLabel?: string;
@@ -29,11 +28,11 @@ interface BarLineChartProps {
   dayOptions?: number[];
   defaultDays?: number;
   chartPalette?: keyof typeof CHART_PALETTES;
+  onDaysChange?: (days: number) => void;
 }
 
 export default function BarLineChart({
   data,
-  xLabels,
   yLabelFormatter = (v) => v.toString(),
   tooltipFormatter,
   areaLabel = "Value",
@@ -45,6 +44,7 @@ export default function BarLineChart({
   dayOptions = [7, 30, 90],
   defaultDays = 30,
   chartPalette = "sequential",
+  onDaysChange,
 }: BarLineChartProps) {
   const [days, setDays] = useState(defaultDays);
   const { resolvedTheme } = useTheme();
@@ -58,6 +58,11 @@ export default function BarLineChart({
   useEffect(() => {
     setThemeColors(getPrimaryThemeColors());
   }, [resolvedTheme]);
+
+  // Update days when defaultDays changes
+  useEffect(() => {
+    setDays(defaultDays);
+  }, [defaultDays]);
 
   // Only show the last N days
   const filteredData = data.slice(-days);
@@ -236,7 +241,10 @@ export default function BarLineChart({
                 ? "bg-primary text-black border-primary"
                 : "bg-background/60 text-primary border-primary/40 hover:bg-primary/10"
             }`}
-            onClick={() => setDays(opt)}
+            onClick={() => {
+              setDays(opt);
+              onDaysChange?.(opt);
+            }}
           >
             {opt}d
           </button>

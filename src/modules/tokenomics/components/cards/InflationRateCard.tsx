@@ -17,9 +17,10 @@ const InflationRateChart = dynamic(
 
 interface InflationRateCardProps {
   data: PriceHistory[];
+  onDaysChange?: (days: number) => void;
 }
 
-export function InflationRateCard({ data }: InflationRateCardProps) {
+export function InflationRateCard({ data, onDaysChange }: InflationRateCardProps) {
   return (
     <Card className="bg-background/60 border-border backdrop-blur-sm">
       <CardHeader>
@@ -28,7 +29,7 @@ export function InflationRateCard({ data }: InflationRateCardProps) {
       </CardHeader>
       <CardContent>
         <div className="h-[400px]">
-          <InflationRateChart data={data} />
+          <InflationRateChart data={data} onDaysChange={onDaysChange} />
         </div>
       </CardContent>
     </Card>

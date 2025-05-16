@@ -4,16 +4,20 @@ import BarLineChart from "./BarLineChart";
 
 interface InflationRateChartProps {
   data: PriceHistory[];
+  onDaysChange?: (days: number) => void;
 }
 
-export default function InflationRateChart({ data }: InflationRateChartProps) {
+export default function InflationRateChart({ data, onDaysChange }: InflationRateChartProps) {
   // Calculate inflation rate based on price changes
   const chartData = data.map((item, index) => {
     if (index === 0) return { x: item.date, y: 0 };
     const prevPrice = data[index - 1].price;
     const currentPrice = item.price;
-    const rate = ((currentPrice - prevPrice) / prevPrice) * 100;
-    return { x: item.date, y: rate };
+    const inflationRate = ((currentPrice - prevPrice) / prevPrice) * 100;
+    return {
+      x: item.date,
+      y: inflationRate,
+    };
   });
 
   return (
@@ -21,15 +25,14 @@ export default function InflationRateChart({ data }: InflationRateChartProps) {
       data={chartData}
       yLabelFormatter={(value) => `${value.toFixed(2)}%`}
       tooltipFormatter={(params) => {
-        const bar = params.find((p: any) => p.seriesType === "bar");
-        const line = params.find((p: any) => p.seriesType === "line");
-        return `${
-          bar.axisValueLabel || new Date(bar.name).toLocaleDateString()
-        }<br/>Inflation: <b>${line.data.toFixed(2)}%</b>`;
+        const value = params[0].value as number;
+        return `${params[0].name}<br/>${value.toFixed(2)}%`;
       }}
-      areaLabel="Inflation"
-      yPadding={0.2}
+      areaLabel="Inflation Rate"
       minYZero={false}
+      dayOptions={[7, 30, 90]}
+      defaultDays={30}
+      onDaysChange={onDaysChange}
     />
   );
 }

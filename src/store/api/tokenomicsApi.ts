@@ -94,8 +94,8 @@ export const tokenomicsApi = createApi({
       query: () => "token-distribution",
       providesTags: ["TokenDistribution"],
     }),
-    getPriceHistory: builder.query<PriceHistory[], void>({
-      query: () => "price-history",
+    getPriceHistory: builder.query<PriceHistory[], number>({
+      query: (days) => `price-history?days=${days}`,
     }),
     getSocialMetrics: builder.query<SocialMetrics, void>({
       query: () => "social-metrics",

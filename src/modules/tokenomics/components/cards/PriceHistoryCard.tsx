@@ -17,9 +17,10 @@ const PriceHistoryChart = dynamic(
 
 interface PriceHistoryCardProps {
   data: PriceHistory[];
+  onDaysChange?: (days: number) => void;
 }
 
-export function PriceHistoryCard({ data }: PriceHistoryCardProps) {
+export function PriceHistoryCard({ data, onDaysChange }: PriceHistoryCardProps) {
   return (
     <Card className="bg-background/60 border-border backdrop-blur-sm">
       <CardHeader>
@@ -28,7 +29,7 @@ export function PriceHistoryCard({ data }: PriceHistoryCardProps) {
       </CardHeader>
       <CardContent>
         <div className="h-[400px]">
-          <PriceHistoryChart data={data} />
+          <PriceHistoryChart data={data} onDaysChange={onDaysChange} />
         </div>
         {/* Metrics grid below chart */}
         {data && data.length > 0 && (
@@ -75,7 +76,7 @@ export function PriceHistoryCard({ data }: PriceHistoryCardProps) {
                 >
                   {(() => {
                     const now = data[data.length - 1].price;
-                    const prev = data[data.length - 31]?.price ?? data[0].price;
+                    const prev = data[data.length - 30]?.price ?? data[0].price;
                     const change = ((now - prev) / prev) * 100;
                     return `${change >= 0 ? "+" : ""}${change.toFixed(1)}%`;
                   })()}
