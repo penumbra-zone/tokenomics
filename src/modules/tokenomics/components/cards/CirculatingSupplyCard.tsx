@@ -18,9 +18,10 @@ export function CirculatingSupplyCard() {
   const showLoadingOverlay = isFetching && !supply;
 
   // Calculate circulating supply and percentage
-  const circulatingSupply = supply?.totalSupply && supply?.unstakedSupply?.base
-    ? supply.totalSupply - supply.unstakedSupply.base
-    : 0;
+  const circulatingSupply =
+    supply?.totalSupply && supply?.unstakedSupply?.base
+      ? supply.totalSupply - supply.unstakedSupply.base
+      : 0;
   const percentage = supply?.totalSupply ? (circulatingSupply / supply.totalSupply) * 100 : 0;
 
   return (

@@ -43,6 +43,9 @@ importers:
       echarts-for-react:
         specifier: ^3.0.2
         version: 3.0.2(echarts@5.6.0)(react@18.3.1)
+      kysely:
+        specifier: ^0.28.2
+        version: 0.28.2
       lucide-react:
         specifier: ^0.510.0
         version: 0.510.0(react@18.3.1)
@@ -2733,6 +2736,13 @@ packages:
         integrity: sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==,
       }
     engines: { node: ">=6" }
+
+  kysely@0.28.2:
+    resolution:
+      {
+        integrity: sha512-4YAVLoF0Sf0UTqlhgQMFU9iQECdah7n+13ANkiuVfRvlK+uI0Etbgd7bVP36dKlG+NXWbhGua8vnGt+sdhvT7A==,
+      }
+    engines: { node: ">=18.0.0" }
 
   language-subtag-registry@0.3.23:
     resolution:
@@ -6108,6 +6118,8 @@ snapshots:
       json-buffer: 3.0.1
 
   kleur@3.0.3: {}
+
+  kysely@0.28.2: {}
 
   language-subtag-registry@0.3.23: {}
 

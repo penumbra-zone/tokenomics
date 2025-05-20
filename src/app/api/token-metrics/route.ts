@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 
-import { PindexerConnection } from "@/lib/db/pindexer";
+import { Pindexer } from "@/lib/db/pindexer/pindexer";
 
 export const dynamic = "auto";
 export const revalidate = 6;
 
 export async function GET() {
-  const db = new PindexerConnection();
+  const db = new Pindexer();
   const data = await db.getTokenMetrics();
   return NextResponse.json(data);
 }

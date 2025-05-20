@@ -33,7 +33,11 @@ export function TotalBurnedCard() {
               </div>
               <div className="flex items-center justify-between mt-2">
                 <div className="text-xs text-muted-foreground">
-                  Rate: <AnimatedNumber value={burnMetrics.burnRate} format={(v) => `${formatNumber(v, 4)}/block`} />
+                  Rate:{" "}
+                  <AnimatedNumber
+                    value={burnMetrics.burnRate}
+                    format={(v) => `${formatNumber(v, 4)}/block`}
+                  />
                 </div>
               </div>
               {showLoadingOverlay && <LoadingOverlay />}

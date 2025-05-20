@@ -17,6 +17,8 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 
+import { LoadingOverlay } from "@/common/components/ui/LoadingOverlay";
+import { LoadingSpinner } from "@/common/components/ui/LoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatNumber } from "@/lib/utils";
@@ -33,12 +35,14 @@ import {
   TotalSupplyCard,
 } from "@/modules/tokenomics/components/cards";
 import { useGetSocialMetricsQuery } from "@/store/api/tokenomicsApi";
-import { LoadingSpinner } from "@/common/components/ui/LoadingSpinner";
-import { LoadingOverlay } from "@/common/components/ui/LoadingOverlay";
 
 export default function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { data: socialMetrics, isLoading: socialLoading, error: socialError } = useGetSocialMetricsQuery();
+  const {
+    data: socialMetrics,
+    isLoading: socialLoading,
+    error: socialError,
+  } = useGetSocialMetricsQuery();
 
   const handleShare = () => {
     if (navigator.share) {

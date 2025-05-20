@@ -51,7 +51,9 @@ export function LQTMetricsCard() {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">LP Rewards</p>
-                    <p className="text-xl font-bold text-foreground">{formatNumber(lqtMetrics.lpRewards)}</p>
+                    <p className="text-xl font-bold text-foreground">
+                      {formatNumber(lqtMetrics.lpRewards)}
+                    </p>
                   </div>
                 </div>
               </div>

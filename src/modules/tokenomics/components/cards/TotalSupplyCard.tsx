@@ -32,7 +32,8 @@ export function TotalSupplyCard() {
                 <AnimatedNumber value={supply.totalSupply} format={(v) => formatNumber(v)} />
               </div>
               <div className="text-xs text-muted-foreground mt-1">
-                Genesis: <AnimatedNumber value={supply.genesisAllocation} format={(v) => formatNumber(v)} />
+                Genesis:{" "}
+                <AnimatedNumber value={supply.genesisAllocation} format={(v) => formatNumber(v)} />
               </div>
               {showLoadingOverlay && <LoadingOverlay />}
             </>

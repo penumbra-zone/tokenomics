@@ -1,13 +1,18 @@
+import { Kysely } from "kysely";
+
 import { MockPindexerConnection } from "./mock/mock-pindexer-connection";
-import { PindexerConnection as PostgresPindexerConnection } from "./pindexer-connection";
+import { Pindexer as PostgresPindexerConnection } from "./pindexer";
+import { DB } from "./schema";
 import { AbstractPindexerConnection } from "./types";
 
 export * from "./types";
 
-let PindexerConnection: new (connectionString?: string) => AbstractPindexerConnection =
+let PindexerConnection: new (db?: Kysely<DB>) => AbstractPindexerConnection =
   PostgresPindexerConnection;
 if (process.env.NODE_ENV === "test") {
   PindexerConnection = MockPindexerConnection;
 }
 
-export { PindexerConnection };
+let pindexer = new PindexerConnection();
+
+export { pindexer };

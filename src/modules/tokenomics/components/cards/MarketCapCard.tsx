@@ -29,11 +29,18 @@ export function MarketCapCard() {
           socialMetrics && (
             <>
               <div className="text-2xl font-bold text-foreground">
-                <AnimatedNumber value={socialMetrics.marketCap} format={(v) => `$${formatNumber(v)}`} />
+                <AnimatedNumber
+                  value={socialMetrics.marketCap}
+                  format={(v) => `$${formatNumber(v)}`}
+                />
               </div>
               <div className="flex items-center justify-between mt-2">
                 <div className="text-xs text-muted-foreground">
-                  Price: <AnimatedNumber value={socialMetrics.price} format={(v) => `$${formatNumber(v, 2)}`} />
+                  Price:{" "}
+                  <AnimatedNumber
+                    value={socialMetrics.price}
+                    format={(v) => `$${formatNumber(v, 2)}`}
+                  />
                 </div>
               </div>
               {showLoadingOverlay && <LoadingOverlay />}

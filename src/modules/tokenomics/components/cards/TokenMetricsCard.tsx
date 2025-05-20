@@ -25,7 +25,7 @@ export function TokenMetricsCard() {
   };
 
   // Only show loading overlay if we're fetching and don't have enough data
-  const showLoadingOverlay = 
+  const showLoadingOverlay =
     isFetching && (!priceHistoryData || priceHistoryData.length < selectedDays);
 
   return (

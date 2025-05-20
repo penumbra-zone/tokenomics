@@ -1,6 +1,7 @@
 import {
   AbstractPindexerConnection,
   BurnMetrics,
+  DurationWindow,
   LqtMetrics,
   PriceHistoryEntry,
   SocialMetrics,
@@ -79,7 +80,10 @@ export class MockPindexerConnection extends AbstractPindexerConnection {
     };
   }
 
-  async getPriceHistory(days: number = 90): Promise<PriceHistoryEntry[]> {
+  async getPriceHistory(
+    days: number = 90,
+    window: DurationWindow = "1d"
+  ): Promise<PriceHistoryEntry[]> {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - (days - 1));
     let price = 2.0;
