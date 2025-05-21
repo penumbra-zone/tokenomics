@@ -1,24 +1,13 @@
 "use client";
 
-import { Share2 } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
 import { formatNumber } from "@/lib/utils";
 import StickyNavbar from "@/modules/tokenomics/components/StickyNavbar";
-// Import our card components
-import {
-  BurnMetricsCard,
-  CirculatingSupplyCard,
-  LQTMetricsCard,
-  MarketCapCard,
-  SupplyAllocationCard,
-  TokenDistributionCard,
-  TokenMetricsCard,
-  TotalBurnedCard,
-  TotalSupplyCard,
-} from "@/modules/tokenomics/components/cards";
+import BurnMetricsSection from "@/modules/tokenomics/components/sections/BurnMetricsSection";
+import IssuanceMetricsSection from "@/modules/tokenomics/components/sections/IssuanceMetricsSection";
+import LiquidityTournamentSection from "@/modules/tokenomics/components/sections/LiquidityTournamentSection";
+import SupplyVisualizationSection from "@/modules/tokenomics/components/sections/SupplyVisualizationSection";
+import TokenDistributionSection from "@/modules/tokenomics/components/sections/TokenDistributionSection";
 import { useGetSocialMetricsQuery } from "@/store/api/tokenomicsApi";
-import ShareButton from "@/modules/tokenomics/components/ShareButton";
 
 export default function Dashboard() {
   const { data: socialMetrics } = useGetSocialMetricsQuery();
@@ -47,99 +36,11 @@ export default function Dashboard() {
         <div className="relative z-10 min-h-screen">
           {/* Dashboard content */}
           <main className="p-6 container mx-auto">
-            {/* Section: SUPPLY VISUALIZATION */}
-            <section id="supply-visualization" className="mb-12 pt-16 -mt-16">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-semibold text-white">SUPPLY VISUALIZATION</h2>
-                <ShareButton onClick={handleShare}>
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Share
-                </ShareButton>
-              </div>
-              {/* Cards for this section will go here */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                <TotalSupplyCard />
-                {/* <CirculatingSupplyCard /> */}
-                <MarketCapCard />
-                <SupplyAllocationCard />
-              </div>
-            </section>
-
-            {/* Section: ISSUANCE METRICS */}
-            <section className="mb-12 pt-16 -mt-16">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-semibold text-white">ISSUANCE METRICS</h2>
-                <ShareButton onClick={handleShare}>
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Share
-                </ShareButton>
-              </div>
-              {/* Cards for this section will go here */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                {/* Placeholder for Current Issuance, Annual Issuance, Inflation */}
-                {/* These will likely be new smaller cards or integrated into TokenMetricsCard later */}
-              </div>
-              <div className="grid grid-cols-1 gap-6">
-                <TokenMetricsCard /> {/* Price History and other metrics */}
-              </div>
-            </section>
-
-            {/* Section: BURN METRICS */}
-            <section className="mb-12 pt-16 -mt-16">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-semibold text-white">BURN METRICS</h2>
-                <ShareButton onClick={handleShare}>
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Share
-                </ShareButton>
-              </div>
-              {/* Cards for this section will go here */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <BurnMetricsCard /> {/* Token burned by source chart */}
-                {/* Placeholder for Total Burned, % of Total Supply, Why is burning important? */}
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <TotalBurnedCard />
-              </div>
-              {/* Placeholder for Burn rate over time chart */}
-            </section>
-
-            {/* Section: TOKEN DISTRIBUTION */}
-            <section className="mb-12 pt-16 -mt-16">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-semibold text-white">TOKEN DISTRIBUTION</h2>
-                <ShareButton onClick={handleShare}>
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Share
-                </ShareButton>
-              </div>
-              {/* Cards for this section will go here */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <CirculatingSupplyCard />
-                {/* Placeholder for % Staked */}
-              </div>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <TokenDistributionCard />
-              </div>
-            </section>
-
-            {/* Section: LIQUIDITY TOURNAMENT */}
-            <section id="lqt" className="mb-12 pt-16 -mt-16">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-semibold text-white">LIQUIDITY TOURNAMENT</h2>
-                <ShareButton onClick={handleShare}>
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Share
-                </ShareButton>
-              </div>
-              {/* Cards for this section will go here */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                {/* Placeholders for Available Rewards, Delegator Rewards, LP Rewards, Total Voting Power */}
-              </div>
-              <div className="grid grid-cols-1 gap-6">
-                <LQTMetricsCard /> {/* Positions table */}
-              </div>
-            </section>
+            <SupplyVisualizationSection handleShare={handleShare} />
+            <IssuanceMetricsSection handleShare={handleShare} />
+            <BurnMetricsSection handleShare={handleShare} />
+            <TokenDistributionSection handleShare={handleShare} />
+            <LiquidityTournamentSection handleShare={handleShare} />
           </main>
         </div>
       </div>
