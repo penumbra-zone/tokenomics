@@ -3,11 +3,8 @@ import dynamic from "next/dynamic";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
   CardTitle,
 } from "@/common/components/ui/Card";
-import { LoadingOverlay } from "@/common/components/ui/LoadingOverlay";
 import { LoadingSpinner } from "@/common/components/ui/LoadingSpinner";
 import { useGetSupplyMetricsQuery } from "@/store/api/tokenomicsApi";
 
@@ -18,34 +15,26 @@ const SupplyAllocationChart = dynamic(
 );
 
 export function SupplyAllocationCard() {
-  const { data: supply, isLoading, isFetching } = useGetSupplyMetricsQuery();
-
-  const showLoadingOverlay = isFetching && !supply;
+  const { data: supply, isLoading } = useGetSupplyMetricsQuery();
 
   return (
-    <Card className="bg-background/60 border-border backdrop-blur-sm">
-      <CardHeader>
-        <CardTitle className="text-primary">Supply Allocation</CardTitle>
-        <CardDescription>Genesis vs Issued tokens</CardDescription>
-      </CardHeader>
-      <CardContent className="relative">
-        <div className="h-[400px]">
-          {isLoading ? (
-            <LoadingSpinner className="h-full" />
-          ) : (
-            supply && (
-              <>
-                <SupplyAllocationChart
-                  data={[
-                    { category: "Genesis Allocation", amount: supply.genesisAllocation },
-                    { category: "Issued Since Launch", amount: supply.issuedSinceLaunch },
-                  ]}
-                />
-                {showLoadingOverlay && <LoadingOverlay />}
-              </>
-            )
-          )}
-        </div>
+    <Card className="bg-neutral-900/80 border-neutral-800/80 rounded-lg p-6 flex flex-col min-h-[344px] h-full">
+      <CardTitle className="text-base font-medium text-neutral-50 mb-4">
+        Genesis allocation vs. Issuance since launch
+      </CardTitle>
+      <CardContent className="relative flex-grow flex items-center justify-center p-0 h-full">
+        {isLoading ? (
+          <LoadingSpinner className="h-20 w-20" />
+        ) : (
+          supply && (
+            <SupplyAllocationChart
+              data={[
+                { category: "Genesis Allocation", amount: supply.genesisAllocation },
+                { category: "Issued Since Launch", amount: supply.issuedSinceLaunch },
+              ]}
+            />
+          )
+        )}
       </CardContent>
     </Card>
   );

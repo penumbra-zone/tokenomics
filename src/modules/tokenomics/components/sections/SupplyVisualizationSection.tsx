@@ -21,10 +21,18 @@ export default function SupplyVisualizationSection({ handleShare }: SectionProps
           Share
         </ShareButton>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <TotalSupplyCard />
-        <MarketCapCard />
-        <SupplyAllocationCard />
+      <div className="grid grid-cols-1 lg:grid-cols-4 grid-rows-5 gap-6 mb-8">
+        {/* Left Column for stacked cards - each card spans 2 rows */}
+        <div className="lg:col-span-1 lg:row-span-2">
+          <TotalSupplyCard />
+        </div>
+        <div className="lg:col-span-1 lg:row-start-3 lg:row-span-4">
+          <MarketCapCard />
+        </div>
+        {/* Right Column for the chart - spans 3 columns and 6 rows */}
+        <div className="lg:col-span-3 lg:row-span-5">
+          <SupplyAllocationCard />
+        </div>
       </div>
     </section>
   );

@@ -128,10 +128,10 @@ export default function SupplyAllocationChart({ data }: SupplyAllocationChartPro
   });
 
   return (
-    <div className="w-full h-full rounded-xl bg-background/60 border border-border shadow p-4 flex flex-col">
+    <div className="w-full h-full p-4 flex flex-col">
       <div ref={chartRef} className="w-full flex-grow" style={{ minHeight: 200 }} />
       {data.length > 0 && (
-        <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-4 pt-2 border-t border-border/50">
+        <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-4 pt-2 border-border/50">
           {legendData.map((item, i) => (
             <div key={item.category} className="flex items-center gap-2">
               <span

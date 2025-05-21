@@ -1,53 +1,34 @@
 import {
   Card,
-  CardContent,
   CardDescription,
-  CardHeader,
   CardTitle,
 } from "@/common/components/ui/Card";
-import { LoadingOverlay } from "@/common/components/ui/LoadingOverlay";
 import { LoadingSpinner } from "@/common/components/ui/LoadingSpinner";
 import AnimatedNumber from "@/components/AnimatedNumber";
 import { formatNumber } from "@/lib/utils";
 import { useGetSocialMetricsQuery } from "@/store/api/tokenomicsApi";
 
 export function MarketCapCard() {
-  const { data: socialMetrics, isLoading, isFetching } = useGetSocialMetricsQuery();
-
-  const showLoadingOverlay = isFetching && !socialMetrics;
+  const { data: socialMetrics, isLoading } = useGetSocialMetricsQuery();
 
   return (
-    <Card className="bg-background/60 border-border backdrop-blur-sm">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-primary text-lg">Market Cap</CardTitle>
-        <CardDescription>Current valuation</CardDescription>
-      </CardHeader>
-      <CardContent className="relative">
-        {isLoading ? (
-          <LoadingSpinner className="h-[100px]" />
-        ) : (
-          socialMetrics && (
-            <>
-              <div className="text-2xl font-bold text-foreground">
-                <AnimatedNumber
-                  value={socialMetrics.marketCap}
-                  format={(v) => `$${formatNumber(v)}`}
-                />
-              </div>
-              <div className="flex items-center justify-between mt-2">
-                <div className="text-xs text-muted-foreground">
-                  Price:{" "}
-                  <AnimatedNumber
-                    value={socialMetrics.price}
-                    format={(v) => `$${formatNumber(v, 2)}`}
-                  />
-                </div>
-              </div>
-              {showLoadingOverlay && <LoadingOverlay />}
-            </>
-          )
-        )}
-      </CardContent>
+    <Card className="bg-neutral-900/80 border-neutral-800/80 rounded-lg p-6 min-h-[160px] flex flex-col justify-center">
+      <CardTitle className="text-base font-medium text-neutral-50 mb-1">Market Cap</CardTitle>
+      {isLoading ? (
+        <LoadingSpinner className="h-10 w-10 mx-auto" />
+      ) : (
+        socialMetrics && (
+          <div className="text-4xl font-bold text-primary">
+            <AnimatedNumber
+              value={socialMetrics.marketCap}
+              format={(v) => formatNumber(v, 1)}
+            />
+          </div>
+        )
+      )}
+      <CardDescription className="text-xs text-neutral-500 mt-1">
+        Total Supply × Price In USDC
+      </CardDescription>
     </Card>
   );
 }
