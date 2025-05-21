@@ -1,9 +1,8 @@
-import { Kysely, sql } from "kysely";
 import type { Selectable } from "kysely";
+import { Kysely } from "kysely";
 
-import { DB } from "../schema";
 import type { BlockDetails } from "../schema";
-import { DurationWindow } from "../types";
+import { DB } from "../schema";
 
 export class BlockService {
   private db: Kysely<DB>;

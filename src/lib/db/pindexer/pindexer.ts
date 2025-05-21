@@ -14,7 +14,6 @@ import {
   BurnSourcesData,
   CurrentMarketData,
   DelegatedSupplyComponent,
-  DurationWindow,
   HistoricalBurnEntryRaw,
   LqtMetrics,
   PriceHistoryEntry,

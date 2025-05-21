@@ -1,27 +1,10 @@
 "use client";
 
-import {
-  BarChart3,
-  CircleDollarSign,
-  ExternalLink,
-  GanttChartSquare,
-  LineChart,
-  Lock,
-  Menu,
-  PieChart,
-  Share2,
-} from "lucide-react";
+import { Share2 } from "lucide-react";
 
-import { useState } from "react";
-
-import dynamic from "next/dynamic";
-import Image from "next/image";
-
-import { LoadingOverlay } from "@/common/components/ui/LoadingOverlay";
-import { LoadingSpinner } from "@/common/components/ui/LoadingSpinner";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatNumber } from "@/lib/utils";
+import StickyNavbar from "@/modules/tokenomics/components/StickyNavbar";
 // Import our card components
 import {
   BurnMetricsCard,
@@ -37,12 +20,7 @@ import {
 import { useGetSocialMetricsQuery } from "@/store/api/tokenomicsApi";
 
 export default function Dashboard() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const {
-    data: socialMetrics,
-    isLoading: socialLoading,
-    error: socialError,
-  } = useGetSocialMetricsQuery();
+  const { data: socialMetrics } = useGetSocialMetricsQuery();
 
   const handleShare = () => {
     if (navigator.share) {
@@ -57,172 +35,138 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="relative min-h-screen bg-background overflow-hidden">
-      {/* Background effect */}
-      <div className="absolute inset-0 z-0 opacity-30">
-        <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] bg-repeat opacity-10"></div>
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/20 via-transparent to-secondary/20"></div>
-        <div className="absolute top-1/4 -left-1/4 w-1/2 h-1/2 rounded-full bg-primary/10 blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-0 w-1/2 h-1/2 rounded-full bg-secondary/10 blur-3xl"></div>
-      </div>
+    <>
+      <StickyNavbar />
+      <div className="relative min-h-screen bg-background overflow-hidden">
+        {/* Background effect - simplified */}
+        <div className="absolute inset-0 z-0 opacity-5">
+          <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] bg-repeat"></div>
+        </div>
+        {/* Main content */}
+        <div className="relative z-10 min-h-screen">
+          {/* Dashboard content */}
+          <main className="p-6 container mx-auto">
+            {/* Section: SUPPLY VISUALIZATION */}
+            <section id="supply-visualization" className="mb-12 pt-16 -mt-16">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-semibold text-white">SUPPLY VISUALIZATION</h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleShare}
+                  className="text-neutral-400 border-neutral-700 hover:bg-neutral-800 hover:text-white"
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share
+                </Button>
+              </div>
+              {/* Cards for this section will go here */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <TotalSupplyCard />
+                {/* <CirculatingSupplyCard /> */}
+                <MarketCapCard />
+                <SupplyAllocationCard />
+              </div>
+            </section>
 
-      {/* Mobile sidebar toggle */}
-      <button
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="fixed top-4 left-4 z-50 p-2 rounded-full bg-background/80 backdrop-blur-sm border border-border md:hidden"
-      >
-        <Menu className="h-5 w-5" />
-      </button>
+            {/* Section: ISSUANCE METRICS */}
+            <section className="mb-12 pt-16 -mt-16">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-semibold text-white">ISSUANCE METRICS</h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleShare}
+                  className="text-neutral-400 border-neutral-700 hover:bg-neutral-800 hover:text-white"
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share
+                </Button>
+              </div>
+              {/* Cards for this section will go here */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                {/* Placeholder for Current Issuance, Annual Issuance, Inflation */}
+                {/* These will likely be new smaller cards or integrated into TokenMetricsCard later */}
+              </div>
+              <div className="grid grid-cols-1 gap-6">
+                <TokenMetricsCard /> {/* Price History and other metrics */}
+              </div>
+            </section>
 
-      {/* Sidebar */}
-      <div
-        className={`fixed inset-y-0 left-0 z-40 w-64 bg-background/90 backdrop-blur-lg border-r border-border transform transition-transform duration-300 ease-in-out ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-        }`}
-      >
-        <div className="flex flex-col h-full">
-          <div className="relative w-full h-24 border-b border-border bg-background">
-            <Image
-              src="/penumbra-logo.svg"
-              alt="Penumbra Logo"
-              fill
-              className="object-contain p-4"
-              priority
-            />
-          </div>
+            {/* Section: BURN METRICS */}
+            <section className="mb-12 pt-16 -mt-16">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-semibold text-white">BURN METRICS</h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleShare}
+                  className="text-neutral-400 border-neutral-700 hover:bg-neutral-800 hover:text-white"
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share
+                </Button>
+              </div>
+              {/* Cards for this section will go here */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <BurnMetricsCard /> {/* Token burned by source chart */}
+                {/* Placeholder for Total Burned, % of Total Supply, Why is burning important? */}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <TotalBurnedCard />
+              </div>
+              {/* Placeholder for Burn rate over time chart */}
+            </section>
 
-          <nav className="flex-1 p-4 space-y-1">
-            <a
-              href="#"
-              className="flex items-center px-3 py-2 text-sm rounded-md bg-primary/20 text-primary group"
-            >
-              <GanttChartSquare className="mr-3 h-5 w-5" />
-              <span>Dashboard</span>
-            </a>
-            <a
-              href="#"
-              className="flex items-center px-3 py-2 text-sm rounded-md text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors group"
-            >
-              <PieChart className="mr-3 h-5 w-5" />
-              <span>Distribution</span>
-            </a>
-            <a
-              href="#"
-              className="flex items-center px-3 py-2 text-sm rounded-md text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors group"
-            >
-              <LineChart className="mr-3 h-5 w-5" />
-              <span>Price History</span>
-            </a>
-            <a
-              href="#"
-              className="flex items-center px-3 py-2 text-sm rounded-md text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors group"
-            >
-              <Lock className="mr-3 h-5 w-5" />
-              <span>Vesting</span>
-            </a>
-            <a
-              href="#"
-              className="flex items-center px-3 py-2 text-sm rounded-md text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors group"
-            >
-              <BarChart3 className="mr-3 h-5 w-5" />
-              <span>Analytics</span>
-            </a>
-          </nav>
+            {/* Section: TOKEN DISTRIBUTION */}
+            <section className="mb-12 pt-16 -mt-16">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-semibold text-white">TOKEN DISTRIBUTION</h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleShare}
+                  className="text-neutral-400 border-neutral-700 hover:bg-neutral-800 hover:text-white"
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share
+                </Button>
+              </div>
+              {/* Cards for this section will go here */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <CirculatingSupplyCard />
+                {/* Placeholder for % Staked */}
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <TokenDistributionCard />
+              </div>
+            </section>
 
-          <div className="p-4 border-t border-border">
-            <div className="flex items-center justify-end">
-              <a
-                href="https://guide.penumbra.zone/"
-                className="flex items-center text-sm text-primary hover:text-primary/80"
-              >
-                <span className="mr-1">Docs</span>
-                <ExternalLink className="h-3 w-3" />
-              </a>
-            </div>
-          </div>
+            {/* Section: LIQUIDITY TOURNAMENT */}
+            <section id="lqt" className="mb-12 pt-16 -mt-16">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-semibold text-white">LIQUIDITY TOURNAMENT</h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleShare}
+                  className="text-neutral-400 border-neutral-700 hover:bg-neutral-800 hover:text-white"
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share
+                </Button>
+              </div>
+              {/* Cards for this section will go here */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                {/* Placeholders for Available Rewards, Delegator Rewards, LP Rewards, Total Voting Power */}
+              </div>
+              <div className="grid grid-cols-1 gap-6">
+                <LQTMetricsCard /> {/* Positions table */}
+              </div>
+            </section>
+          </main>
         </div>
       </div>
-
-      {/* Main content */}
-      <div className="relative z-10 md:ml-64 min-h-screen">
-        {/* Header */}
-        <header className="sticky top-0 z-30 bg-background/50 backdrop-blur-lg border-b border-border">
-          <div className="flex items-center justify-between px-6 py-4">
-            <h1 className="text-xl font-bold text-foreground">Tokenomics Dashboard</h1>
-            <div className="flex items-center space-x-4">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-primary/50 text-primary hover:bg-primary/20 hover:text-primary/80"
-                      disabled={socialLoading}
-                    >
-                      {socialLoading ? (
-                        <LoadingSpinner className="h-4 w-4" size="sm" />
-                      ) : (
-                        <>
-                          <CircleDollarSign className="h-4 w-4 mr-1" />
-                          <span>${formatNumber(socialMetrics?.price || 0, 2)}</span>
-                        </>
-                      )}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Current token price</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              <Button
-                onClick={handleShare}
-                variant="outline"
-                size="sm"
-                disabled={socialLoading}
-                className="border-primary/50 text-primary hover:bg-primary/20 hover:text-primary/80"
-              >
-                {socialLoading ? (
-                  <LoadingSpinner className="h-4 w-4" size="sm" />
-                ) : (
-                  <>
-                    <Share2 className="h-4 w-4 mr-1" />
-                    Share
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        </header>
-
-        {/* Dashboard content */}
-        <main className="p-6">
-          {/* Overview cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <TotalSupplyCard />
-            <CirculatingSupplyCard />
-            <MarketCapCard />
-            <TotalBurnedCard />
-          </div>
-
-          {/* Main Charts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <SupplyAllocationCard />
-            <BurnMetricsCard />
-          </div>
-
-          {/* Distribution and Burn Metrics */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <TokenDistributionCard />
-            <LQTMetricsCard />
-          </div>
-
-          {/* Price History and Inflation Rate */}
-          <div className="grid grid-cols-1 gap-6">
-            <TokenMetricsCard />
-          </div>
-        </main>
-      </div>
-    </div>
+    </>
   );
 }

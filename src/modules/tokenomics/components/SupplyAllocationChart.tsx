@@ -2,7 +2,7 @@
 
 import * as echarts from "echarts";
 
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import { useTheme } from "next-themes";
 

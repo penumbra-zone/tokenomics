@@ -1,7 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-import { DurationWindow } from "@/lib/db/pindexer";
-
 export interface SupplyMetrics {
   totalSupply: number;
   genesisAllocation: number;

@@ -10,7 +10,6 @@ import {
 import { LoadingOverlay } from "@/common/components/ui/LoadingOverlay";
 import { LoadingSpinner } from "@/common/components/ui/LoadingSpinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PriceHistory } from "@/store/api/tokenomicsApi";
 import { useGetPriceHistoryQuery } from "@/store/api/tokenomicsApi";
 
 import { InflationRateCard } from "./InflationRateCard";

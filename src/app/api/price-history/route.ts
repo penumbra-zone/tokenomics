@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 
 import { Pindexer } from "@/lib/db/pindexer/pindexer";
-import { DurationWindow, durationWindows } from "@/lib/db/pindexer/types";
 
 export const dynamic = "auto";
 export const revalidate = 6;
