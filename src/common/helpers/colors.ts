@@ -9,16 +9,16 @@ import { hslToHex } from "./colorUtils";
 export const COLORS = {
   // Primary brand colors
   primary: {
-    DEFAULT: "#f49c43", // Orange
+    DEFAULT: "#BA4D14", // Orange (updated)
     light: "#f7b472",
-    dark: "#d67e2a",
+    dark: "#773517", // Darker (updated)
   },
 
   // Secondary color (teal)
   secondary: {
-    DEFAULT: "#2a7a8c",
+    DEFAULT: "#319B96", // Teal (updated)
     light: "#3b97ac",
-    dark: "#1c5a67",
+    dark: "#226362", // Darker (updated)
   },
 
   // UI color definitions
@@ -47,8 +47,8 @@ export const COLORS = {
   charts: {
     // Main palette for donut/pie charts
     categorical: [
-      "#f49c43", // Primary (orange)
-      "#2a7a8c", // Secondary (teal)
+      "#BA4D14", // Primary (updated)
+      "#319B96", // Secondary (updated)
       "#ef4444", // Destructive (red)
       "#8b5cf6", // Purple
       "#10b981", // Green
@@ -118,8 +118,8 @@ export const CHART_PALETTES = {
 
   // For financial/token data
   tokenomics: [
-    COLORS.primary.DEFAULT,
-    COLORS.secondary.DEFAULT,
+    "#BA4D14", // Primary (updated)
+    "#319B96", // Secondary (updated)
     COLORS.destructive.DEFAULT,
     "#8b5cf6", // Purple
     "#10b981", // Green

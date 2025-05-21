@@ -10,7 +10,7 @@ const NAV_ITEMS = [
   { id: "supply-visualization", label: "Dashboard" },
   { id: "educational", label: "Educational" },
   { id: "services", label: "Services" },
-  { id: "lqt", label: "Tournament Liquidity" },
+  { id: "lqt", label: "Liquidity Tournament" },
 ];
 
 export default function StickyNavbar() {
