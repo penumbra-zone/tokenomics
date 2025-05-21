@@ -18,6 +18,7 @@ import {
   TotalSupplyCard,
 } from "@/modules/tokenomics/components/cards";
 import { useGetSocialMetricsQuery } from "@/store/api/tokenomicsApi";
+import ShareButton from "@/modules/tokenomics/components/ShareButton";
 
 export default function Dashboard() {
   const { data: socialMetrics } = useGetSocialMetricsQuery();
@@ -50,15 +51,10 @@ export default function Dashboard() {
             <section id="supply-visualization" className="mb-12 pt-16 -mt-16">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-semibold text-white">SUPPLY VISUALIZATION</h2>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleShare}
-                  className="text-neutral-400 border-neutral-700 hover:bg-neutral-800 hover:text-white"
-                >
+                <ShareButton onClick={handleShare}>
                   <Share2 className="h-4 w-4 mr-2" />
                   Share
-                </Button>
+                </ShareButton>
               </div>
               {/* Cards for this section will go here */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -73,15 +69,10 @@ export default function Dashboard() {
             <section className="mb-12 pt-16 -mt-16">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-semibold text-white">ISSUANCE METRICS</h2>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleShare}
-                  className="text-neutral-400 border-neutral-700 hover:bg-neutral-800 hover:text-white"
-                >
+                <ShareButton onClick={handleShare}>
                   <Share2 className="h-4 w-4 mr-2" />
                   Share
-                </Button>
+                </ShareButton>
               </div>
               {/* Cards for this section will go here */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -97,15 +88,10 @@ export default function Dashboard() {
             <section className="mb-12 pt-16 -mt-16">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-semibold text-white">BURN METRICS</h2>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleShare}
-                  className="text-neutral-400 border-neutral-700 hover:bg-neutral-800 hover:text-white"
-                >
+                <ShareButton onClick={handleShare}>
                   <Share2 className="h-4 w-4 mr-2" />
                   Share
-                </Button>
+                </ShareButton>
               </div>
               {/* Cards for this section will go here */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -122,15 +108,10 @@ export default function Dashboard() {
             <section className="mb-12 pt-16 -mt-16">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-semibold text-white">TOKEN DISTRIBUTION</h2>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleShare}
-                  className="text-neutral-400 border-neutral-700 hover:bg-neutral-800 hover:text-white"
-                >
+                <ShareButton onClick={handleShare}>
                   <Share2 className="h-4 w-4 mr-2" />
                   Share
-                </Button>
+                </ShareButton>
               </div>
               {/* Cards for this section will go here */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -146,15 +127,10 @@ export default function Dashboard() {
             <section id="lqt" className="mb-12 pt-16 -mt-16">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-semibold text-white">LIQUIDITY TOURNAMENT</h2>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleShare}
-                  className="text-neutral-400 border-neutral-700 hover:bg-neutral-800 hover:text-white"
-                >
+                <ShareButton onClick={handleShare}>
                   <Share2 className="h-4 w-4 mr-2" />
                   Share
-                </Button>
+                </ShareButton>
               </div>
               {/* Cards for this section will go here */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
