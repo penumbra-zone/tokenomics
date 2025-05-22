@@ -12,7 +12,7 @@ import CardWrapper from "@/components/ui/CardWrapper";
 import { useGetBurnMetricsQuery } from "@/store/api/tokenomicsApi";
 
 // Import chart component with SSR disabled
-const BurnMetricsChart = dynamic(() => import("@/modules/tokenomics/components/BurnMetricsChart"), {
+const BurnMetricsChart = dynamic(() => import("@/modules/tokenomics/components/charts/BurnMetricsChart"), {
   ssr: false,
 });
 

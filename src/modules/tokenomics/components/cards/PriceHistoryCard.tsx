@@ -12,7 +12,7 @@ import { PriceHistory } from "@/store/api/tokenomicsApi";
 
 // Import chart component with SSR disabled
 const PriceHistoryChart = dynamic(
-  () => import("@/modules/tokenomics/components/PriceHistoryChart"),
+  () => import("@/modules/tokenomics/components/charts/PriceHistoryChart"),
   { ssr: false }
 );
 

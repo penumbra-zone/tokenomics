@@ -7,7 +7,7 @@ import { useGetSupplyMetricsQuery } from "@/store/api/tokenomicsApi";
 
 // Import chart component with SSR disabled
 const SupplyAllocationChart = dynamic(
-  () => import("@/modules/tokenomics/components/SupplyAllocationChart"),
+  () => import("@/modules/tokenomics/components/charts/SupplyAllocationChart"),
   { ssr: false }
 );
 

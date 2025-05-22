@@ -13,7 +13,7 @@ import { useGetTokenDistributionQuery } from "@/store/api/tokenomicsApi";
 
 // Import chart component with SSR disabled
 const TokenDistributionChart = dynamic(
-  () => import("@/modules/tokenomics/components/TokenDistributionChart"),
+  () => import("@/modules/tokenomics/components/charts/TokenDistributionChart"),
   { ssr: false }
 );
 

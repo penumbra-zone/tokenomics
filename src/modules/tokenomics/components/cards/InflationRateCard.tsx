@@ -11,7 +11,7 @@ import { PriceHistory } from "@/store/api/tokenomicsApi";
 
 // Import chart component with SSR disabled
 const InflationRateChart = dynamic(
-  () => import("@/modules/tokenomics/components/InflationRateChart"),
+  () => import("@/modules/tokenomics/components/charts/InflationRateChart"),
   { ssr: false }
 );
 
