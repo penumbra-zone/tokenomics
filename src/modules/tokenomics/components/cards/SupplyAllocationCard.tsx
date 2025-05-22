@@ -1,7 +1,8 @@
 import dynamic from "next/dynamic";
 
-import { Card, CardContent, CardTitle } from "@/common/components/ui/Card";
+import { CardContent, CardTitle } from "@/common/components/ui/Card";
 import { LoadingSpinner } from "@/common/components/ui/LoadingSpinner";
+import CardWrapper from "@/components/ui/CardWrapper";
 import { useGetSupplyMetricsQuery } from "@/store/api/tokenomicsApi";
 
 // Import chart component with SSR disabled
@@ -14,7 +15,7 @@ export function SupplyAllocationCard() {
   const { data: supply, isLoading } = useGetSupplyMetricsQuery();
 
   return (
-    <Card className="bg-neutral-900/80 border-neutral-800/80 rounded-lg p-6 flex flex-col min-h-[344px] h-full">
+    <CardWrapper className="min-h-[344px] h-full">
       <CardTitle className="text-base font-medium text-neutral-50 mb-4">
         Genesis allocation vs. Issuance since launch
       </CardTitle>
@@ -32,6 +33,6 @@ export function SupplyAllocationCard() {
           )
         )}
       </CardContent>
-    </Card>
+    </CardWrapper>
   );
 }

@@ -1,5 +1,4 @@
 import {
-  Card,
   CardContent,
   CardDescription,
   CardHeader,
@@ -7,6 +6,7 @@ import {
 } from "@/common/components/ui/Card";
 import { LoadingOverlay } from "@/common/components/ui/LoadingOverlay";
 import { LoadingSpinner } from "@/common/components/ui/LoadingSpinner";
+import CardWrapper from "@/components/ui/CardWrapper";
 import { formatNumber } from "@/lib/utils";
 import { useGetLQTMetricsQuery } from "@/store/api/tokenomicsApi";
 
@@ -16,7 +16,7 @@ export function LQTMetricsCard() {
   const showLoadingOverlay = isFetching && !lqtMetrics;
 
   return (
-    <Card className="bg-background/60 border-border backdrop-blur-sm">
+    <CardWrapper className="p-0">
       <CardHeader>
         <CardTitle className="text-primary">Liquidity Tournament Metrics</CardTitle>
         <CardDescription>LQT rewards and voting power</CardDescription>
@@ -62,6 +62,6 @@ export function LQTMetricsCard() {
           )
         )}
       </CardContent>
-    </Card>
+    </CardWrapper>
   );
 }

@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/common/components/ui/Card";
+import CardWrapper from "@/components/ui/CardWrapper";
 import { PriceHistory } from "@/store/api/tokenomicsApi";
 
 // Import chart component with SSR disabled
@@ -22,7 +23,7 @@ interface PriceHistoryCardProps {
 
 export function PriceHistoryCard({ data, onDaysChange }: PriceHistoryCardProps) {
   return (
-    <Card className="bg-background/60 border-border backdrop-blur-sm">
+    <CardWrapper className="p-0">
       <CardHeader>
         <CardTitle className="text-primary">Price History</CardTitle>
         <CardDescription>Token price over time</CardDescription>
@@ -86,6 +87,6 @@ export function PriceHistoryCard({ data, onDaysChange }: PriceHistoryCardProps) 
           </div>
         )}
       </CardContent>
-    </Card>
+    </CardWrapper>
   );
 }

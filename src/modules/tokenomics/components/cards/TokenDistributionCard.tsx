@@ -1,7 +1,6 @@
 import dynamic from "next/dynamic";
 
 import {
-  Card,
   CardContent,
   CardDescription,
   CardHeader,
@@ -9,6 +8,7 @@ import {
 } from "@/common/components/ui/Card";
 import { LoadingOverlay } from "@/common/components/ui/LoadingOverlay";
 import { LoadingSpinner } from "@/common/components/ui/LoadingSpinner";
+import CardWrapper from "@/components/ui/CardWrapper";
 import { useGetTokenDistributionQuery } from "@/store/api/tokenomicsApi";
 
 // Import chart component with SSR disabled
@@ -23,7 +23,7 @@ export function TokenDistributionCard() {
   const showLoadingOverlay = isFetching && !distribution;
 
   return (
-    <Card className="bg-background/60 border-border backdrop-blur-sm">
+    <CardWrapper className="p-0">
       <CardHeader>
         <CardTitle className="text-primary">Token Distribution</CardTitle>
         <CardDescription>Allocation of total token supply</CardDescription>
@@ -42,6 +42,6 @@ export function TokenDistributionCard() {
           )}
         </div>
       </CardContent>
-    </Card>
+    </CardWrapper>
   );
 }

@@ -1,7 +1,6 @@
 import { useState } from "react";
 
 import {
-  Card,
   CardContent,
   CardDescription,
   CardHeader,
@@ -9,6 +8,7 @@ import {
 } from "@/common/components/ui/Card";
 import { LoadingOverlay } from "@/common/components/ui/LoadingOverlay";
 import { LoadingSpinner } from "@/common/components/ui/LoadingSpinner";
+import CardWrapper from "@/components/ui/CardWrapper";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGetPriceHistoryQuery } from "@/store/api/tokenomicsApi";
 
@@ -28,7 +28,7 @@ export function TokenMetricsCard() {
     isFetching && (!priceHistoryData || priceHistoryData.length < selectedDays);
 
   return (
-    <Card className="bg-background/60 border-border backdrop-blur-sm">
+    <CardWrapper className="p-0">
       <CardHeader>
         <CardTitle className="text-primary">Token Metrics</CardTitle>
         <CardDescription>Key performance indicators</CardDescription>
@@ -72,6 +72,6 @@ export function TokenMetricsCard() {
           </TabsContent>
         </Tabs>
       </CardContent>
-    </Card>
+    </CardWrapper>
   );
 }
