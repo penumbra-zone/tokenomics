@@ -1,8 +1,4 @@
-import {
-  Card,
-  CardDescription,
-  CardTitle,
-} from "@/common/components/ui/Card";
+import { Card, CardDescription, CardTitle } from "@/common/components/ui/Card";
 import { LoadingSpinner } from "@/common/components/ui/LoadingSpinner";
 import AnimatedNumber from "@/components/AnimatedNumber";
 import { formatNumber } from "@/lib/utils";
@@ -19,10 +15,7 @@ export function MarketCapCard() {
       ) : (
         socialMetrics && (
           <div className="text-4xl font-bold text-primary">
-            <AnimatedNumber
-              value={socialMetrics.marketCap}
-              format={(v) => formatNumber(v, 1)}
-            />
+            <AnimatedNumber value={socialMetrics.marketCap} format={(v) => formatNumber(v, 1)} />
           </div>
         )
       )}

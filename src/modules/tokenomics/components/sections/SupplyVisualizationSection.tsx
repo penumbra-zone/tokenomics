@@ -36,4 +36,4 @@ export default function SupplyVisualizationSection({ handleShare }: SectionProps
       </div>
     </section>
   );
-} 
+}

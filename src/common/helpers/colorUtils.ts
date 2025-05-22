@@ -2,7 +2,6 @@
  * Color utility functions for converting between different color formats
  * and manipulating colors throughout the application.
  */
-import { COLORS } from "./colors";
 
 /**
  * Converts HSL color values to hexadecimal color code
@@ -117,60 +116,4 @@ export function shiftHue(hexColor: string, amount: number): string {
   };
 
   return `#${toHex(r1)}${toHex(g1)}${toHex(b1)}`;
-}
-
-/**
- * Generates theme colors from CSS variables
- * @returns An object with primary color and gradient colors
- */
-export function getPrimaryThemeColors() {
-  const rootStyles = getComputedStyle(document.documentElement);
-  const primaryHsl = rootStyles.getPropertyValue("--primary").trim();
-
-  // Convert HSL values to hex
-  const [h, s, l] = primaryHsl.split(" ").map((val) => parseFloat(val));
-  const primaryColor = hslToHex(h, s, l);
-
-  return {
-    primaryColor,
-    barGradient: COLORS.gradients.primaryBar,
-    areaGradient: COLORS.gradients.primaryFade,
-  };
-}
-
-/**
- * Extracts theme colors from CSS variables and generates variations
- * @returns An array of hex color strings
- */
-export function getColorPalette(): string[] {
-  const rootStyles = getComputedStyle(document.documentElement);
-  const cssVars = ["--primary", "--secondary", "--destructive", "--accent", "--muted", "--card"];
-
-  // Get colors and convert from HSL to hex
-  const colors = cssVars
-    .map((variable) => {
-      const hslValue = rootStyles.getPropertyValue(variable).trim();
-      if (!hslValue) return "";
-
-      try {
-        const [h, s, l] = hslValue.split(" ").map((val) => parseFloat(val));
-        return hslToHex(h, s, l);
-      } catch (e) {
-        return "";
-      }
-    })
-    .filter(Boolean);
-
-  // Add variations of primary and secondary
-  if (colors.length >= 2) {
-    const variations = [
-      shiftHue(colors[0], 30), // Shift primary hue by 30 degrees
-      shiftHue(colors[1], -30), // Shift secondary hue by -30 degrees
-    ];
-
-    return [...colors, ...variations];
-  }
-
-  // Fallback to predefined chart palette if CSS variables aren't available
-  return colors.length > 0 ? colors : COLORS.charts.categorical;
 }

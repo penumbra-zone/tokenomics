@@ -1,13 +1,10 @@
 "use client";
 
-import type { EChartsOption } from "echarts";
+import type { EChartsOption, SeriesOption } from "echarts";
 import ReactECharts from "echarts-for-react";
 
 import { useEffect, useState } from "react";
 
-import { useTheme } from "next-themes";
-
-import { getPrimaryThemeColors } from "@/common/helpers/colorUtils";
 import { CHART_PALETTES, COLORS } from "@/common/helpers/colors";
 
 export interface BarLineChartData {
@@ -23,11 +20,11 @@ interface BarLineChartProps {
   yPadding?: number;
   barGradientColors?: [string, string];
   lineColor?: string;
-  areaGradientColors?: [string, string];
   minYZero?: boolean;
   dayOptions?: number[];
   defaultDays?: number;
   chartPalette?: keyof typeof CHART_PALETTES;
+  showLine?: boolean;
   onDaysChange?: (days: number) => void;
 }
 
@@ -39,7 +36,7 @@ export default function BarLineChart({
   yPadding = 0.2,
   barGradientColors,
   lineColor,
-  areaGradientColors,
+  showLine = false,
   minYZero = true,
   dayOptions = [7, 30, 90],
   defaultDays = 30,
@@ -47,17 +44,10 @@ export default function BarLineChart({
   onDaysChange,
 }: BarLineChartProps) {
   const [days, setDays] = useState(defaultDays);
-  const { resolvedTheme } = useTheme();
-  const [themeColors, setThemeColors] = useState({
+  const themeColors = {
     primaryColor: COLORS.primary.DEFAULT,
-    barGradient: COLORS.gradients.primaryBar,
-    areaGradient: COLORS.gradients.primaryFade,
-  });
-
-  // Get CSS variable for primary color
-  useEffect(() => {
-    setThemeColors(getPrimaryThemeColors());
-  }, [resolvedTheme]);
+    barGradient: [CHART_PALETTES.sequential[1], CHART_PALETTES.sequential[0]],
+  };
 
   // Update days when defaultDays changes
   useEffect(() => {
@@ -89,6 +79,62 @@ export default function BarLineChart({
     `${Math.round(days / 3)}d`,
     "Now",
   ].slice(0, xAxisLabels.length);
+
+  const series: SeriesOption[] = [
+    {
+      name: `${areaLabel} Bars`,
+      type: "bar",
+      data: filteredData.map((item) => item.y),
+      barWidth: "70%",
+      itemStyle: {
+        borderRadius: 4,
+        color: {
+          type: "linear",
+          x: 0,
+          y: 1,
+          x2: 0,
+          y2: 0,
+          colorStops: [
+            {
+              offset: 0,
+              color: barGradientColors?.[0] || themeColors.barGradient[0],
+            },
+            {
+              offset: 1,
+              color: barGradientColors?.[1] || themeColors.barGradient[1],
+            },
+          ],
+        },
+      },
+      emphasis: {
+        itemStyle: {
+          color: lineColor || themeColors.primaryColor,
+        },
+      },
+      z: 1,
+    },
+  ];
+
+  if (showLine) {
+    series.push({
+      name: `${areaLabel} Line`,
+      type: "line",
+      data: filteredData.map((item) => item.y),
+      smooth: true,
+      symbol: "circle",
+      symbolSize: 6,
+      lineStyle: {
+        width: 3,
+        color: lineColor || themeColors.primaryColor,
+      },
+      itemStyle: {
+        color: lineColor || themeColors.primaryColor,
+        borderColor: "#fff",
+        borderWidth: 0,
+      },
+      z: 2,
+    });
+  }
 
   const option: EChartsOption = {
     backgroundColor: "transparent",
@@ -153,77 +199,7 @@ export default function BarLineChart({
         },
       },
     },
-    series: [
-      {
-        name: `${areaLabel} Bars`,
-        type: "bar",
-        data: filteredData.map((item) => item.y),
-        barWidth: "70%",
-        itemStyle: {
-          borderRadius: [0, 0, 0, 0],
-          color: {
-            type: "linear",
-            x: 0,
-            y: 1,
-            x2: 0,
-            y2: 0,
-            colorStops: [
-              {
-                offset: 0,
-                color: barGradientColors?.[0] || themeColors.barGradient[0],
-              },
-              {
-                offset: 1,
-                color: barGradientColors?.[1] || themeColors.barGradient[1],
-              },
-            ],
-          },
-        },
-        emphasis: {
-          itemStyle: {
-            color: lineColor || themeColors.primaryColor,
-          },
-        },
-        z: 1,
-      },
-      {
-        name: `${areaLabel} Line`,
-        type: "line",
-        data: filteredData.map((item) => item.y),
-        smooth: true,
-        symbol: "circle",
-        symbolSize: 6,
-        lineStyle: {
-          width: 3,
-          color: lineColor || themeColors.primaryColor,
-        },
-        itemStyle: {
-          color: lineColor || themeColors.primaryColor,
-          borderColor: "#fff",
-          borderWidth: 0,
-        },
-        areaStyle: {
-          color: {
-            type: "linear",
-            x: 0,
-            y: 0,
-            x2: 0,
-            y2: 1,
-            colorStops: [
-              {
-                offset: 0,
-                color: areaGradientColors?.[0] || themeColors.areaGradient[0],
-              },
-              {
-                offset: 1,
-                color: areaGradientColors?.[1] || themeColors.areaGradient[1],
-              },
-            ],
-          },
-        },
-        z: 2,
-      },
-    ],
+    series,
     color: CHART_PALETTES[chartPalette],
     legend: { show: false },
     toolbox: { show: false },

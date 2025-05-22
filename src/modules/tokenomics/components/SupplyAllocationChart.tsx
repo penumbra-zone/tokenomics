@@ -6,9 +6,9 @@ import { useEffect, useRef } from "react";
 
 import { useTheme } from "next-themes";
 
-import { CHART_PALETTES, COLORS } from "@/common/helpers/colors";
-import { FONT_FAMILIES, FONT_SIZES, TEXT_COLORS } from "@/common/helpers/typography";
+import { COLORS } from "@/common/helpers/colors";
 import { getCustomTooltipConfig } from "@/common/helpers/echartsTooltip";
+import { FONT_FAMILIES, TEXT_COLORS } from "@/common/helpers/typography";
 
 // Define the SupplyAllocation interface
 interface SupplyAllocation {
@@ -67,11 +67,11 @@ export default function SupplyAllocationChart({ data }: SupplyAllocationChartPro
       series: [
         {
           name: "Supply Allocation",
-          type: 'pie',
-          radius: ['60%', '100%'],
-          center: ['50%', '70%'],
+          type: "pie",
+          radius: ["60%", "100%"],
+          center: ["50%", "70%"],
           startAngle: 180,
-          endAngle: 360,          
+          endAngle: 360,
           itemStyle: { borderRadius: 7 },
           label: { show: false },
           labelLine: { show: false },
@@ -80,12 +80,12 @@ export default function SupplyAllocationChart({ data }: SupplyAllocationChartPro
         },
       ],
       legend: {
-        bottom: '10%',
-        left: 'center',
+        bottom: "10%",
+        left: "center",
         itemWidth: 20,
         itemHeight: 20,
         itemGap: 10,
-        icon: 'circle',
+        icon: "circle",
         textStyle: {
           color: COLORS.neutral[50],
           fontFamily: FONT_FAMILIES.primary,
@@ -108,7 +108,5 @@ export default function SupplyAllocationChart({ data }: SupplyAllocationChartPro
     };
   }, [data, resolvedTheme]);
 
-  return (
-    <div ref={chartRef} className="w-full h-full justify-center items-center" />
-  );
+  return <div ref={chartRef} className="w-full h-full justify-center items-center" />;
 }

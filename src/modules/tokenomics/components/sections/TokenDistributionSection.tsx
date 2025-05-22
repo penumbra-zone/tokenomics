@@ -28,4 +28,4 @@ export default function TokenDistributionSection({ handleShare }: SectionProps) 
       </div>
     </section>
   );
-} 
+}

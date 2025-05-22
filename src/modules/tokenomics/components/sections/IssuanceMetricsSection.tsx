@@ -25,4 +25,4 @@ export default function IssuanceMetricsSection({ handleShare }: SectionProps) {
       </div>
     </section>
   );
-} 
+}

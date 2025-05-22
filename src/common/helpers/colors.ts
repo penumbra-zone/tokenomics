@@ -28,6 +28,12 @@ export const COLORS = {
     dark: "#b91c1c",
   },
 
+  positive: {
+    DEFAULT: "#10b981", // Green
+    light: "#93c5fd",
+    dark: "#059669",
+  },
+
   // Neutral shades
   neutral: {
     50: "#fafafa",
@@ -41,39 +47,6 @@ export const COLORS = {
     800: "#262626",
     900: "#171717",
     950: "#0a0a0a",
-  },
-
-  // Chart color palettes
-  charts: {
-    // Main palette for donut/pie charts
-    categorical: [
-      "#BA4D14", // Primary
-      "#319B96", // Secondary
-      "#773517", // Primary Dark
-      "#226362", // Secondary Dark
-      "#f7b472", // Primary Light
-      "#3b97ac", // Secondary Light
-    ],
-
-    // Palette for sequential data (low to high)
-    sequential: [
-      "#f7b472", // Light primary
-      "#f49c43", // Primary
-      "#d67e2a", // Dark primary
-    ],
-
-    // For diverging data (negative/positive)
-    diverging: [
-      "#ef4444", // Red (negative)
-      "#d4d4d4", // Neutral
-      "#10b981", // Green (positive)
-    ],
-  },
-
-  // Background gradients
-  gradients: {
-    primaryFade: ["rgba(244,156,67,0.18)", "rgba(244,156,67,0.01)"],
-    primaryBar: ["rgba(244,156,67,0.15)", "rgba(244,156,67,0.7)"],
   },
 };
 
@@ -113,8 +86,15 @@ export function getCurrentThemeColors() {
  * Named color palettes for different chart types
  */
 export const CHART_PALETTES = {
-  // Default palette for most charts
-  default: COLORS.charts.categorical,
+  // Main palette for donut/pie charts
+  categorical: [
+    COLORS.primary.DEFAULT, // Primary
+    COLORS.secondary.DEFAULT, // Secondary
+    COLORS.primary.dark, // Primary Dark
+    COLORS.secondary.dark, // Secondary Dark
+    COLORS.primary.light, // Primary Light
+    COLORS.secondary.light, // Secondary Light
+  ],
 
   // For financial/token data
   tokenomics: [
@@ -127,8 +107,26 @@ export const CHART_PALETTES = {
   ],
 
   // For comparing positive/negative values
-  comparison: COLORS.charts.diverging,
+  diverging: [
+    COLORS.destructive.DEFAULT, // Red (negative)
+    COLORS.neutral[200], // Neutral
+    COLORS.positive.DEFAULT, // Green
+  ],
 
   // For showing sequential data like time series
-  sequential: COLORS.charts.sequential,
+  sequential: [
+    COLORS.primary.light, // Light primary
+    COLORS.primary.DEFAULT, // Primary
+    COLORS.primary.dark, // Dark primary
+  ],
+
+  // Default palette for most charts (alias for categorical)
+  default: [
+    COLORS.primary.DEFAULT, // Primary
+    COLORS.secondary.DEFAULT, // Secondary
+    COLORS.primary.dark, // Primary Dark
+    COLORS.secondary.dark, // Secondary Dark
+    COLORS.primary.light, // Primary Light
+    COLORS.secondary.light, // Secondary Light
+  ],
 };

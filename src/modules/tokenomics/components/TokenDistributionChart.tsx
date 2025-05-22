@@ -2,11 +2,11 @@
 
 import * as echarts from "echarts";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 import { useTheme } from "next-themes";
 
-import { getColorPalette, hexToRgb } from "@/common/helpers/colorUtils";
+import { hexToRgb } from "@/common/helpers/colorUtils";
 import { CHART_PALETTES, COLORS } from "@/common/helpers/colors";
 import { TokenDistribution } from "@/store/api/tokenomicsApi";
 
@@ -17,14 +17,7 @@ interface TokenDistributionChartProps {
 export default function TokenDistributionChart({ data }: TokenDistributionChartProps) {
   const chartRef = useRef<HTMLDivElement>(null);
   const { resolvedTheme } = useTheme();
-  const [themeColors, setThemeColors] = useState<string[]>([]);
-
-  // Extract theme colors from CSS variables
-  useEffect(() => {
-    // Use tokenomics palette as fallback if dynamic colors fail
-    const dynamicColors = getColorPalette();
-    setThemeColors(dynamicColors.length >= 4 ? dynamicColors : CHART_PALETTES.tokenomics);
-  }, [resolvedTheme]);
+  const themeColors = CHART_PALETTES.tokenomics;
 
   useEffect(() => {
     if (!chartRef.current || themeColors.length === 0) return;

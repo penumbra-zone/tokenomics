@@ -107,4 +107,4 @@ export const TEXT_STYLES = {
 // Example: style={getTextStyle('h1')}
 export const getTextStyle = (styleName: keyof typeof TEXT_STYLES) => {
   return TEXT_STYLES[styleName];
-}; 
+};

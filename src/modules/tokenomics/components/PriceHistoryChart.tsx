@@ -23,6 +23,7 @@ export default function PriceHistoryChart({ data, onDaysChange }: PriceHistoryCh
         const value = params[0].value as number;
         return `${params[0].name}<br/>$${value.toFixed(2)}`;
       }}
+      showLine={true}
       areaLabel="Price"
       minYZero={true}
       dayOptions={[7, 30, 90]}

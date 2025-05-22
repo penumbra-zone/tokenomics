@@ -1,10 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/common/components/ui/Card";
+import { Card, CardDescription, CardTitle } from "@/common/components/ui/Card";
 import { LoadingSpinner } from "@/common/components/ui/LoadingSpinner";
 import AnimatedNumber from "@/components/AnimatedNumber";
 import { formatNumber } from "@/lib/utils";

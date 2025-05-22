@@ -1,10 +1,6 @@
 import dynamic from "next/dynamic";
 
-import {
-  Card,
-  CardContent,
-  CardTitle,
-} from "@/common/components/ui/Card";
+import { Card, CardContent, CardTitle } from "@/common/components/ui/Card";
 import { LoadingSpinner } from "@/common/components/ui/LoadingSpinner";
 import { useGetSupplyMetricsQuery } from "@/store/api/tokenomicsApi";
 

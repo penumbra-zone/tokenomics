@@ -1,4 +1,4 @@
-import { CHART_PALETTES, COLORS } from "./colors";
+import { CHART_PALETTES } from "./colors";
 import { TEXT_COLORS } from "./typography";
 
 /**
@@ -20,9 +20,7 @@ export function getCustomTooltipConfig(data: { category: string; amount: number 
       data.forEach((item, index) => {
         const dotColor = CHART_PALETTES.default[index % CHART_PALETTES.default.length];
         const valueDisplay =
-          typeof item.amount === "number"
-            ? item.amount.toLocaleString()
-            : item.amount;
+          typeof item.amount === "number" ? item.amount.toLocaleString() : item.amount;
         tooltipHtml += `
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: ${index === data.length - 1 ? "0" : "8px"};">
             <div style="display: flex; align-items: center;">
@@ -36,4 +34,4 @@ export function getCustomTooltipConfig(data: { category: string; amount: number 
       return tooltipHtml;
     },
   };
-} 
+}

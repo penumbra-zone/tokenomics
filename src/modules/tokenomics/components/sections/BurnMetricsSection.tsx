@@ -1,10 +1,7 @@
 import { Share2 } from "lucide-react";
 
 import ShareButton from "@/modules/tokenomics/components/ShareButton";
-import {
-  BurnMetricsCard,
-  TotalBurnedCard,
-} from "@/modules/tokenomics/components/cards";
+import { BurnMetricsCard, TotalBurnedCard } from "@/modules/tokenomics/components/cards";
 
 interface SectionProps {
   handleShare: () => void;
@@ -28,4 +25,4 @@ export default function BurnMetricsSection({ handleShare }: SectionProps) {
       </div>
     </section>
   );
-} 
+}
