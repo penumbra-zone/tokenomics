@@ -47,12 +47,12 @@ export const COLORS = {
   charts: {
     // Main palette for donut/pie charts
     categorical: [
-      "#BA4D14", // Primary (updated)
-      "#319B96", // Secondary (updated)
-      "#ef4444", // Destructive (red)
-      "#8b5cf6", // Purple
-      "#10b981", // Green
-      "#0ea5e9", // Blue
+      "#BA4D14", // Primary
+      "#319B96", // Secondary
+      "#773517", // Primary Dark
+      "#226362", // Secondary Dark
+      "#f7b472", // Primary Light
+      "#3b97ac", // Secondary Light
     ],
 
     // Palette for sequential data (low to high)
@@ -118,12 +118,12 @@ export const CHART_PALETTES = {
 
   // For financial/token data
   tokenomics: [
-    "#BA4D14", // Primary (updated)
-    "#319B96", // Secondary (updated)
-    COLORS.destructive.DEFAULT,
-    "#8b5cf6", // Purple
-    "#10b981", // Green
-    "#0ea5e9", // Blue
+    COLORS.primary.DEFAULT, // Primary (updated)
+    COLORS.secondary.DEFAULT, // Secondary (updated)
+    COLORS.primary.dark,
+    COLORS.secondary.dark,
+    COLORS.primary.light,
+    COLORS.secondary.light,
   ],
 
   // For comparing positive/negative values

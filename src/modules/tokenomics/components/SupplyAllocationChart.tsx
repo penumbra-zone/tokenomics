@@ -6,7 +6,9 @@ import { useEffect, useRef } from "react";
 
 import { useTheme } from "next-themes";
 
-import { COLORS } from "@/common/helpers/colors";
+import { CHART_PALETTES, COLORS } from "@/common/helpers/colors";
+import { FONT_FAMILIES, FONT_SIZES, TEXT_COLORS } from "@/common/helpers/typography";
+import { getCustomTooltipConfig } from "@/common/helpers/echartsTooltip";
 
 // Define the SupplyAllocation interface
 interface SupplyAllocation {
@@ -86,15 +88,14 @@ export default function SupplyAllocationChart({ data }: SupplyAllocationChartPro
         icon: 'circle',
         textStyle: {
           color: COLORS.neutral[50],
+          fontFamily: FONT_FAMILIES.primary,
         },
       },
       textStyle: {
-        fontFamily: "Poppins, sans-serif",
-        color: COLORS.neutral[950],
+        fontFamily: FONT_FAMILIES.primary,
+        color: TEXT_COLORS.primary,
       },
-      tooltip: {
-        trigger: "item",
-      },
+      tooltip: getCustomTooltipConfig(data),
     });
 
     function handleResize() {
@@ -106,12 +107,6 @@ export default function SupplyAllocationChart({ data }: SupplyAllocationChartPro
       window.removeEventListener("resize", handleResize);
     };
   }, [data, resolvedTheme]);
-
-  // Legend data and color mapping
-  const legendData = [...data].sort((a, b) => b.amount - a.amount);
-  const totalForLegend = legendData.reduce((sum, item) => sum + item.amount, 0);
-  // Use the same color logic as the chart
-  const legendColors = [COLORS.primary.DEFAULT, COLORS.secondary.DEFAULT];
 
   return (
     <div ref={chartRef} className="w-full h-full justify-center items-center" />
