@@ -37,6 +37,7 @@
   "devDependencies": {
     "@shadcn/ui": "^0.0.4",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "@types/echarts": "^5.0.0",
     "@types/node": "^20",
     "@types/pg": "^8.15.1",
     "@types/react": "^18",

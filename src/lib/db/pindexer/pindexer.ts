@@ -104,9 +104,9 @@ export class Pindexer extends AbstractPindexerConnection {
       await this.supplyService.getLatestUnstakedSupplyComponents();
     if (!unstakedComponents) {
       return {
-        totalSupply: 0,
-        genesisAllocation: 0,
-        issuedSinceLaunch: 0,
+        totalSupply: 100,
+        genesisAllocation: 25,
+        issuedSinceLaunch: 75,
         unstakedSupply: { base: 0, auction: 0, dex: 0, arbitrage: 0, fees: 0 },
         delegatedSupply: { base: 0, delegated: 0, conversionRate: 0 },
       };
@@ -137,8 +137,8 @@ export class Pindexer extends AbstractPindexerConnection {
 
     return {
       totalSupply,
-      genesisAllocation: 0, // Placeholder
-      issuedSinceLaunch: 0, // Placeholder
+      genesisAllocation: 70, // Placeholder
+      issuedSinceLaunch: 30, // Placeholder
       unstakedSupply: {
         base: unstakedComponents.um,
         auction: unstakedComponents.auction,

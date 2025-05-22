@@ -6,7 +6,6 @@ import { useEffect, useRef } from "react";
 
 import { useTheme } from "next-themes";
 
-import { getColorPalette, hexToRgb, shiftHue } from "@/common/helpers/colorUtils";
 import { COLORS } from "@/common/helpers/colors";
 
 // Define the SupplyAllocation interface
@@ -30,72 +29,72 @@ export default function SupplyAllocationChart({ data }: SupplyAllocationChartPro
       renderer: "svg",
     });
 
-    const isDark = resolvedTheme === "dark";
-    const backgroundColor = "transparent"; // Kept for clarity, though echarts default usually works
-    const colorPalette = getColorPalette();
+    // Brand gradients
+    const gradients = [
+      {
+        type: "linear",
+        x: 0,
+        y: 0,
+        x2: 0,
+        y2: 1,
+        colorStops: [
+          { offset: 0, color: COLORS.primary.DEFAULT },
+          { offset: 1, color: COLORS.primary.dark },
+        ],
+      },
+      {
+        type: "linear",
+        x: 0,
+        y: 0,
+        x2: 0,
+        y2: 1,
+        colorStops: [
+          { offset: 0, color: COLORS.secondary.DEFAULT },
+          { offset: 1, color: COLORS.secondary.dark },
+        ],
+      },
+    ];
 
-    const chartData = data.map((item, index) => ({
+    const chartData = data.map((item, idx) => ({
       value: item.amount,
       name: item.category,
-      itemStyle: {
-        color: colorPalette[index % colorPalette.length],
-      },
+      itemStyle: { color: gradients[idx] },
     }));
 
-    const total = data.reduce((sum, item) => sum + item.amount, 0);
-
     chart.setOption({
-      backgroundColor,
-      tooltip: {
-        trigger: "item",
-        formatter: (params: any) => {
-          // Use any for params if specific type is complex
-          return `${params.name}: ${params.value.toLocaleString()} (${params.percent}%)`;
-        },
-        backgroundColor: isDark ? COLORS.neutral[800] : COLORS.neutral[50],
-        borderColor: COLORS.primary.DEFAULT,
-        textStyle: { color: isDark ? COLORS.neutral[50] : COLORS.neutral[900] },
-      },
-      legend: { show: false }, // Using custom legend below
       series: [
         {
           name: "Supply Allocation",
-          type: "pie",
-          radius: ["75%", "85%"],
-          center: ["50%", "50%"],
-          avoidLabelOverlap: false,
-          itemStyle: {
-            borderRadius: 0,
-            borderColor: backgroundColor,
-            borderWidth: 2,
-          },
-          label: {
-            show: true,
-            position: "center",
-            formatter: () => {
-              if (total === 0) return "-";
-              // Example: Display total in millions if large, or just the number
-              const displayTotal =
-                total > 1000000 ? `${(total / 1000000).toFixed(1)}M` : total.toLocaleString();
-              return `${displayTotal}\nTotal Supply`;
-            },
-            color: isDark ? COLORS.neutral[50] : COLORS.neutral[900],
-            fontSize: 16,
-            fontWeight: "bold",
-            lineHeight: 22,
-          },
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 15, // Increase shadow on hover
-              shadowColor: `rgba(${hexToRgb(COLORS.primary.DEFAULT)},0.35)`,
-            },
-          },
-          labelLine: {
-            show: false,
-          },
+          type: 'pie',
+          radius: ['60%', '100%'],
+          center: ['50%', '70%'],
+          startAngle: 180,
+          endAngle: 360,          
+          itemStyle: { borderRadius: 7 },
+          label: { show: false },
+          labelLine: { show: false },
+          hoverAnimation: false,
           data: chartData,
         },
       ],
+      legend: {
+        bottom: '10%',
+        left: 'center',
+        itemWidth: 20,
+        itemHeight: 20,
+        itemGap: 10,
+        icon: 'circle',
+        textStyle: {
+          color: COLORS.neutral[50],
+        },
+      },
+      textStyle: {
+        fontFamily: "Poppins, sans-serif",
+        color: COLORS.neutral[950],
+      },
+      tooltip: {
+        trigger: "item",
+      },
     });
 
     function handleResize() {
@@ -108,44 +107,13 @@ export default function SupplyAllocationChart({ data }: SupplyAllocationChartPro
     };
   }, [data, resolvedTheme]);
 
+  // Legend data and color mapping
   const legendData = [...data].sort((a, b) => b.amount - a.amount);
   const totalForLegend = legendData.reduce((sum, item) => sum + item.amount, 0);
-
-  // Regenerate palette for legend to ensure consistency if data order changes
-  // or if the number of items affects palette generation logic for series differently
-  const legendColorPalette = Array.from({ length: legendData.length }, (_, i) => {
-    if (legendData.length === 1) return COLORS.primary.DEFAULT;
-    if (i === 0) return COLORS.primary.DEFAULT; // First item (largest) gets primary
-    // For others, we might want a more deliberate palette or stick to the shifted hue
-    // This example uses the same logic as series for simplicity.
-    // Consider if legend should map directly to series colors if series data isn't re-sorted for chart.
-    const originalIndex = data.findIndex((d) => d.category === legendData[i].category);
-    if (originalIndex === 0) return COLORS.primary.DEFAULT;
-    if (originalIndex === data.length - 1 && data.length > 1) return COLORS.secondary.DEFAULT;
-
-    const shiftAmount = (30 * originalIndex) / Math.max(1, data.length - 1);
-    return shiftHue(COLORS.primary.DEFAULT, shiftAmount);
-  });
+  // Use the same color logic as the chart
+  const legendColors = [COLORS.primary.DEFAULT, COLORS.secondary.DEFAULT];
 
   return (
-    <div className="w-full h-full p-4 flex flex-col">
-      <div ref={chartRef} className="w-full flex-grow" style={{ minHeight: 200 }} />
-      {data.length > 0 && (
-        <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-4 pt-2 border-border/50">
-          {legendData.map((item, i) => (
-            <div key={item.category} className="flex items-center gap-2">
-              <span
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: legendColorPalette[i] }}
-              />
-              <span className="text-sm font-medium text-foreground">{item.category}</span>
-              <span className="text-xs text-muted-foreground">
-                {totalForLegend > 0 ? ((item.amount / totalForLegend) * 100).toFixed(1) : 0}%
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+    <div ref={chartRef} className="w-full h-full justify-center items-center" />
   );
 }
