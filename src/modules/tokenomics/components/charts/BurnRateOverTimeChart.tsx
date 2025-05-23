@@ -12,8 +12,8 @@ interface BurnRateDataPoint {
 }
 
 interface BurnRateOverTimeChartProps {
-  // data: BurnRateDataPoint[]; // Actual data prop will be used later
-  timeRange: '7d' | '30d' | '90d';
+  // data?: BurnRateDataPoint[]; // Assuming data might be added later, keep it optional if it has a default
+  timeRange?: '7d' | '30d' | '90d'; // Make timeRange optional as it has a default
 }
 
 // Mock data for different time ranges
@@ -35,7 +35,9 @@ const mockData90d: BurnRateDataPoint[] = Array.from({ length: 90 }, (_, i) => {
   return { date: format(day, 'yyyy-MM-dd'), value: Math.floor(Math.random() * 65) + 5 };
 });
 
-export function BurnRateOverTimeChart({ timeRange }: BurnRateOverTimeChartProps) {
+export function BurnRateOverTimeChart({
+  timeRange = '7d' // Default value for timeRange directly in destructuring
+}: BurnRateOverTimeChartProps) {
   const chartRef = useRef<HTMLDivElement>(null);
   const { resolvedTheme } = useTheme();
 
@@ -180,10 +182,4 @@ export function BurnRateOverTimeChart({ timeRange }: BurnRateOverTimeChartProps)
   }, [chartData, resolvedTheme]);
 
   return <div ref={chartRef} style={{ width: '100%', height: '300px' }} />;
-}
-
-// Default props can be useful for initial rendering or testing
-BurnRateOverTimeChart.defaultProps = {
-  // data: mockData7d, // Actual data will be passed
-  timeRange: '7d',
-}; 
+} 

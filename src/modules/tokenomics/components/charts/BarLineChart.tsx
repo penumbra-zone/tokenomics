@@ -200,7 +200,6 @@ export default function BarLineChart({
       },
     },
     series,
-    color: CHART_PALETTES[chartPalette],
     legend: { show: false },
     toolbox: { show: false },
   };
