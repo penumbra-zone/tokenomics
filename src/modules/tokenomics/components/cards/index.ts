@@ -9,3 +9,6 @@ export * from "./TokenDistributionCard";
 export * from "./TokenMetricsCard";
 export * from "./TotalBurnedCard";
 export * from "./TotalSupplyCard";
+export * from './WhyBurningIsImportantCard';
+export * from './PercentOfTotalSupplyCard';
+export * from './BurnRateOverTimeCard';

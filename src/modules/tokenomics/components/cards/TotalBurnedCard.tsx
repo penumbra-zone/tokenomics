@@ -9,8 +9,6 @@ export function TotalBurnedCard() {
   const descriptionContent = burnMetrics ? (
     <>
       Tokens removed from supply <br />
-      Rate:{" "}
-      <AnimatedNumber value={burnMetrics.burnRate} format={(v) => `${formatNumber(v, 4)}/block`} />
     </>
   ) : (
     "Tokens removed from supply"
@@ -23,9 +21,7 @@ export function TotalBurnedCard() {
       value={burnMetrics?.totalBurned}
       valueFormatter={(v) => formatNumber(v)}
       description={descriptionContent}
-      // Ensure InfoCard uses the default bg-neutral-900/80 by not passing cardClassName
-      // or if a different style from InfoCard default is needed, pass it here.
-      // For now, relying on InfoCard -> CardWrapper default.
+      cardClassName="h-full"
     />
   );
 }
