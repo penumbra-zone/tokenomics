@@ -2,8 +2,15 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+export enum Env {
+  Development = "development",
+  Production = "production",
+  Test = "test",
+}
+
 interface EnvVars {
   DATABASE_URL: string;
+  NODE_ENV: Env;
 }
 
 function getEnvVar(key: keyof EnvVars): string {
@@ -16,4 +23,5 @@ function getEnvVar(key: keyof EnvVars): string {
 
 export const env: EnvVars = {
   DATABASE_URL: getEnvVar("DATABASE_URL"),
+  NODE_ENV: getEnvVar("NODE_ENV") as Env,
 };

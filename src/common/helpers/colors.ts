@@ -9,16 +9,26 @@ import { hslToHex } from "./colorUtils";
 export const COLORS = {
   // Primary brand colors
   primary: {
-    DEFAULT: "#BA4D14", // Orange (updated)
+    DEFAULT: "#BA4D14", // Orange
     light: "#f7b472",
-    dark: "#773517", // Darker (updated)
+    dark: "#773517", // Darker
+  },
+
+  primaryDark: {
+    DEFAULT: "#BA4D14", // Darker Orange
+    dark: "#773517",
   },
 
   // Secondary color (teal)
   secondary: {
-    DEFAULT: "#319B96", // Teal (updated)
+    DEFAULT: "#319B96", // Teal
     light: "#3b97ac",
-    dark: "#226362", // Darker (updated)
+    dark: "#226362", // Darker
+  },
+
+  secondaryDark: {
+    DEFAULT: "#226362", // Darker Teal
+    dark: "#1F4242",
   },
 
   // UI color definitions
@@ -88,12 +98,10 @@ export function getCurrentThemeColors() {
 export const CHART_PALETTES = {
   // Main palette for donut/pie charts
   categorical: [
-    COLORS.primary.DEFAULT, // Primary
-    COLORS.secondary.DEFAULT, // Secondary
-    COLORS.primary.dark, // Primary Dark
-    COLORS.secondary.dark, // Secondary Dark
-    COLORS.primary.light, // Primary Light
-    COLORS.secondary.light, // Secondary Light
+    COLORS.primary, // Primary
+    COLORS.secondaryDark, // Secondary Dark
+    COLORS.secondary, // Secondary
+    COLORS.primaryDark, // Primary Dark
   ],
 
   // For financial/token data
