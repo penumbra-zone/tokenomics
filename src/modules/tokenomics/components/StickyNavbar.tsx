@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 
 import Image from "next/image";
 
-import { Button } from "@/common/components/button";
+import { cn } from "@/common/helpers/utils";
+import { Button } from "@/components/ui/button";
 
 const NAV_ITEMS = [
   { id: "supply-visualization", label: "Dashboard" },
@@ -12,6 +13,26 @@ const NAV_ITEMS = [
   { id: "services", label: "Services" },
   { id: "lqt", label: "Liquidity Tournament" },
 ];
+
+// Reusable navigation styling constants
+const NAV_ITEM_BASE_STYLES = "px-4 py-1.5 text-sm rounded-full font-medium transition-colors";
+
+const NAV_ITEM_ACTIVE_STYLES = [
+  "text-white",
+  "relative",
+  "after:absolute",
+  "after:bottom-0",
+  "after:left-1/2",
+  "after:-translate-x-1/2",
+  "after:w-3/4",
+  "after:h-0.5",
+  "after:bg-gradient-to-r",
+  "after:from-transparent",
+  "after:via-primary",
+  "after:to-transparent",
+].join(" ");
+
+const NAV_ITEM_INACTIVE_STYLES = "text-neutral-400 hover:text-white hover:bg-neutral-700";
 
 export default function StickyNavbar() {
   const [activeSection, setActiveSection] = useState(NAV_ITEMS[0].id);
@@ -63,11 +84,11 @@ export default function StickyNavbar() {
               key={item.id}
               href={`#${item.id}`}
               onClick={() => setActiveSection(item.id)}
-              className={`px-4 py-1.5 text-sm rounded-full font-medium transition-colors ${
-                activeSection === item.id
-                  ? "text-white border-b-2 border-primary"
-                  : "text-neutral-400 hover:text-white hover:bg-neutral-700"
-              }${idx === NAV_ITEMS.length - 1 ? " mr-1" : ""}`}
+              className={cn(
+                NAV_ITEM_BASE_STYLES,
+                activeSection === item.id ? NAV_ITEM_ACTIVE_STYLES : NAV_ITEM_INACTIVE_STYLES,
+                idx === NAV_ITEMS.length - 1 ? "mr-1" : ""
+              )}
             >
               {item.label}
             </a>
