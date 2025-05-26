@@ -2,10 +2,10 @@ import * as echarts from "echarts";
 import { EChartsOption, PieSeriesOption } from "echarts";
 import { useEffect, useRef } from "react";
 
+import { CHART_PALETTES, COLORS } from "@/common/helpers/colors"; // Ensure CHART_PALETTES is imported
+import { FONT_FAMILIES } from "@/common/helpers/typography";
 import { formatNumber } from "@/lib/utils";
 import { BurnMetrics } from "@/store/api/tokenomicsApi";
-import { COLORS, CHART_PALETTES } from "@/common/helpers/colors"; // Ensure CHART_PALETTES is imported
-import { FONT_FAMILIES } from "@/common/helpers/typography";
 
 interface BurnMetricsChartProps {
   data: BurnMetrics;
@@ -22,10 +22,10 @@ export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
     });
 
     let rawChartData = [
-      { name: 'Auctions Burns', value: data.bySource.auctionBurns },
-      { name: 'DEX Burns', value: data.bySource.dexBurns },
-      { name: 'Transaction Fees', value: data.bySource.transactionFees },
-      { name: 'DEX Arbitrage', value: data.bySource.dexArbitrage },
+      { name: "Auctions Burns", value: data.bySource.auctionBurns },
+      { name: "DEX Burns", value: data.bySource.dexBurns },
+      { name: "Transaction Fees", value: data.bySource.transactionFees },
+      { name: "DEX Arbitrage", value: data.bySource.dexArbitrage },
     ];
 
     rawChartData.sort((a, b) => b.value - a.value);
@@ -40,41 +40,41 @@ export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
       series: [
         {
           name: "Token Burned by Source",
-          type: 'pie',
-          radius: [50, 150], 
-          center: ['50%', '50%'],
-          roseType: 'radius',
+          type: "pie",
+          radius: [50, 150],
+          center: ["50%", "50%"],
+          roseType: "radius",
           itemStyle: {
             borderRadius: 8,
           },
           avoidLabelOverlap: true,
-          data: chartDataSource.map(item => ({
+          data: chartDataSource.map((item) => ({
             name: item.name,
             value: item.value,
             itemStyle: {
               color: {
-                type: 'radial',
+                type: "radial",
                 x: chart.getWidth() / 2,
                 y: chart.getHeight() / 2,
-                r: chart.getHeight() / 3,
+                r: chart.getHeight() / 2,
                 color: item.baseColorObj.DEFAULT,
                 colorStops: [
-                  { offset: 0, color: item.baseColorObj.dark }, 
-                  { offset: 1, color: item.baseColorObj.DEFAULT } 
+                  { offset: 0, color: item.baseColorObj.dark },
+                  { offset: 1, color: item.baseColorObj.DEFAULT },
                 ],
-                global: true
+                global: true,
               },
               borderRadius: 8,
             },
             emphasis: {
-              focus: 'series',
+              focus: "series",
               scaleSize: 10,
-               itemStyle: {
+              itemStyle: {
                 shadowBlur: 10,
                 shadowOffsetX: 0,
-                shadowColor: 'rgba(0, 0, 0, 0.5)'
-              }
-            }
+                shadowColor: "rgba(0, 0, 0, 0.5)",
+              },
+            },
           })),
           legend: {
             bottom: "center",
@@ -90,9 +90,9 @@ export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
           },
           label: {
             show: true,
-            position: 'outside',
+            position: "outside",
             formatter: (params: any) => {
-              return `${params.name}  ${formatNumber(params.value)}` // `{circle|●|${params.color.color}} ${params.name}  ${formatNumber(params.value)}`;
+              return `${params.name}  ${formatNumber(params.value)}`; // `{circle|●|${params.color.color}} ${params.name}  ${formatNumber(params.value)}`;
             },
             // Used to try to get the label with circle to work
             // rich: {
@@ -104,7 +104,7 @@ export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
             // },
             color: COLORS.neutral[50],
             fontSize: 14,
-            alignTo: 'labelLine',
+            alignTo: "labelLine",
             bleedMargin: 5,
           },
           labelLine: {
@@ -120,13 +120,13 @@ export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
         } as PieSeriesOption,
       ],
       legend: {
-        left: 'left',
-        top: 'center',
-        orient: 'vertical',
+        left: "left",
+        top: "center",
+        orient: "vertical",
         itemGap: 10,
         itemWidth: 20,
         itemHeight: 20,
-        icon: 'circle',
+        icon: "circle",
         textStyle: {
           color: COLORS.neutral[50],
           fontFamily: FONT_FAMILIES.primary,
@@ -147,10 +147,5 @@ export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
     };
   }, [data]);
 
-  return (
-    <div
-      ref={chartRef}
-      style={{ minHeight: 320 }}
-    />
-  );
+  return <div ref={chartRef} style={{ minHeight: 320 }} />;
 }

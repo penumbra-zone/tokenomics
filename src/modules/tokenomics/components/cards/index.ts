@@ -6,7 +6,6 @@ export * from "./MarketCapCard";
 export * from "./PriceHistoryCard";
 export * from "./SupplyAllocationCard";
 export * from "./TokenDistributionCard";
-export * from "./TokenMetricsCard";
 export * from "./TotalBurnedCard";
 export * from "./TotalSupplyCard";
 export * from './WhyBurningIsImportantCard';

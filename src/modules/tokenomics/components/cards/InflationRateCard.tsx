@@ -1,12 +1,6 @@
 import dynamic from "next/dynamic";
 
-import {
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/common/components/ui/Card";
-import CardWrapper from "@/components/ui/CardWrapper";
+import CardWrapper from "@/common/components/CardWrapper";
 import { PriceHistory } from "@/store/api/tokenomicsApi";
 
 // Import chart component with SSR disabled
@@ -15,23 +9,29 @@ const InflationRateChart = dynamic(
   { ssr: false }
 );
 
-interface InflationRateCardProps {
+export interface InflationRateCardProps {
   data: PriceHistory[];
-  onDaysChange?: (days: number) => void;
+  onDaysChange: (days: number) => void;
+  currentSelectedDay: number;
+  dayOptions?: number[];
 }
 
-export function InflationRateCard({ data, onDaysChange }: InflationRateCardProps) {
+export function InflationRateCard({
+  data,
+  onDaysChange,
+  currentSelectedDay,
+  dayOptions,
+}: InflationRateCardProps) {
   return (
-    <CardWrapper className="p-0">
-      <CardHeader>
-        <CardTitle className="text-primary">Inflation Rate</CardTitle>
-        <CardDescription>Token inflation over time</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="h-[400px]">
-          <InflationRateChart data={data} onDaysChange={onDaysChange} />
-        </div>
-      </CardContent>
+    <CardWrapper>
+      <div className="h-[400px]">
+        <InflationRateChart
+          data={data}
+          onDaysChange={onDaysChange}
+          currentSelectedDay={currentSelectedDay}
+          dayOptions={dayOptions}
+        />
+      </div>
     </CardWrapper>
   );
 }

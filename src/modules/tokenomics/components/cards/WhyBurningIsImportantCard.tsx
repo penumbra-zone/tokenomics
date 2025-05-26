@@ -1,10 +1,10 @@
-import CardWrapper from '@/components/ui/CardWrapper';
-import Image from 'next/image';
+import CardWrapper from "@/common/components/CardWrapper";
+import Image from "next/image";
 
 const mockData = {
-  title: 'Why is burning important?',
+  title: "Why is burning important?",
   description:
-    'Burning permanently removes tokens from circulation. This reduces supply, which can help increase scarcity and potentially support value over time.',
+    "Burning permanently removes tokens from circulation. This reduces supply, which can help increase scarcity and potentially support value over time.",
 };
 
 export function WhyBurningIsImportantCard() {
@@ -21,4 +21,4 @@ export function WhyBurningIsImportantCard() {
       </div>
     </CardWrapper>
   );
-} 
+}

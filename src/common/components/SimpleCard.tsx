@@ -1,7 +1,7 @@
-import React from 'react';
-import CardWrapper from '@/components/ui/CardWrapper';
-import { CardTitle } from "@/common/components/ui/Card";
-import { cn } from '@/common/helpers/utils';
+import CardWrapper from "@/common/components/CardWrapper";
+import { cn } from "@/common/helpers/utils";
+import React from "react";
+import { CardTitle } from "./card";
 
 export interface SimpleCardProps {
   title: string;
@@ -20,7 +20,12 @@ const SimpleCard: React.FC<SimpleCardProps> = ({
 }) => {
   return (
     <CardWrapper className={cardClassName}>
-      <CardTitle className={cn("text-base font-medium text-neutral-50 mb-1 flex items-center", titleClassName)}>
+      <CardTitle
+        className={cn(
+          "text-base font-medium text-neutral-50 mb-1 flex items-center",
+          titleClassName
+        )}
+      >
         {icon && <span className="mr-2">{icon}</span>}
         {title}
       </CardTitle>
@@ -29,4 +34,4 @@ const SimpleCard: React.FC<SimpleCardProps> = ({
   );
 };
 
-export default SimpleCard; 
+export default SimpleCard;

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import Image from "next/image";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/common/components/button";
 
 const NAV_ITEMS = [
   { id: "supply-visualization", label: "Dashboard" },

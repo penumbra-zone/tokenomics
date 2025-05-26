@@ -1,9 +1,9 @@
-import React from 'react';
-import { CardDescription } from "@/common/components/ui/Card";
-import { LoadingSpinner } from '@/common/components/ui/LoadingSpinner';
-import AnimatedNumber from '@/components/AnimatedNumber';
-import { cn } from '@/common/helpers/utils';
-import SimpleCard from './SimpleCard'; // Import the new SimpleCard
+import { CardDescription } from "@/common/components/card";
+import { LoadingSpinner } from "@/common/components/LoadingSpinner";
+import { cn } from "@/common/helpers/utils";
+import AnimatedNumber from "@/components/AnimatedNumber";
+import React from "react";
+import SimpleCard from "./SimpleCard"; // Import the new SimpleCard
 
 export interface InfoCardProps {
   title: string;
@@ -28,8 +28,8 @@ const InfoCard: React.FC<InfoCardProps> = ({
   children,
   description,
   valueFormatter,
-  valuePrefix = '',
-  valueSuffix = '',
+  valuePrefix = "",
+  valueSuffix = "",
   cardClassName,
   titleClassName,
   valueClassName,
@@ -42,7 +42,7 @@ const InfoCard: React.FC<InfoCardProps> = ({
     }
 
     let content;
-    if (typeof value === 'number') {
+    if (typeof value === "number") {
       content = <AnimatedNumber value={value} format={valueFormatter} />;
     } else if (value) {
       content = <>{value}</>;
@@ -51,11 +51,17 @@ const InfoCard: React.FC<InfoCardProps> = ({
     } else {
       return null;
     }
-    return <>{valuePrefix}{content}{valueSuffix}</>;
+    return (
+      <>
+        {valuePrefix}
+        {content}
+        {valueSuffix}
+      </>
+    );
   };
 
   return (
-    <SimpleCard 
+    <SimpleCard
       title={title}
       icon={icon}
       cardClassName={cardClassName}
@@ -74,4 +80,4 @@ const InfoCard: React.FC<InfoCardProps> = ({
   );
 };
 
-export default InfoCard; 
+export default InfoCard;

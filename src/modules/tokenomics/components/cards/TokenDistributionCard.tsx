@@ -1,14 +1,9 @@
 import dynamic from "next/dynamic";
 
-import {
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/common/components/ui/Card";
-import { LoadingOverlay } from "@/common/components/ui/LoadingOverlay";
-import { LoadingSpinner } from "@/common/components/ui/LoadingSpinner";
-import CardWrapper from "@/components/ui/CardWrapper";
+import { CardContent, CardDescription, CardHeader, CardTitle } from "@/common/components/card";
+import CardWrapper from "@/common/components/CardWrapper";
+import { LoadingOverlay } from "@/common/components/LoadingOverlay";
+import { LoadingSpinner } from "@/common/components/LoadingSpinner";
 import { useGetTokenDistributionQuery } from "@/store/api/tokenomicsApi";
 
 // Import chart component with SSR disabled

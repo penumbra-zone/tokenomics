@@ -1,5 +1,5 @@
+import { Button } from "@/common/components/button";
 import { cn } from "@/common/helpers/utils";
-import { Button } from "@/components/ui/button";
 import { ButtonHTMLAttributes, PropsWithChildren } from "react";
 
 interface ShareButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {}

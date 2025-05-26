@@ -3,8 +3,6 @@
 import type { EChartsOption, SeriesOption } from "echarts";
 import ReactECharts from "echarts-for-react";
 
-import { useEffect, useState } from "react";
-
 import { CHART_PALETTES, COLORS } from "@/common/helpers/colors";
 
 export interface BarLineChartData {
@@ -16,46 +14,34 @@ interface BarLineChartProps {
   data: BarLineChartData[];
   yLabelFormatter?: (value: number) => string;
   tooltipFormatter?: (params: any[]) => string;
+  selectedDay: number;
   areaLabel?: string;
   yPadding?: number;
   barGradientColors?: [string, string];
   lineColor?: string;
   minYZero?: boolean;
-  dayOptions?: number[];
-  defaultDays?: number;
-  chartPalette?: keyof typeof CHART_PALETTES;
   showLine?: boolean;
-  onDaysChange?: (days: number) => void;
 }
 
 export default function BarLineChart({
   data,
   yLabelFormatter = (v) => v.toString(),
   tooltipFormatter,
+  selectedDay,
   areaLabel = "Value",
   yPadding = 0.2,
   barGradientColors,
   lineColor,
   showLine = false,
   minYZero = true,
-  dayOptions = [7, 30, 90],
-  defaultDays = 30,
-  chartPalette = "sequential",
-  onDaysChange,
 }: BarLineChartProps) {
-  const [days, setDays] = useState(defaultDays);
   const themeColors = {
     primaryColor: COLORS.primary.DEFAULT,
     barGradient: [CHART_PALETTES.sequential[1], CHART_PALETTES.sequential[0]],
   };
 
-  // Update days when defaultDays changes
-  useEffect(() => {
-    setDays(defaultDays);
-  }, [defaultDays]);
-
-  // Only show the last N days
-  const filteredData = data.slice(-days);
+  // Only show the last N days based on selectedDay
+  const filteredData = data.slice(-selectedDay);
 
   // Dynamic y-axis min/max
   const values = filteredData.map((item) => item.y);
@@ -74,9 +60,9 @@ export default function BarLineChart({
   ].filter(Boolean);
 
   const xAxisLabelNames = [
-    `${days}d`,
-    `${Math.round((2 * days) / 3)}d`,
-    `${Math.round(days / 3)}d`,
+    `${selectedDay}d`,
+    `${Math.round((2 * selectedDay) / 3)}d`,
+    `${Math.round(selectedDay / 3)}d`,
     "Now",
   ].slice(0, xAxisLabels.length);
 
@@ -155,10 +141,10 @@ export default function BarLineChart({
           }) as any),
     },
     grid: {
-      left: "3%",
-      right: "3%",
-      bottom: "18%",
-      top: "6%",
+      left: "0%",
+      right: "0%",
+      bottom: "5%",
+      top: "5%",
       containLabel: true,
     },
     xAxis: {
@@ -206,25 +192,6 @@ export default function BarLineChart({
 
   return (
     <div style={{ height: "100%", width: "100%" }}>
-      {/* Days filter */}
-      <div className="flex items-center gap-2 mb-2">
-        {dayOptions.map((opt) => (
-          <button
-            key={opt}
-            className={`px-3 py-1 rounded-md text-xs font-medium border transition-colors ${
-              days === opt
-                ? "bg-primary text-black border-primary"
-                : "bg-background/60 text-primary border-primary/40 hover:bg-primary/10"
-            }`}
-            onClick={() => {
-              setDays(opt);
-              onDaysChange?.(opt);
-            }}
-          >
-            {opt}d
-          </button>
-        ))}
-      </div>
       {/* @ts-ignore */}
       <ReactECharts
         option={option}

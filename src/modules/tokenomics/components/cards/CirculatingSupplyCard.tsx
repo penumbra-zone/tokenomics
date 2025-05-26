@@ -1,6 +1,6 @@
-import InfoCard from "@/components/shared/InfoCard";
+import InfoCard from "@/common/components/InfoCard";
+import { Progress } from "@/common/components/progress";
 import AnimatedNumber from "@/components/AnimatedNumber";
-import { Progress } from "@/components/ui/progress";
 import { formatNumber } from "@/lib/utils";
 import { useGetSupplyMetricsQuery } from "@/store/api/tokenomicsApi";
 

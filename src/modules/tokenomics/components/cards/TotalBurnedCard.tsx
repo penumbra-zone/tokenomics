@@ -1,5 +1,4 @@
-import InfoCard from "@/components/shared/InfoCard";
-import AnimatedNumber from "@/components/AnimatedNumber";
+import InfoCard from "@/common/components/InfoCard";
 import { formatNumber } from "@/lib/utils";
 import { useGetBurnMetricsQuery } from "@/store/api/tokenomicsApi";
 
