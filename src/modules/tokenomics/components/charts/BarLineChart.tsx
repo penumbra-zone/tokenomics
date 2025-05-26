@@ -16,12 +16,12 @@ interface BarLineChartProps {
   tooltipFormatter?: (params: any[]) => string;
   selectedDay: number;
   areaLabel?: string;
-  yPadding?: number;
   barGradientColors?: [string, string];
   lineColor?: string;
   minYZero?: boolean;
   showLine?: boolean;
   showBars?: boolean;
+  showArea?: boolean;
 }
 
 export default function BarLineChart({
@@ -30,11 +30,11 @@ export default function BarLineChart({
   tooltipFormatter,
   selectedDay,
   areaLabel = "Value",
-  yPadding = 0.2,
   barGradientColors,
   lineColor,
   showLine = false,
   showBars = true,
+  showArea = false,
   minYZero = true,
 }: BarLineChartProps) {
   const themeColors = {
@@ -49,6 +49,7 @@ export default function BarLineChart({
   const values = filteredData.map((item) => item.y);
   const minValue = values.length ? Math.min(...values) : 0;
   const maxValue = values.length ? Math.max(...values) : 3;
+  const yPadding = (maxValue - minValue) * 0.2;
   const yMin = minYZero ? Math.max(0, minValue - yPadding) : minValue - yPadding;
   const yMax = maxValue + yPadding;
   const interval = (yMax - yMin) / 5;
@@ -115,6 +116,27 @@ export default function BarLineChart({
         width: 5,
         color: lineColor || themeColors.primaryColor,
       },
+      areaStyle: showArea
+        ? {
+            color: {
+              type: "linear",
+              x: 0,
+              y: 0,
+              x2: 0,
+              y2: 1,
+              colorStops: [
+                {
+                  offset: 0.6,
+                  color: lineColor || themeColors.primaryColor,
+                },
+                {
+                  offset: 1,
+                  color: COLORS.neutral[900],
+                },
+              ],
+            },
+          }
+        : undefined,
       emphasis: {
         scale: 4,
         itemStyle: {
@@ -160,7 +182,7 @@ export default function BarLineChart({
       type: "category",
       data: filteredData.map((item) => item.x),
       axisLabel: {
-        color: COLORS.neutral[400], // Using neutral color from our palette
+        color: COLORS.neutral[50], // Using neutral color from our palette
         fontSize: 12,
         formatter: (value: string) => {
           const idx = xAxisLabels.indexOf(value);
@@ -179,7 +201,7 @@ export default function BarLineChart({
       max: yMax,
       interval: interval,
       axisLabel: {
-        color: COLORS.neutral[400], // Using neutral color from our palette
+        color: COLORS.neutral[50], // Using neutral color from our palette
         fontSize: 12,
         formatter: yLabelFormatter,
         margin: 12,
@@ -187,11 +209,7 @@ export default function BarLineChart({
       axisLine: { show: false },
       axisTick: { show: false },
       splitLine: {
-        show: true,
-        lineStyle: {
-          color: COLORS.neutral[800], // Using neutral color from our palette
-          type: "dashed",
-        },
+        show: false,
       },
     },
     series,
