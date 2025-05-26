@@ -4,8 +4,6 @@ import * as echarts from "echarts";
 
 import { useEffect, useRef } from "react";
 
-import { useTheme } from "next-themes";
-
 import { COLORS } from "@/common/helpers/colors";
 import { getCustomTooltipConfig } from "@/common/helpers/echartsTooltip";
 import { FONT_FAMILIES, TEXT_COLORS } from "@/common/helpers/typography";
@@ -22,7 +20,6 @@ interface SupplyAllocationChartProps {
 
 export default function SupplyAllocationChart({ data }: SupplyAllocationChartProps) {
   const chartRef = useRef<HTMLDivElement>(null);
-  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     if (!chartRef.current || data.length === 0) return;
@@ -106,7 +103,7 @@ export default function SupplyAllocationChart({ data }: SupplyAllocationChartPro
       chart.dispose();
       window.removeEventListener("resize", handleResize);
     };
-  }, [data, resolvedTheme]);
+  }, [data]);
 
   return <div ref={chartRef} className="w-full h-full justify-center items-center" />;
 }

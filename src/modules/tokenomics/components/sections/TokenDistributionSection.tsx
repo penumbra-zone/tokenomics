@@ -3,6 +3,7 @@ import { Share2 } from "lucide-react";
 import ShareButton from "@/modules/tokenomics/components/ShareButton";
 import {
   CirculatingSupplyCard,
+  PercentOfTotalStakedCard,
   TokenDistributionCard,
 } from "@/modules/tokenomics/components/cards";
 
@@ -20,11 +21,18 @@ export default function TokenDistributionSection({ handleShare }: SectionProps) 
           Share
         </ShareButton>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <CirculatingSupplyCard />
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <TokenDistributionCard />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        {/* Left column with info cards */}
+        <div className="lg:col-span-1 space-y-1">
+          <div className="flex flex-col gap-4">
+            <CirculatingSupplyCard />
+            <PercentOfTotalStakedCard />
+          </div>
+        </div>
+        {/* Right column with token distribution chart */}
+        <div className="lg:col-span-2">
+          <TokenDistributionCard />
+        </div>
       </div>
     </section>
   );

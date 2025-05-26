@@ -10,4 +10,5 @@ export * from "./TotalBurnedCard";
 export * from "./TotalSupplyCard";
 export * from './WhyBurningIsImportantCard';
 export * from './PercentOfTotalSupplyCard';
+export * from './PercentOfTotalStakedCard';
 export * from './BurnRateOverTimeCard';
