@@ -71,11 +71,16 @@ const InfoCard: React.FC<InfoCardProps> = ({
         {renderContent()}
       </div>
 
-      {description && (
-        <CardDescription className={cn("text-xs text-neutral-500 mt-1", descriptionClassName)}>
-          {description}
-        </CardDescription>
-      )}
+      {description &&
+        (typeof description === "string" ? (
+          <CardDescription className={cn("text-xs text-neutral-500 mt-1", descriptionClassName)}>
+            {description}
+          </CardDescription>
+        ) : (
+          <div className={cn("text-xs text-neutral-500 mt-1", descriptionClassName)}>
+            {description}
+          </div>
+        ))}
     </SimpleCard>
   );
 };

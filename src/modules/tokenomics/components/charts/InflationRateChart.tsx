@@ -1,7 +1,9 @@
 "use client";
 
 import { PriceHistory } from "@/store/api/tokenomicsApi";
+import { useState } from "react";
 
+import TogglePill from "@/common/components/TogglePill";
 import BarLineChart from "./BarLineChart";
 import DaySelector from "./DaySelector";
 
@@ -18,6 +20,8 @@ export default function InflationRateChart({
   dayOptions = [7, 30, 90],
   currentSelectedDay,
 }: InflationRateChartProps) {
+  const [mode, setMode] = useState<"relative" | "absolute">("relative");
+
   const chartData = data.map((item, index) => {
     if (index === 0) return { x: item.date, y: 0 };
     const prevPrice = data[index - 1].price;
@@ -31,11 +35,21 @@ export default function InflationRateChart({
 
   return (
     <>
-      <DaySelector
-        dayOptions={dayOptions}
-        selectedDay={currentSelectedDay}
-        onDaysChange={onDaysChange}
-      />
+      <div className="flex items-center justify-between mb-2">
+        <DaySelector
+          dayOptions={dayOptions}
+          selectedDay={currentSelectedDay}
+          onDaysChange={onDaysChange}
+        />
+        <TogglePill
+          options={[
+            { label: "Relative", value: "relative" },
+            { label: "Absolute", value: "absolute" },
+          ]}
+          value={mode}
+          onChange={(val) => setMode(val as "relative" | "absolute")}
+        />
+      </div>
       <BarLineChart
         data={chartData}
         selectedDay={currentSelectedDay}

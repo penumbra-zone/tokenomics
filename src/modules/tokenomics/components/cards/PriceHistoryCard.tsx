@@ -25,14 +25,12 @@ export function PriceHistoryCard({
 }: PriceHistoryCardProps) {
   return (
     <>
-      <div className="h-[400px]">
-        <PriceHistoryChart
-          data={data}
-          onDaysChange={onDaysChange}
-          currentSelectedDay={currentSelectedDay}
-          dayOptions={dayOptions}
-        />
-      </div>
+      <PriceHistoryChart
+        data={data}
+        onDaysChange={onDaysChange}
+        currentSelectedDay={currentSelectedDay}
+        dayOptions={dayOptions}
+      />
       {/* Metrics grid below chart */}
       {data && data.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">

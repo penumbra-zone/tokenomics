@@ -21,6 +21,7 @@ interface BarLineChartProps {
   lineColor?: string;
   minYZero?: boolean;
   showLine?: boolean;
+  showBars?: boolean;
 }
 
 export default function BarLineChart({
@@ -33,6 +34,7 @@ export default function BarLineChart({
   barGradientColors,
   lineColor,
   showLine = false,
+  showBars = true,
   minYZero = true,
 }: BarLineChartProps) {
   const themeColors = {
@@ -66,8 +68,10 @@ export default function BarLineChart({
     "Now",
   ].slice(0, xAxisLabels.length);
 
-  const series: SeriesOption[] = [
-    {
+  const series: SeriesOption[] = [];
+
+  if (showBars) {
+    series.push({
       name: `${areaLabel} Bars`,
       type: "bar",
       data: filteredData.map((item) => item.y),
@@ -98,24 +102,29 @@ export default function BarLineChart({
         },
       },
       z: 1,
-    },
-  ];
+    });
+  }
 
   if (showLine) {
     series.push({
       name: `${areaLabel} Line`,
       type: "line",
       data: filteredData.map((item) => item.y),
-      smooth: true,
-      symbol: "circle",
-      symbolSize: 6,
+      smooth: false,
       lineStyle: {
-        width: 3,
+        width: 5,
         color: lineColor || themeColors.primaryColor,
+      },
+      emphasis: {
+        scale: 4,
+        itemStyle: {
+          borderColor: lineColor,
+          borderWidth: 5,
+          color: themeColors.barGradient[0],
+        },
       },
       itemStyle: {
         color: lineColor || themeColors.primaryColor,
-        borderColor: "#fff",
         borderWidth: 0,
       },
       z: 2,
@@ -143,8 +152,8 @@ export default function BarLineChart({
     grid: {
       left: "0%",
       right: "0%",
-      bottom: "5%",
-      top: "5%",
+      bottom: "10%",
+      top: "10%",
       containLabel: true,
     },
     xAxis: {
