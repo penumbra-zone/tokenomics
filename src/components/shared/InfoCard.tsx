@@ -1,9 +1,9 @@
 import React from 'react';
-import CardWrapper from '@/components/ui/CardWrapper';
-import { CardTitle, CardDescription } from "@/common/components/ui/Card"; // Assuming these are correctly pathed from MarketCapCard
+import { CardDescription } from "@/common/components/ui/Card";
 import { LoadingSpinner } from '@/common/components/ui/LoadingSpinner';
 import AnimatedNumber from '@/components/AnimatedNumber';
 import { cn } from '@/common/helpers/utils';
+import SimpleCard from './SimpleCard'; // Import the new SimpleCard
 
 export interface InfoCardProps {
   title: string;
@@ -55,12 +55,12 @@ const InfoCard: React.FC<InfoCardProps> = ({
   };
 
   return (
-    <CardWrapper className={cardClassName}>
-      <CardTitle className={cn("text-base font-medium text-neutral-50 mb-1 flex items-center", titleClassName)}>
-        {icon && <span className="mr-2">{icon}</span>}
-        {title}
-      </CardTitle>
-      
+    <SimpleCard 
+      title={title}
+      icon={icon}
+      cardClassName={cardClassName}
+      titleClassName={titleClassName}
+    >
       <div className={cn("text-4xl font-bold text-primary my-2", valueClassName)}>
         {renderContent()}
       </div>
@@ -70,7 +70,7 @@ const InfoCard: React.FC<InfoCardProps> = ({
           {description}
         </CardDescription>
       )}
-    </CardWrapper>
+    </SimpleCard>
   );
 };
 

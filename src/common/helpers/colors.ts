@@ -14,9 +14,9 @@ export const COLORS = {
     dark: "#773517", // Darker
   },
 
-  primaryDark: {
-    DEFAULT: "#BA4D14", // Darker Orange
-    dark: "#773517",
+  primaryLight: {
+    DEFAULT: "#F07E1C", // Light Orange
+    dark: "#BA4D14",
   },
 
   // Secondary color (teal)
@@ -98,10 +98,10 @@ export function getCurrentThemeColors() {
 export const CHART_PALETTES = {
   // Main palette for donut/pie charts
   categorical: [
-    COLORS.primary, // Primary
+    COLORS.primaryLight, // Primary Dark
     COLORS.secondaryDark, // Secondary Dark
     COLORS.secondary, // Secondary
-    COLORS.primaryDark, // Primary Dark
+    COLORS.primary, // Primary
   ],
 
   // For financial/token data

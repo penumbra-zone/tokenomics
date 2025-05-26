@@ -46,10 +46,10 @@ export class MockPindexerConnection extends AbstractPindexerConnection {
     return {
       totalBurned: 50000000,
       bySource: {
-        transactionFees: 20000000,
-        dexArbitrage: 15000000,
-        auctionBurns: 10000000,
-        dexBurns: 5000000,
+        transactionFees: 12500000,
+        dexArbitrage: 12000000,
+        auctionBurns: 11500000,
+        dexBurns: 10000000,
       },
       burnRate: 0.0001,
       historicalBurnRate: [

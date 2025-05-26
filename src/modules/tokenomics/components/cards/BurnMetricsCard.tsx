@@ -10,6 +10,7 @@ import { LoadingOverlay } from "@/common/components/ui/LoadingOverlay";
 import { LoadingSpinner } from "@/common/components/ui/LoadingSpinner";
 import CardWrapper from "@/components/ui/CardWrapper";
 import { useGetBurnMetricsQuery } from "@/store/api/tokenomicsApi";
+import SimpleCard from "@/components/shared/SimpleCard";
 
 // Import chart component with SSR disabled
 const BurnMetricsChart = dynamic(() => import("@/modules/tokenomics/components/charts/BurnMetricsChart"), {
@@ -22,11 +23,7 @@ export function BurnMetricsCard() {
   const showLoadingOverlay = isFetching && !burnMetrics;
 
   return (
-    <CardWrapper className="p-0">
-      <CardHeader>
-        <CardTitle className="text-primary">Burn Metrics</CardTitle>
-        <CardDescription>Token burn rate over time</CardDescription>
-      </CardHeader>
+    <SimpleCard title="Token burn rate over time">
       <CardContent className="relative">
         <div className="h-[400px]">
           {isLoading ? (
@@ -41,6 +38,6 @@ export function BurnMetricsCard() {
           )}
         </div>
       </CardContent>
-    </CardWrapper>
+    </SimpleCard>
   );
 }
