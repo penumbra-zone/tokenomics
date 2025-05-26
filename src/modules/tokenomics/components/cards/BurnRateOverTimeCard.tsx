@@ -1,9 +1,9 @@
 "use client";
 
-import { CardContent, CardHeader, CardTitle } from "@/common/components/card";
-import CardWrapper from "@/common/components/CardWrapper";
+import CardWrapper from "@/common/components/cards/CardWrapper";
 import { LoadingOverlay } from "@/common/components/LoadingOverlay";
 import { LoadingSpinner } from "@/common/components/LoadingSpinner";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BurnRateOverTimeChart } from "@/modules/tokenomics/components/charts/BurnRateOverTimeChart";
 import { useGetBurnMetricsQuery } from "@/store/api/tokenomicsApi";
 import { useState } from "react";

@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 
-import CardWrapper from "@/common/components/CardWrapper";
+import CardWrapper from "@/common/components/cards/CardWrapper";
 import { LoadingOverlay } from "@/common/components/LoadingOverlay";
 import { LoadingSpinner } from "@/common/components/LoadingSpinner";
 import { useGetTokenDistributionQuery } from "@/store/api/tokenomicsApi";

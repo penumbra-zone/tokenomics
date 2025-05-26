@@ -1,7 +1,7 @@
-import { CardDescription } from "@/common/components/card";
 import { LoadingSpinner } from "@/common/components/LoadingSpinner";
 import { cn } from "@/common/helpers/utils";
 import AnimatedNumber from "@/components/AnimatedNumber";
+import { CardDescription } from "@/components/ui/card";
 import React from "react";
 import SimpleCard from "./SimpleCard"; // Import the new SimpleCard
 

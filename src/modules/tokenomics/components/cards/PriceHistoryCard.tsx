@@ -1,7 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 
-import InfoCard from "@/common/components/InfoCard";
+import InfoCard from "@/common/components/cards/InfoCard";
 import { PriceHistory } from "@/store/api/tokenomicsApi";
 
 // Import chart component with SSR disabled

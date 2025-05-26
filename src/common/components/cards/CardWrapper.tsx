@@ -1,6 +1,6 @@
 import { cn } from "@/common/helpers/utils";
 import React from "react";
-import { Card } from "./card";
+import { Card } from "../../../components/ui/card";
 
 interface CardWrapperProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;

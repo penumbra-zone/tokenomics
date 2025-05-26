@@ -1,4 +1,4 @@
-import CardWrapper from "@/common/components/CardWrapper";
+import CardWrapper from "@/common/components/cards/CardWrapper";
 import Image from "next/image";
 
 const mockData = {

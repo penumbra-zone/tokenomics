@@ -1,7 +1,7 @@
-import CardWrapper from "@/common/components/CardWrapper";
+import CardWrapper from "@/common/components/cards/CardWrapper";
 import { cn } from "@/common/helpers/utils";
 import React from "react";
-import { CardTitle } from "./card";
+import { CardTitle } from "../../../components/ui/card";
 
 export interface SimpleCardProps {
   title: string;

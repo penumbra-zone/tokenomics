@@ -1,4 +1,4 @@
-import InfoCard from "@/common/components/InfoCard";
+import InfoCard from "@/common/components/cards/InfoCard";
 import { formatNumber } from "@/lib/utils";
 import { useGetSocialMetricsQuery } from "@/store/api/tokenomicsApi";
 

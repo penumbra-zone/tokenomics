@@ -1,10 +1,10 @@
 import { Share2 } from "lucide-react";
 import { useState } from "react";
 
-import InfoCard from "@/common/components/InfoCard";
 import { LoadingOverlay } from "@/common/components/LoadingOverlay";
 import { LoadingSpinner } from "@/common/components/LoadingSpinner";
-import SimpleCard from "@/common/components/SimpleCard";
+import InfoCard from "@/common/components/cards/InfoCard";
+import SimpleCard from "@/common/components/cards/SimpleCard";
 import ShareButton from "@/modules/tokenomics/components/ShareButton";
 import {
   InflationRateCard,

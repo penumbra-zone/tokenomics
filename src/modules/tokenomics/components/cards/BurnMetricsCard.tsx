@@ -1,9 +1,9 @@
 import dynamic from "next/dynamic";
 
-import { CardContent } from "@/common/components/card";
 import { LoadingOverlay } from "@/common/components/LoadingOverlay";
 import { LoadingSpinner } from "@/common/components/LoadingSpinner";
-import SimpleCard from "@/common/components/SimpleCard";
+import SimpleCard from "@/common/components/cards/SimpleCard";
+import { CardContent } from "@/components/ui/card";
 import { useGetBurnMetricsQuery } from "@/store/api/tokenomicsApi";
 
 // Import chart component with SSR disabled

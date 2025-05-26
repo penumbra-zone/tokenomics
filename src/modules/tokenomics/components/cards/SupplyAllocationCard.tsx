@@ -1,8 +1,8 @@
 import dynamic from "next/dynamic";
 
-import { CardContent, CardTitle } from "@/common/components/card";
-import CardWrapper from "@/common/components/CardWrapper";
+import CardWrapper from "@/common/components/cards/CardWrapper";
 import { LoadingSpinner } from "@/common/components/LoadingSpinner";
+import { CardContent, CardTitle } from "@/components/ui/card";
 import { useGetSupplyMetricsQuery } from "@/store/api/tokenomicsApi";
 
 // Import chart component with SSR disabled

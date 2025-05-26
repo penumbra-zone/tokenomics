@@ -1,4 +1,4 @@
-import InfoCard from "@/common/components/InfoCard";
+import InfoCard from "@/common/components/cards/InfoCard";
 import { useGetTokenDistributionQuery } from "@/store/api/tokenomicsApi";
 
 export function PercentOfTotalStakedCard() {

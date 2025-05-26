@@ -1,7 +1,7 @@
-import { CardContent, CardDescription, CardHeader, CardTitle } from "@/common/components/card";
-import CardWrapper from "@/common/components/CardWrapper";
+import CardWrapper from "@/common/components/cards/CardWrapper";
 import { LoadingOverlay } from "@/common/components/LoadingOverlay";
 import { LoadingSpinner } from "@/common/components/LoadingSpinner";
+import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatNumber } from "@/lib/utils";
 import { useGetLQTMetricsQuery } from "@/store/api/tokenomicsApi";
 

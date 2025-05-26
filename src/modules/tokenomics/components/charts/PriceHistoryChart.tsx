@@ -2,7 +2,7 @@
 
 import { PriceHistory } from "@/store/api/tokenomicsApi";
 
-import CardWrapper from "@/common/components/CardWrapper";
+import CardWrapper from "@/common/components/cards/CardWrapper";
 import BarLineChart from "./BarLineChart";
 import DaySelector from "./DaySelector";
 

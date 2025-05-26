@@ -1,4 +1,4 @@
-import InfoCard from "@/common/components/InfoCard";
+import InfoCard from "@/common/components/cards/InfoCard";
 
 // TODO: Replace with real data and loading state
 const mockData = {

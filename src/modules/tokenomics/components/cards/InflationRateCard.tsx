@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 
-import CardWrapper from "@/common/components/CardWrapper";
+import CardWrapper from "@/common/components/cards/CardWrapper";
 import { PriceHistory } from "@/store/api/tokenomicsApi";
 
 // Import chart component with SSR disabled
