@@ -57,6 +57,7 @@ export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
                 x: chart.getWidth() / 2,
                 y: chart.getHeight() / 2,
                 r: chart.getHeight() / 3,
+                color: item.baseColorObj.DEFAULT,
                 colorStops: [
                   { offset: 0, color: item.baseColorObj.dark }, 
                   { offset: 1, color: item.baseColorObj.DEFAULT } 
@@ -90,14 +91,20 @@ export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
           label: {
             show: true,
             position: 'outside',
-            formatter: (params) => { 
-                if (!params || params.name == null || typeof params.value !== 'number') return '';
-                return `${params.name}\n${formatNumber(params.value as number)}`;
+            formatter: (params: any) => {
+              return `${params.name}  ${formatNumber(params.value)}` // `{circle|●|${params.color.color}} ${params.name}  ${formatNumber(params.value)}`;
             },
+            // Used to try to get the label with circle to work
+            // rich: {
+            //   circle: {
+            //     fontSize: 14,
+            //     padding: [0, 6, 0, 0],
+            //     color: '#000',
+            //   },
+            // },
             color: COLORS.neutral[50],
-            fontSize: 11,
+            fontSize: 14,
             alignTo: 'labelLine',
-            padding: [0, -5],
             bleedMargin: 5,
           },
           labelLine: {
