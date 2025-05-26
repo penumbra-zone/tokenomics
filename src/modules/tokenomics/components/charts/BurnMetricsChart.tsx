@@ -54,14 +54,14 @@ export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
             itemStyle: {
               color: {
                 type: 'radial',
-                x: 0.5,
-                y: 0.5,
-                r: 1,
+                x: chart.getWidth() / 2,
+                y: chart.getHeight() / 2,
+                r: chart.getHeight() / 3,
                 colorStops: [
-                  { offset: 0, color: item.baseColorObj.DEFAULT }, 
-                  { offset: 1, color: item.baseColorObj.dark } 
+                  { offset: 0, color: item.baseColorObj.dark }, 
+                  { offset: 1, color: item.baseColorObj.DEFAULT } 
                 ],
-                global: false
+                global: true
               },
               borderRadius: 8,
             },
