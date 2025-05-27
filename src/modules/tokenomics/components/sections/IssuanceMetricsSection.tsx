@@ -1,4 +1,3 @@
-import { Share2 } from "lucide-react";
 import { useState } from "react";
 
 import { LoadingOverlay } from "@/common/components/LoadingOverlay";
@@ -58,10 +57,7 @@ export default function IssuanceMetricsSection({ handleShare }: SectionProps) {
     <section id="issuance-metrics" className="mb-12 pt-16 -mt-16">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold text-white">ISSUANCE METRICS</h2>
-        <ShareButton onClick={handleShare}>
-          <Share2 className="h-4 w-4 mr-2" />
-          Share
-        </ShareButton>
+        <ShareButton onClick={handleShare} />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="min-h-[100px]">

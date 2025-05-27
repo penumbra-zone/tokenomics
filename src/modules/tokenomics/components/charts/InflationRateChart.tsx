@@ -35,20 +35,22 @@ export default function InflationRateChart({
 
   return (
     <>
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-2">
         <DaySelector
           dayOptions={dayOptions}
           selectedDay={currentSelectedDay}
           onDaysChange={onDaysChange}
         />
-        <TogglePill
-          options={[
-            { label: "Relative", value: "relative" },
-            { label: "Absolute", value: "absolute" },
-          ]}
-          value={mode}
-          onChange={(val) => setMode(val as "relative" | "absolute")}
-        />
+        <div className="self-start sm:self-auto">
+          <TogglePill
+            options={[
+              { label: "Relative", value: "relative" },
+              { label: "Absolute", value: "absolute" },
+            ]}
+            value={mode}
+            onChange={(val) => setMode(val as "relative" | "absolute")}
+          />
+        </div>
       </div>
       <BarLineChart
         data={chartData}

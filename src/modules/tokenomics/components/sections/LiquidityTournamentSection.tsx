@@ -1,5 +1,3 @@
-import { Share2 } from "lucide-react";
-
 import InfoCard from "@/common/components/cards/InfoCard";
 import { formatNumber } from "@/lib/utils";
 import ShareButton from "@/modules/tokenomics/components/ShareButton";
@@ -17,10 +15,7 @@ export default function LiquidityTournamentSection({ handleShare }: SectionProps
     <section id="lqt" className="mb-12 pt-16 -mt-16">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold text-white">LIQUIDITY TOURNAMENT</h2>
-        <ShareButton onClick={handleShare}>
-          <Share2 className="h-4 w-4 mr-2" />
-          Share
-        </ShareButton>
+        <ShareButton onClick={handleShare} />
       </div>
 
       {/* Metric Cards */}

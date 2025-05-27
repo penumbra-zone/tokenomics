@@ -4,6 +4,7 @@ import type { EChartsOption, SeriesOption } from "echarts";
 import ReactECharts from "echarts-for-react";
 
 import { CHART_PALETTES, COLORS } from "@/common/helpers/colors";
+import { FONT_FAMILIES } from "@/common/helpers/typography";
 
 export interface BarLineChartData {
   x: string;
@@ -157,18 +158,31 @@ export default function BarLineChart({
     backgroundColor: "transparent",
     tooltip: {
       trigger: "axis",
-      backgroundColor: "#18181b",
+      backgroundColor: "#2263621A", // teal with alpha to match getCustomTooltipConfig
+      extraCssText: "backdrop-filter: blur(6px);", // 60% blur effect
+      borderRadius: 8,
       borderColor: lineColor || themeColors.primaryColor,
       borderWidth: 1,
-      textStyle: { color: "#fff" },
+      confine: true, // Ensures tooltip stays within chart boundaries
+      textStyle: {
+        color: COLORS.neutral[50],
+        fontFamily: FONT_FAMILIES.primary,
+        fontSize: 12,
+      },
       formatter: tooltipFormatter
         ? (tooltipFormatter as any)
         : (((params: any[]) => {
-            const bar = params.find((p: any) => p.seriesType === "bar");
-            const line = params.find((p: any) => p.seriesType === "line");
-            return `${
-              bar.axisValueLabel || bar.name
-            }<br/>${areaLabel}: <b>${line.data.toFixed(2)}</b>`;
+            const dataPoint = params[0];
+            return `<div style="min-width: 120px;">
+              <div style="margin-bottom: 4px; color: ${COLORS.neutral[50]};">${dataPoint.axisValueLabel}</div>
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center;">
+                  <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${lineColor || themeColors.primaryColor}; margin-right: 8px;"></span>
+                  <span style="color: ${COLORS.neutral[50]};">${areaLabel}</span>
+                </div>
+                <span style="color: ${COLORS.neutral[50]}; font-weight: 500; margin-left: 15px;">${dataPoint.value}</span>
+              </div>
+            </div>`;
           }) as any),
     },
     grid: {

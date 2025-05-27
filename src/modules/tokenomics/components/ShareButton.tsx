@@ -1,14 +1,11 @@
 import { cn } from "@/common/helpers/utils";
 import { Button } from "@/components/ui/button";
-import { ButtonHTMLAttributes, PropsWithChildren } from "react";
+import { Share2 } from "lucide-react";
+import { ButtonHTMLAttributes } from "react";
 
 interface ShareButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {}
 
-export default function ShareButton({
-  className,
-  children,
-  ...props
-}: PropsWithChildren<ShareButtonProps>) {
+export default function ShareButton({ className, ...props }: ShareButtonProps) {
   return (
     <Button
       variant="outline"
@@ -16,7 +13,8 @@ export default function ShareButton({
       className={cn("border-primary text-neutral-50 hover:bg-primary/60", className)}
       {...props}
     >
-      {children}
+      <Share2 className="h-4 w-4" />
+      <span className="hidden md:inline md:ml-2">Share</span>
     </Button>
   );
 }

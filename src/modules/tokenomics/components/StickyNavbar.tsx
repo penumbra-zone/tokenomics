@@ -91,7 +91,7 @@ export default function StickyNavbar() {
     >
       <div className="container mx-auto flex items-center justify-between px-6 py-4">
         <Image src="/penumbra-logo.svg" alt="Penumbra Logo" width={120} height={24} priority />
-        <nav className="hidden md:flex items-center bg-neutral-800 rounded-full p-1">
+        <nav className="hidden md:flex items-center bg-neutral-800 rounded-full p-1 ml-4 mr-4">
           {NAV_ITEMS.map((item, idx) => (
             <a
               key={item.id}

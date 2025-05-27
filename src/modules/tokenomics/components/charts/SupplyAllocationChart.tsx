@@ -5,7 +5,7 @@ import * as echarts from "echarts";
 import { useEffect, useRef } from "react";
 
 import { COLORS } from "@/common/helpers/colors";
-import { getCustomTooltipConfig } from "@/common/helpers/echartsTooltip";
+import { getCustomTooltipConfig } from "@/common/helpers/customTooltip";
 import { FONT_FAMILIES, TEXT_COLORS } from "@/common/helpers/typography";
 
 // Define the SupplyAllocation interface

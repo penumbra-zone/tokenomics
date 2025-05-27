@@ -2,9 +2,10 @@
 
 import * as echarts from "echarts";
 import { EChartsOption, PieSeriesOption } from "echarts";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { CHART_PALETTES, COLORS } from "@/common/helpers/colors";
+import { getCustomTooltipConfig } from "@/common/helpers/customTooltip";
 import { FONT_FAMILIES } from "@/common/helpers/typography";
 
 export interface RoseChartDataItem {
@@ -20,6 +21,23 @@ export interface RoseChartProps {
   style?: React.CSSProperties;
 }
 
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkIsMobile();
+    window.addEventListener("resize", checkIsMobile);
+
+    return () => window.removeEventListener("resize", checkIsMobile);
+  }, []);
+
+  return isMobile;
+};
+
 export default function RoseChart({
   data,
   seriesName,
@@ -28,6 +46,7 @@ export default function RoseChart({
   style = {},
 }: RoseChartProps) {
   const chartRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!chartRef.current || !data || data.length === 0) return;
@@ -44,19 +63,36 @@ export default function RoseChart({
       baseColorObj: CHART_PALETTES.categorical[index % CHART_PALETTES.categorical.length],
     }));
 
+    // Convert data to format expected by getCustomTooltipConfig
+    const tooltipData = sortedData.map((item) => ({
+      category: item.name,
+      amount: item.value,
+    }));
+
+    // Mobile-responsive configuration
+    const responsiveConfig = {
+      radius: isMobile ? [30, 100] : [50, 150],
+      center: isMobile ? ["50%", "40%"] : ["50%", "50%"], // Move chart up more on mobile for legend space
+      labelFontSize: isMobile ? 11 : 14,
+      labelLineLength: isMobile ? 8 : 15,
+      labelLineLength2: isMobile ? 12 : 25,
+      legendItemGap: isMobile ? 8 : 10,
+      legendItemSize: isMobile ? 16 : 20,
+    };
+
     const option: EChartsOption = {
       backgroundColor: "transparent",
       series: [
         {
           name: seriesName,
           type: "pie",
-          radius: [50, 150],
-          center: ["50%", "50%"],
+          radius: responsiveConfig.radius,
+          center: responsiveConfig.center,
           roseType: "radius",
           itemStyle: {
-            borderRadius: 8,
+            borderRadius: isMobile ? 4 : 8,
           },
-          minAngle: 10,
+          minAngle: isMobile ? 15 : 10,
           avoidLabelOverlap: true,
           data: chartDataSource.map((item) => ({
             name: item.name,
@@ -74,31 +110,31 @@ export default function RoseChart({
                 ],
                 global: true,
               },
-              borderRadius: 8,
+              borderRadius: isMobile ? 4 : 8,
             },
             emphasis: {
               focus: "series",
-              scaleSize: 10,
+              scaleSize: isMobile ? 5 : 10,
               itemStyle: {
-                shadowBlur: 10,
+                shadowBlur: isMobile ? 5 : 10,
                 shadowOffsetX: 0,
                 shadowColor: "rgba(0, 0, 0, 0.5)",
               },
             },
           })),
           label: {
-            show: true,
+            show: !isMobile, // Hide labels on mobile to reduce clutter
             position: "outside",
             formatter: labelFormatter || ((params: any) => `${params.name}  ${params.value}`),
             color: COLORS.neutral[50],
-            fontSize: 14,
+            fontSize: responsiveConfig.labelFontSize,
             alignTo: "labelLine",
             bleedMargin: 5,
           },
           labelLine: {
-            show: true,
-            length: 15,
-            length2: 25,
+            show: !isMobile,
+            length: responsiveConfig.labelLineLength,
+            length2: responsiveConfig.labelLineLength2,
             smooth: false,
             lineStyle: {
               color: COLORS.neutral[50],
@@ -108,18 +144,34 @@ export default function RoseChart({
         } as PieSeriesOption,
       ],
       legend: {
-        left: "left",
-        top: "center",
-        orient: "vertical",
-        itemGap: 10,
-        itemWidth: 20,
-        itemHeight: 20,
+        left: isMobile ? "center" : "left",
+        top: isMobile ? "bottom" : "center",
+        bottom: isMobile ? 5 : undefined,
+        orient: isMobile ? "horizontal" : "vertical",
+        itemGap: responsiveConfig.legendItemGap,
+        itemWidth: responsiveConfig.legendItemSize,
+        itemHeight: responsiveConfig.legendItemSize,
         icon: "circle",
         textStyle: {
           color: COLORS.neutral[50],
           fontFamily: FONT_FAMILIES.primary,
+          fontSize: isMobile ? 11 : 14,
         },
+        // Mobile-specific legend formatting with 2-row support
+        ...(isMobile && {
+          // Remove scroll type to allow natural wrapping
+          width: "95%", // Use most of the width to encourage wrapping
+          itemGap: 8, // Comfortable spacing between items
+          // Calculate approximate items per row (adjust based on your typical data)
+          // ECharts will automatically wrap when width is constrained
+          formatter: (name: string) => {
+            // Truncate long names on mobile to ensure consistent sizing
+            return name.length > 10 ? name.substring(0, 10) + "..." : name;
+          },
+        }),
       },
+      // Use the custom tooltip configuration from SupplyAllocationChart
+      tooltip: getCustomTooltipConfig(tooltipData) as any,
     };
 
     chart.setOption(option);
@@ -133,13 +185,13 @@ export default function RoseChart({
       chart.dispose();
       window.removeEventListener("resize", handleResize);
     };
-  }, [data, seriesName, labelFormatter]);
+  }, [data, seriesName, labelFormatter, isMobile]);
 
   return (
     <div
       ref={chartRef}
       style={{
-        minHeight,
+        minHeight: isMobile ? Math.max(minHeight * 0.9, 300) : minHeight, // Slightly taller for legend space
         height: "100%",
         ...style,
       }}
