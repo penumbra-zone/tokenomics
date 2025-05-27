@@ -11,15 +11,34 @@ import { Button } from "@/components/ui/button";
 
 const NAV_ITEMS = [
   { id: "supply-visualization", label: "Dashboard" },
-  { id: "educational", label: "Educational" },
-  { id: "services", label: "Services" },
+  { id: "issuance-metrics", label: "Issuance" },
+  { id: "burn-metrics", label: "Tokens Burned" },
+  { id: "token-distribution", label: "Token Distribution" },
   { id: "lqt", label: "Liquidity Tournament" },
 ];
 
 export default function StickyNavbar() {
   const [activeSection, setActiveSection] = useState(NAV_ITEMS[0].id);
   const [showNavbar, setShowNavbar] = useState(true);
+  const [suppressActiveState, setSuppressActiveState] = useState(false);
   const lastScrollY = useRef(typeof window !== "undefined" ? window.scrollY : 0);
+  const navigationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isNavigatingRef = useRef(false);
+
+  const handleNavClick = (sectionId: string) => {
+    isNavigatingRef.current = true;
+    setShowNavbar(true);
+
+    // Clear any existing timeout
+    if (navigationTimeoutRef.current) {
+      clearTimeout(navigationTimeoutRef.current);
+    }
+
+    // Reset navigation state after smooth scroll completes (typically ~1000ms)
+    navigationTimeoutRef.current = setTimeout(() => {
+      isNavigatingRef.current = false;
+    }, 1200);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,6 +54,12 @@ export default function StickyNavbar() {
         }
       }
       setActiveSection(current);
+
+      // Don't hide navbar if we're currently navigating
+      if (isNavigatingRef.current) {
+        return;
+      }
+
       if (window.scrollY < 10) {
         setShowNavbar(true);
         lastScrollY.current = window.scrollY;
@@ -49,7 +74,13 @@ export default function StickyNavbar() {
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      // Clean up timeout on unmount
+      if (navigationTimeoutRef.current) {
+        clearTimeout(navigationTimeoutRef.current);
+      }
+    };
   }, []);
 
   return (
@@ -65,10 +96,12 @@ export default function StickyNavbar() {
             <a
               key={item.id}
               href={`#${item.id}`}
-              onClick={() => setActiveSection(item.id)}
+              onClick={() => handleNavClick(item.id)}
               className={cn(
                 NAV_ITEM_BASE_STYLES,
-                activeSection === item.id ? NAV_ACTIVE_WITH_UNDERLINE : NAV_ITEM_INACTIVE_STYLES,
+                !suppressActiveState && activeSection === item.id
+                  ? NAV_ACTIVE_WITH_UNDERLINE
+                  : NAV_ITEM_INACTIVE_STYLES,
                 idx === NAV_ITEMS.length - 1 ? "mr-1" : ""
               )}
             >

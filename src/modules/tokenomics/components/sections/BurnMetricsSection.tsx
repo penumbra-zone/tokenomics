@@ -3,10 +3,10 @@ import { Share2 } from "lucide-react";
 import ShareButton from "@/modules/tokenomics/components/ShareButton";
 import {
   BurnMetricsCard,
-  TotalBurnedCard,
+  BurnRateOverTimeCard,
   PercentOfTotalSupplyCard,
+  TotalBurnedCard,
   WhyBurningIsImportantCard,
-  BurnRateOverTimeCard
 } from "@/modules/tokenomics/components/cards";
 
 interface SectionProps {
@@ -15,7 +15,7 @@ interface SectionProps {
 
 export default function BurnMetricsSection({ handleShare }: SectionProps) {
   return (
-    <section className="mb-12 pt-16 -mt-16">
+    <section id="burn-metrics" className="mb-12 pt-16 -mt-16">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold text-white">BURN METRICS</h2>
         <ShareButton onClick={handleShare}>

@@ -13,7 +13,7 @@ interface SectionProps {
 
 export default function TokenDistributionSection({ handleShare }: SectionProps) {
   return (
-    <section className="mb-12 pt-16 -mt-16">
+    <section id="token-distribution" className="mb-12 pt-16 -mt-16">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold text-white">TOKEN DISTRIBUTION</h2>
         <ShareButton onClick={handleShare}>
