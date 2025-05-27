@@ -1,10 +1,10 @@
 import { Kysely } from "kysely";
 
+import { Env, env } from "@/lib/env";
 import { MockPindexerConnection } from "./mock/mock-pindexer-connection";
 import { Pindexer as PostgresPindexerConnection } from "./pindexer";
 import { DB } from "./schema";
 import { AbstractPindexerConnection } from "./types";
-import { Env, env } from "@/lib/env";
 
 export * from "./types";
 

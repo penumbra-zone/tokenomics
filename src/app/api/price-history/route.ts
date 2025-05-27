@@ -1,5 +1,5 @@
+import { DurationWindow, pindexer } from "@/lib/db/pindexer";
 import { NextResponse } from "next/server";
-import { pindexer, DurationWindow } from "@/lib/db/pindexer";
 
 export const dynamic = "auto";
 export const revalidate = 6;
@@ -11,9 +11,10 @@ export async function GET(request: Request) {
 
   const days = daysParam ? parseInt(daysParam, 10) : 90;
   const allowedWindows: DurationWindow[] = ["1h", "1d", "1w", "1m"];
-  const window = windowParam && allowedWindows.includes(windowParam as DurationWindow) 
-                 ? windowParam as DurationWindow 
-                 : "1d";
+  const window =
+    windowParam && allowedWindows.includes(windowParam as DurationWindow)
+      ? (windowParam as DurationWindow)
+      : "1d";
 
   if (isNaN(days) || days <= 0) {
     return NextResponse.json({ error: "Invalid 'days' parameter" }, { status: 400 });

@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
 import { pindexer } from "@/lib/db/pindexer";
+import { NextResponse } from "next/server";
 
 export const dynamic = "auto";
 export const revalidate = 6;
