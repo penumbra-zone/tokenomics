@@ -61,3 +61,8 @@
 html {
   scroll-behavior: smooth;
 }
+
+/* Ensure sections scroll to correct position accounting for sticky navbar */
+section[id] {
+  scroll-margin-top: 10px;
+}
