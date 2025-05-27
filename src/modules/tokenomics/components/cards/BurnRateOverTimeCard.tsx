@@ -40,23 +40,24 @@ export function BurnRateOverTimeCard() {
         <CardTitle className="text-lg font-semibold text-white">Burn rate over time</CardTitle>
       </CardHeader>
       <CardContent className="pt-0 px-6 pb-6">
-        <div className="relative h-[400px]">
-          {isLoading && !data ? (
-            <LoadingSpinner className="absolute inset-0 m-auto" />
-          ) : (
-            data &&
-            data.length > 0 && (
-              <>
-                <BurnRateOverTimeChart
-                  data={data}
-                  selectedDay={selectedDays}
-                  onDaysChange={handleDaysChange}
-                />
-                {showLoadingOverlay && <LoadingOverlay />}
-              </>
-            )
-          )}
-        </div>
+        {isLoading && !burnMetrics ? (
+          <div className="flex items-center justify-center h-[400px]">
+            <LoadingSpinner size="lg" />
+          </div>
+        ) : data && data.length > 0 ? (
+          <div className="relative h-[400px]">
+            <BurnRateOverTimeChart
+              data={data}
+              selectedDay={selectedDays}
+              onDaysChange={handleDaysChange}
+            />
+            {showLoadingOverlay && <LoadingOverlay />}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-[400px] text-neutral-400">
+            <p>No burn rate data available</p>
+          </div>
+        )}
       </CardContent>
     </CardWrapper>
   );

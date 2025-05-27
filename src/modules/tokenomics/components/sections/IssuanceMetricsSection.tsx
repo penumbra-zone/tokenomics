@@ -90,35 +90,39 @@ export default function IssuanceMetricsSection({ handleShare }: SectionProps) {
       <div className="grid grid-cols-1 gap-8">
         <div className="min-h-[450px]">
           <SimpleCard title="Price history" titleClassName="mb-6">
-            <div className="relative h-full">
-              {isLoading && !priceHistoryData ? (
-                <LoadingSpinner className="absolute inset-0 m-auto" />
-              ) : (
-                priceHistoryData && (
+            {isLoading && !priceHistoryData ? (
+              <div className="flex-1 flex items-center justify-center min-h-[350px]">
+                <LoadingSpinner size="lg" />
+              </div>
+            ) : (
+              <div className="relative h-full">
+                {priceHistoryData && (
                   <>
                     <PriceHistoryCard {...priceHistoryCardProps} />
                     {showLoadingOverlay && <LoadingOverlay />}
                   </>
-                )
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </SimpleCard>
         </div>
 
         <div className="min-h-[450px]">
           <SimpleCard title="Inflation Rate Over Time">
-            <div className="relative h-full pt-6">
-              {isLoading && !priceHistoryData ? (
-                <LoadingSpinner className="absolute inset-0 m-auto" />
-              ) : (
-                priceHistoryData && (
+            {isLoading && !priceHistoryData ? (
+              <div className="flex-1 flex items-center justify-center min-h-[350px]">
+                <LoadingSpinner size="lg" />
+              </div>
+            ) : (
+              <div className="relative h-full pt-6">
+                {priceHistoryData && (
                   <>
                     <InflationRateCard {...inflationRateCardProps} />
                     {showLoadingOverlay && <LoadingOverlay />}
                   </>
-                )
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </SimpleCard>
         </div>
       </div>
