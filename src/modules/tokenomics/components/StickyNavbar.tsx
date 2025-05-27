@@ -21,12 +21,11 @@ const NAV_ITEMS = [
 export default function StickyNavbar() {
   const [activeSection, setActiveSection] = useState(NAV_ITEMS[0].id);
   const [showNavbar, setShowNavbar] = useState(true);
-  const [suppressActiveState, setSuppressActiveState] = useState(false);
   const lastScrollY = useRef(typeof window !== "undefined" ? window.scrollY : 0);
   const navigationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isNavigatingRef = useRef(false);
 
-  const handleNavClick = (sectionId: string) => {
+  const handleNavClick = () => {
     isNavigatingRef.current = true;
     setShowNavbar(true);
 
@@ -97,12 +96,10 @@ export default function StickyNavbar() {
             <a
               key={item.id}
               href={`#${item.id}`}
-              onClick={() => handleNavClick(item.id)}
+              onClick={() => handleNavClick()}
               className={cn(
                 NAV_ITEM_BASE_STYLES,
-                !suppressActiveState && activeSection === item.id
-                  ? NAV_ACTIVE_WITH_UNDERLINE
-                  : NAV_ITEM_INACTIVE_STYLES,
+                activeSection === item.id ? NAV_ACTIVE_WITH_UNDERLINE : NAV_ITEM_INACTIVE_STYLES,
                 idx === NAV_ITEMS.length - 1 ? "mr-1" : ""
               )}
             >
