@@ -5,6 +5,7 @@ import StickyNavbar from "@/modules/tokenomics/components/StickyNavbar";
 import BurnMetricsSection from "@/modules/tokenomics/components/sections/BurnMetricsSection";
 import IssuanceMetricsSection from "@/modules/tokenomics/components/sections/IssuanceMetricsSection";
 import LiquidityTournamentSection from "@/modules/tokenomics/components/sections/LiquidityTournamentSection";
+import SummarySection from "@/modules/tokenomics/components/sections/SummarySection";
 import SupplyVisualizationSection from "@/modules/tokenomics/components/sections/SupplyVisualizationSection";
 import TokenDistributionSection from "@/modules/tokenomics/components/sections/TokenDistributionSection";
 import { useGetSocialMetricsQuery } from "@/store/api/tokenomicsApi";
@@ -36,6 +37,7 @@ export default function Dashboard() {
         <div className="relative z-10 min-h-screen">
           {/* Dashboard content */}
           <main className="p-6 container mx-auto">
+            <SummarySection handleShare={handleShare} />
             <SupplyVisualizationSection handleShare={handleShare} />
             <IssuanceMetricsSection handleShare={handleShare} />
             <BurnMetricsSection handleShare={handleShare} />

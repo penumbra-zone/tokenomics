@@ -10,6 +10,7 @@ import { NAV_ITEM_BASE_STYLES, NAV_ITEM_INACTIVE_STYLES } from "@/common/styles/
 import { Button } from "@/components/ui/button";
 
 const NAV_ITEMS = [
+  { id: "summary", label: "Summary" },
   { id: "supply-visualization", label: "Dashboard" },
   { id: "issuance-metrics", label: "Issuance" },
   { id: "burn-metrics", label: "Tokens Burned" },
