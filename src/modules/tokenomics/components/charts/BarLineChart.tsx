@@ -4,6 +4,7 @@ import type { EChartsOption, SeriesOption } from "echarts";
 import ReactECharts from "echarts-for-react";
 
 import { CHART_PALETTES, COLORS } from "@/common/helpers/colors";
+import { getCustomTooltipConfig } from "@/common/helpers/customTooltip";
 import { FONT_FAMILIES } from "@/common/helpers/typography";
 
 export interface BarLineChartData {
@@ -156,35 +157,27 @@ export default function BarLineChart({
 
   const option: EChartsOption = {
     backgroundColor: "transparent",
-    tooltip: {
-      trigger: "axis",
-      backgroundColor: "#2263621A", // teal with alpha to match getCustomTooltipConfig
-      extraCssText: "backdrop-filter: blur(6px);", // 60% blur effect
-      borderRadius: 8,
-      borderColor: lineColor || themeColors.primaryColor,
-      borderWidth: 1,
-      confine: true, // Ensures tooltip stays within chart boundaries
-      textStyle: {
-        color: COLORS.neutral[50],
-        fontFamily: FONT_FAMILIES.primary,
-        fontSize: 12,
-      },
-      formatter: tooltipFormatter
-        ? (tooltipFormatter as any)
-        : (((params: any[]) => {
-            const dataPoint = params[0];
-            return `<div style="min-width: 120px;">
-              <div style="margin-bottom: 4px; color: ${COLORS.neutral[50]};">${dataPoint.axisValueLabel}</div>
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <div style="display: flex; align-items: center;">
-                  <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${lineColor || themeColors.primaryColor}; margin-right: 8px;"></span>
-                  <span style="color: ${COLORS.neutral[50]};">${areaLabel}</span>
-                </div>
-                <span style="color: ${COLORS.neutral[50]}; font-weight: 500; margin-left: 15px;">${dataPoint.value}</span>
-              </div>
-            </div>`;
-          }) as any),
-    },
+    tooltip: tooltipFormatter
+      ? {
+          trigger: "axis",
+          backgroundColor: "#2263621A",
+          extraCssText: "backdrop-filter: blur(6px);",
+          borderRadius: 8,
+          confine: true,
+          textStyle: {
+            color: COLORS.neutral[50],
+            fontFamily: FONT_FAMILIES.primary,
+            fontSize: 12,
+          },
+          formatter: tooltipFormatter as any,
+        }
+      : (getCustomTooltipConfig(
+          [], // Empty data array for time-series charts
+          areaLabel, // Title
+          "axis", // Trigger type
+          lineColor || themeColors.primaryColor, // Line color
+          yLabelFormatter // Value formatter
+        ) as any),
     grid: {
       left: "0%",
       right: "0%",

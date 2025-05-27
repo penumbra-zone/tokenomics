@@ -55,13 +55,11 @@ export default function InflationRateChart({
       <BarLineChart
         data={chartData}
         selectedDay={currentSelectedDay}
-        yLabelFormatter={(value) => `${value.toFixed(2)}%`}
-        tooltipFormatter={(params) => {
-          const value = params[0].value as number;
-          return `${params[0].name}<br/>${value.toFixed(2)}%`;
-        }}
-        areaLabel="Inflation Rate"
-        minYZero={false}
+        yLabelFormatter={(value) =>
+          mode === "relative" ? `${value.toFixed(2)}%` : `$${value.toFixed(4)}`
+        }
+        areaLabel={mode === "relative" ? "Inflation Rate" : "Token Price"}
+        minYZero={mode === "absolute"}
       />
     </>
   );

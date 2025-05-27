@@ -36,10 +36,6 @@ export default function PriceHistoryChart({
           data={chartData}
           selectedDay={currentSelectedDay}
           yLabelFormatter={(value) => `$${value.toFixed(2)}`}
-          tooltipFormatter={(params) => {
-            const value = params[0].value as number;
-            return `${params[0].name}<br/>$${value.toFixed(2)}`;
-          }}
           showLine={true}
           showBars={false}
           areaLabel="Price"
