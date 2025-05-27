@@ -7,6 +7,8 @@ import { LoadingSpinner } from "@/common/components/LoadingSpinner";
 import CardWrapper from "@/common/components/cards/CardWrapper";
 import SimpleCard from "@/common/components/cards/SimpleCard";
 import { cn } from "@/common/helpers/utils";
+import { TAB_ACTIVE_WITH_UNDERLINE } from "@/common/styles/activeStates";
+import { TAB_BASE_STYLES, TAB_LIST_STYLES } from "@/common/styles/componentStyles";
 import {
   Table,
   TableBody,
@@ -29,29 +31,6 @@ interface Position {
   wallet: string;
   liquidityProvided: string;
 }
-
-// Reusable tab styling constants
-const TAB_LIST_STYLES =
-  "bg-transparent p-0 h-auto border-b border-neutral-800 rounded-none mb-6 w-full justify-start";
-
-const TAB_TRIGGER_BASE_STYLES = "bg-transparent border-0 rounded-none px-0 py-2 text-neutral-400";
-
-const TAB_TRIGGER_ACTIVE_STYLES = [
-  "data-[state=active]:text-white",
-  "data-[state=active]:bg-transparent",
-  "data-[state=active]:shadow-none",
-  "relative",
-  "data-[state=active]:after:absolute",
-  "data-[state=active]:after:bottom-0",
-  "data-[state=active]:after:left-1/2",
-  "data-[state=active]:after:-translate-x-1/2",
-  "data-[state=active]:after:w-full",
-  "data-[state=active]:after:h-0.5",
-  "data-[state=active]:after:bg-gradient-to-r",
-  "data-[state=active]:after:from-transparent",
-  "data-[state=active]:after:via-primary",
-  "data-[state=active]:after:to-transparent",
-].join(" ");
 
 export function LQTPositionsTable() {
   const [isLoading] = useState(false);
@@ -101,13 +80,13 @@ export function LQTPositionsTable() {
           <TabsList className={TAB_LIST_STYLES}>
             <TabsTrigger
               value="all-time"
-              className={cn(TAB_TRIGGER_BASE_STYLES, "mr-8", TAB_TRIGGER_ACTIVE_STYLES)}
+              className={cn(TAB_BASE_STYLES, "mr-8", TAB_ACTIVE_WITH_UNDERLINE)}
             >
               All Time
             </TabsTrigger>
             <TabsTrigger
               value="last-month"
-              className={cn(TAB_TRIGGER_BASE_STYLES, TAB_TRIGGER_ACTIVE_STYLES)}
+              className={cn(TAB_BASE_STYLES, TAB_ACTIVE_WITH_UNDERLINE)}
             >
               Last Month
             </TabsTrigger>
