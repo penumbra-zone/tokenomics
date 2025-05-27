@@ -1,5 +1,6 @@
 "use client";
 
+import Footer from "@/common/components/Footer";
 import { formatNumber } from "@/lib/utils";
 import StickyNavbar from "@/modules/tokenomics/components/StickyNavbar";
 import BurnMetricsSection from "@/modules/tokenomics/components/sections/BurnMetricsSection";
@@ -46,6 +47,7 @@ export default function Dashboard() {
           </main>
         </div>
       </div>
+      <Footer />
     </>
   );
 }
