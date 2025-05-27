@@ -56,6 +56,7 @@ export default function RoseChart({
           itemStyle: {
             borderRadius: 8,
           },
+          minAngle: 10,
           avoidLabelOverlap: true,
           data: chartDataSource.map((item) => ({
             name: item.name,
