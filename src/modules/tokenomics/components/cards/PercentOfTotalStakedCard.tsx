@@ -1,12 +1,16 @@
 import InfoCard from "@/common/components/cards/InfoCard";
-import { useGetTokenDistributionQuery } from "@/store/api/tokenomicsApi";
+import { useGetSummaryMetricsQuery } from "@/store/api/tokenomicsApi";
 
 export function PercentOfTotalStakedCard() {
-  const { data: distribution, isLoading } = useGetTokenDistributionQuery();
+  const { data: summaryMetrics, isLoading } = useGetSummaryMetricsQuery();
 
-  // Find the staked category from the distribution data
-  const stakedData = distribution?.find((item) => item.category === "Staked");
-  const percentage = stakedData?.percentage || 0;
+  if (!summaryMetrics) {
+    return null;
+  }
+
+  const totalSupply = summaryMetrics.totalSupply;
+  const stakedTokens = summaryMetrics.stakedTokens;
+  const percentage = (stakedTokens / totalSupply) * 100;
 
   return (
     <InfoCard

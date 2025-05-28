@@ -4,7 +4,7 @@ import {
   DurationWindow,
   LqtMetrics,
   PriceHistoryEntry,
-  SocialMetrics,
+  SummaryMetrics,
   SupplyMetrics,
   TokenDistribution,
   TokenMetrics,
@@ -15,14 +15,14 @@ export class MockPindexerConnection extends AbstractPindexerConnection {
     super();
   }
 
-  async getSocialMetrics(): Promise<SocialMetrics> {
+  async getSummaryMetrics(): Promise<SummaryMetrics> {
     return {
       totalSupply: 1000000000,
-      circulatingSupply: 900000000,
+      stakedTokens: 900000000,
       marketCap: 500000000,
       price: 0.5,
       inflationRate: 0.02,
-      burnRate: 0.0001,
+      totalBurned: 100000000,
     };
   }
 

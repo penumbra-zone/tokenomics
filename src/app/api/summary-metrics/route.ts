@@ -5,6 +5,6 @@ export const dynamic = "auto";
 export const revalidate = 6;
 
 export async function GET() {
-  const data = await pindexer.getSocialMetrics();
+  const data = await pindexer.getSummaryMetrics();
   return NextResponse.json(data);
 }

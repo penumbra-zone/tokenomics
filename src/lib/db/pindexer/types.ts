@@ -2,13 +2,13 @@
 export const durationWindows = ["1m", "15m", "1h", "4h", "1d", "1w", "1mo"] as const;
 export type DurationWindow = (typeof durationWindows)[number];
 
-export interface SocialMetrics {
+export interface SummaryMetrics {
   totalSupply: number;
-  circulatingSupply: number;
+  stakedTokens: number;
   marketCap: number;
   price: number;
   inflationRate: number;
-  burnRate: number;
+  totalBurned: number;
 }
 
 export interface LqtMetrics {
@@ -111,7 +111,7 @@ export interface BurnSourcesData {
 }
 
 export interface HistoricalBurnEntryRaw {
-  height: number;
+  height: string;
   fees: number;
   dexArb: number;
   auctionBurns: number;
@@ -119,7 +119,7 @@ export interface HistoricalBurnEntryRaw {
 }
 
 export abstract class AbstractPindexerConnection {
-  abstract getSocialMetrics(): Promise<SocialMetrics>;
+  abstract getSummaryMetrics(): Promise<SummaryMetrics>;
   abstract getLqtMetrics(): Promise<LqtMetrics>;
   abstract getBurnMetrics(): Promise<BurnMetrics>;
   abstract getSupplyMetrics(): Promise<SupplyMetrics>;

@@ -1,7 +1,7 @@
 import { Kysely, sql } from "kysely";
 
 import { DATA_SOURCES, DB_ERROR_MESSAGES, FIELD_TRANSFORMERS } from "../database-mappings";
-import { DB } from "../schema";
+import { DB, InsightsSupply, Int8 } from "../schema";
 import type { DelegatedSupplyComponent, UnstakedSupplyComponents } from "../types";
 
 // Define an interface for the raw row structure from getDelegatedSupplyComponentsByHeight
@@ -57,9 +57,9 @@ export class SupplyService {
    * Fetches delegated supply components for a given block height.
    * @param height The block height to fetch delegated supply for.
    */
-  async getDelegatedSupplyComponentsByHeight(height: number): Promise<DelegatedSupplyComponent[]> {
+  async getDelegatedSupplyComponentsByHeight(height: string): Promise<DelegatedSupplyComponent[]> {
     try {
-      if (!height || height < 0) {
+      if (!height || Number(height) < 0) {
         throw new Error(DB_ERROR_MESSAGES.INVALID_HEIGHT);
       }
 
@@ -90,9 +90,9 @@ export class SupplyService {
    * from supply_total_unstaked at a specific block height.
    * @param height The block height.
    */
-  async getHistoricalUnstakedSupplySumByHeight(height: number): Promise<number | null> {
+  async getHistoricalUnstakedSupplySumByHeight(height: string): Promise<number | null> {
     try {
-      if (!height || height < 0) {
+      if (!height || Number(height) < 0) {
         throw new Error(DB_ERROR_MESSAGES.INVALID_HEIGHT);
       }
 
@@ -113,13 +113,41 @@ export class SupplyService {
     }
   }
 
+
+  async getInsightsSupply(blockHeight: string): Promise<{
+    totalSupply: string;
+    stakedSupply: string;
+    marketCap: number | null;
+    price: number | null;
+    height: string;
+  }> {
+    try {
+      const query = await this.db
+        .selectFrom(DATA_SOURCES.INSIGHTS_SUPPLY.name)
+        .select([
+          `${DATA_SOURCES.INSIGHTS_SUPPLY.fields.TOTAL_SUPPLY} as totalSupply`,
+          `${DATA_SOURCES.INSIGHTS_SUPPLY.fields.STAKED_SUPPLY} as stakedSupply`,
+          `${DATA_SOURCES.INSIGHTS_SUPPLY.fields.MARKET_CAP} as marketCap`,
+          `${DATA_SOURCES.INSIGHTS_SUPPLY.fields.PRICE} as price`,
+          `${DATA_SOURCES.INSIGHTS_SUPPLY.fields.HEIGHT} as height`,
+        ])
+        .where(DATA_SOURCES.INSIGHTS_SUPPLY.fields.HEIGHT, "=", blockHeight)
+        .limit(1);
+  
+      return query.executeTakeFirstOrThrow();
+    } catch (error) {
+      console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
+      throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
+    }
+  }
+
   /**
    * Fetches the total supply from the insights_supply table for a specific block height.
    * @param height The block height.
    */
-  async getHistoricalTotalSupplyFromInsights(height: number): Promise<number | null> {
+  async getHistoricalTotalSupplyFromInsights(height: string): Promise<number | null> {
     try {
-      if (!height || height < 0) {
+      if (!height || Number(height) < 0) {
         throw new Error(DB_ERROR_MESSAGES.INVALID_HEIGHT);
       }
 

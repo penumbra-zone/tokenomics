@@ -1,3 +1,4 @@
+import { SummaryMetrics } from '@/lib/db/pindexer';
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export interface SupplyMetrics {
@@ -97,8 +98,8 @@ export const tokenomicsApi = createApi({
     getPriceHistory: builder.query<PriceHistory[], number>({
       query: (days) => `price-history?days=${days}`,
     }),
-    getSocialMetrics: builder.query<SocialMetrics, void>({
-      query: () => "social-metrics",
+    getSummaryMetrics: builder.query<SummaryMetrics, void>({
+      query: () => "summary-metrics",
       providesTags: ["TokenMetrics"],
     }),
   }),
@@ -110,5 +111,5 @@ export const {
   useGetLQTMetricsQuery,
   useGetTokenDistributionQuery,
   useGetPriceHistoryQuery,
-  useGetSocialMetricsQuery,
+  useGetSummaryMetricsQuery,
 } = tokenomicsApi;

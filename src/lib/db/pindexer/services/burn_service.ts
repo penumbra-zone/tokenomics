@@ -1,4 +1,4 @@
-import { Kysely } from "kysely";
+import { Kysely, sql } from "kysely";
 
 import {
   DATA_SOURCES,
@@ -61,6 +61,47 @@ export class BurnService {
       throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
     }
   }
+  
+  /**
+   * Calculates cumulative total burns across all categories from start up to a specific height.
+   * This aggregates DEX burns, auction burns, arbitrage burns, and fee burns.
+   * @param height The block height up to which to calculate cumulative burns
+   */
+  async getTotalBurnsByHeight(height: string): Promise<{
+    totalArbitrageBurns: number;
+    totalFeeBurns: number;
+    totalAuctionBurns: number;
+    totalDexBurns: number;
+  }> {
+    try {
+      if (!height || Number(height) < 0) {
+        throw new Error(DB_ERROR_MESSAGES.INVALID_HEIGHT);
+      }
+
+      const result = await this.db
+        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name)
+        .select([
+          // Sum all burn mechanisms up to the specified height with explicit casting
+          sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS)})`.as("total_arbitrage_burns"),
+          sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS)})`.as("total_fee_burns"),
+          sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.AUCTION_LOCKED)})`.as("total_auction_burns"),
+          sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.DEX_LIQUIDITY)})`.as("total_dex_burns"),
+        ])
+        .where(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT, "<=", height)
+        .executeTakeFirstOrThrow();
+
+      // Return raw aggregated values for each burn category
+      return {
+        totalArbitrageBurns: FIELD_TRANSFORMERS.toTokenAmount(result.total_arbitrage_burns),
+        totalFeeBurns: FIELD_TRANSFORMERS.toTokenAmount(result.total_fee_burns),
+        totalAuctionBurns: FIELD_TRANSFORMERS.toTokenAmount(result.total_auction_burns),
+        totalDexBurns: -FIELD_TRANSFORMERS.toTokenAmount(result.total_dex_burns),
+      };
+    } catch (error) {
+      console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
+      throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
+    }
+  }
 
   /**
    * Fetches the last N historical burn entries (raw data) from supply_total_unstaked.
@@ -88,7 +129,7 @@ export class BurnService {
         .execute();
 
       return results.map((row: RawBurnEntryRow) => ({
-        height: FIELD_TRANSFORMERS.toTokenAmount(row.height),
+        height: row.height ? String(row.height) : '',
         fees: FIELD_TRANSFORMERS.toTokenAmount(row.fees),
         dexArb: FIELD_TRANSFORMERS.toTokenAmount(row.dexArb),
         auctionBurns: FIELD_TRANSFORMERS.toTokenAmount(row.auctionBurns),
@@ -153,36 +194,6 @@ export class BurnService {
           FIELD_TRANSFORMERS.toTokenAmount(row.arb) + FIELD_TRANSFORMERS.toTokenAmount(row.fees),
         timestamp: FIELD_TRANSFORMERS.toTimestamp(row.timestamp) || new Date(),
       }));
-    } catch (error) {
-      console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
-      throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
-    }
-  }
-
-  /**
-   * Calculates total burns across all categories for a specific height.
-   * @param height The block height
-   */
-  async getTotalBurnsByHeight(height: number): Promise<number | null> {
-    try {
-      if (!height || height < 0) {
-        throw new Error(DB_ERROR_MESSAGES.INVALID_HEIGHT);
-      }
-
-      const result = await this.db
-        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name)
-        .select([
-          DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS,
-          DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS,
-        ])
-        .where(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT, "=", String(height))
-        .executeTakeFirst();
-
-      if (!result) return null;
-
-      return (
-        FIELD_TRANSFORMERS.toTokenAmount(result.arb) + FIELD_TRANSFORMERS.toTokenAmount(result.fees)
-      );
     } catch (error) {
       console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
       throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);

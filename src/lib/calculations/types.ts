@@ -15,7 +15,7 @@ export interface BurnData {
   dexArb: number;
   auctionBurns: number;
   dexBurns: number;
-  height: number;
+  height: string;
   timestamp: Date;
 }
 

@@ -1,25 +1,24 @@
 import InfoCard from "@/common/components/cards/InfoCard";
 import { formatNumber } from "@/lib/utils";
-import { useGetBurnMetricsQuery } from "@/store/api/tokenomicsApi";
+import { useGetSummaryMetricsQuery } from "@/store/api/tokenomicsApi";
 
 export function TotalBurnedCard() {
-  const { data: burnMetrics, isLoading } = useGetBurnMetricsQuery();
+  const { data: summaryMetrics, isLoading } = useGetSummaryMetricsQuery();
 
-  const descriptionContent = burnMetrics ? (
-    <>
-      Tokens removed from supply <br />
-    </>
-  ) : (
-    "Tokens removed from supply"
-  );
+  if (!summaryMetrics) {
+    return null;
+  }
+
+  const totalBurned = summaryMetrics.totalBurned;
+  const percentageOfTotalSupply = (totalBurned / summaryMetrics.totalSupply) * 100;
 
   return (
     <InfoCard
       title="Total Burned"
       isLoading={isLoading}
-      value={burnMetrics?.totalBurned}
+      value={totalBurned}
       valueFormatter={(v) => formatNumber(v)}
-      description={descriptionContent}
+      description={`${percentageOfTotalSupply.toFixed(2)}% of total supply`}
       cardClassName="h-full"
     />
   );

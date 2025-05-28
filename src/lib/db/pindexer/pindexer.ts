@@ -13,6 +13,7 @@ import {
   calculateIssuanceSinceLaunch,
   calculateMarketCap,
   calculateTokenDistributionBreakdown,
+  calculateTotalBurned,
   calculateTotalDelegatedSupply,
   calculateTotalSupplyFromComponents,
   calculateTotalUnstakedSupply,
@@ -32,7 +33,7 @@ import {
   HistoricalBurnEntryRaw,
   LqtMetrics,
   PriceHistoryEntry,
-  SocialMetrics,
+  SummaryMetrics,
   SupplyMetrics,
   TokenDistribution,
   TokenMetrics,
@@ -62,63 +63,44 @@ export class Pindexer extends AbstractPindexerConnection {
     };
   }
 
-  async getSocialMetrics(): Promise<SocialMetrics> {
-    const supply = await this.getSupplyMetrics();
-    const burn = await this.getBurnMetrics();
+  async getSummaryMetrics(): Promise<SummaryMetrics> {
+    const { startBlock: startHeight, endBlock: endHeight } = await this.blockService.getBlockRangeForDays(30);
 
-    const totalSupply = supply.totalSupply;
+    // Get insights
+    const insightsPromise = this.supplyService.getInsightsSupply(endHeight.height);
+    const insightsStartPromise = this.supplyService.getInsightsSupply(startHeight.height);
+    // Get burn
+    const burnsPromise = this.burnService.getTotalBurnsByHeight(endHeight.height);
 
-    // Use centralized calculation for circulating supply
-    const circulatingSupply = calculateCirculatingSupply(
-      totalSupply,
-      supply.delegatedSupply.base + supply.delegatedSupply.delegated, // staked supply
-      supply.unstakedSupply.dex, // dex liquidity
-      0 // community pool (TODO: get actual value)
+    const [insights, insightsStart, burns] = await Promise.all([
+      insightsPromise,
+      insightsStartPromise,
+      burnsPromise,
+    ]);
+
+    const totalSupply = Number(insights.totalSupply);
+    const stakedTokens = Number(insights.stakedSupply);
+    const marketCap = insights.marketCap ?? 0;
+    const price = insights.price ?? 0;
+    const inflationRate = calculateInflationRate(
+      Number(insights.totalSupply),
+      Number(insightsStart.totalSupply)
     );
-
-    const marketData: CurrentMarketData | null = await this.marketService.getLatestMarketData();
-
-    const price = marketData?.price || 0;
-    // Use centralized calculation for market cap
-    const marketCap = marketData?.marketCap || calculateMarketCap(totalSupply, price);
-
-    // Update calculation context with current data
-    const currentHeight = (await this.blockService.getLatestBlockHeightFromSupplyTable()) || 0;
-    this.calculationContext.currentHeight = currentHeight;
-    this.calculationContext.currentTimestamp = new Date();
-
-    const inflationRate = await this.getInflationRate(totalSupply);
-    const burnRate = burn.burnRate;
+    const totalBurned = calculateTotalBurned(
+      burns.totalArbitrageBurns, 
+      burns.totalFeeBurns, 
+      burns.totalAuctionBurns, 
+      burns.totalDexBurns
+    );
 
     return {
       totalSupply,
-      circulatingSupply,
+      stakedTokens,
       marketCap,
       price,
       inflationRate,
-      burnRate,
+      totalBurned,
     };
-  }
-
-  private async getInflationRate(currentTotalSupply: number): Promise<number> {
-    const latestHeight = await this.blockService.getLatestBlockHeightFromSupplyTable();
-    if (latestHeight === null) return 0;
-
-    const blocksAgo = BLOCKS_PER_DAY * INFLATION_WINDOW_DAYS;
-    const pastHeight = Math.max(1, latestHeight - blocksAgo);
-
-    const pastTotalSupply =
-      await this.supplyService.getHistoricalTotalSupplyFromInsights(pastHeight);
-
-    if (pastTotalSupply === null || pastTotalSupply <= 0) return 0;
-
-    // Use centralized calculation for inflation rate
-    const windowInflationRate = calculateInflationRate(currentTotalSupply, pastTotalSupply);
-
-    // Convert to annual rate (the centralized function returns percentage, we need to convert to decimal and annualize)
-    const annualInflationRate = (windowInflationRate / 100) * (365 / INFLATION_WINDOW_DAYS);
-
-    return annualInflationRate;
   }
 
   async getLqtMetrics(): Promise<LqtMetrics> {
@@ -145,14 +127,14 @@ export class Pindexer extends AbstractPindexerConnection {
       throw new Error("No unstaked components found");
     }
 
-    const latestStakedHeight = await this.blockService.getLatestBlockHeightFromSupplyTable();
+    const latestStakedHeight = await this.blockService.getLatestBlockDetails();
     let delegatedSupplyComponents: DelegatedSupplyComponent[] = [];
     if (latestStakedHeight === null) {
       throw new Error("No staked height found");
     }
 
     delegatedSupplyComponents = await this.supplyService.getDelegatedSupplyComponentsByHeight(
-      latestStakedHeight || 0
+      latestStakedHeight.height
     );
 
     // Use centralized calculations for supply components
@@ -189,7 +171,7 @@ export class Pindexer extends AbstractPindexerConnection {
 
   async getBurnMetrics(): Promise<BurnMetrics> {
     const latestBurnSources: BurnSourcesData | null = await this.burnService.getLatestBurnSources();
-    const blockHeight = await this.blockService.getLatestBlockHeightFromSupplyTable();
+    const { height: blockHeight } = await this.blockService.getLatestBlockDetails();
 
     if (!latestBurnSources || blockHeight === null) {
       return {
@@ -216,7 +198,7 @@ export class Pindexer extends AbstractPindexerConnection {
 
     const historicalBurnData: BurnData[] = await Promise.all(
       rawHistoricalBurns.map(async (entry) => {
-        const entryHeight = entry.height || 1;
+        const entryHeight = entry.height || '1';
         const timestamp = await this.blockService.getBlockTimestampByHeight(entryHeight);
         return {
           fees: entry.fees,
@@ -328,11 +310,11 @@ export class Pindexer extends AbstractPindexerConnection {
     // Get actual metrics from centralized calculations
     const supplyMetrics = await this.getSupplyMetrics();
     const burnMetrics = await this.getBurnMetrics();
-    const socialMetrics = await this.getSocialMetrics();
+    const socialMetrics = await this.getSummaryMetrics();
 
     return {
       totalSupply: supplyMetrics.totalSupply,
-      circulatingSupply: socialMetrics.circulatingSupply,
+      circulatingSupply: supplyMetrics.delegatedSupply.base + supplyMetrics.delegatedSupply.delegated,
       burnedTokens: burnMetrics.totalBurned,
       marketCap: socialMetrics.marketCap,
       price: socialMetrics.price,

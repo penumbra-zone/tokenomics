@@ -10,7 +10,9 @@ export function formatNumber(num: number, decimals: number = 1): string {
   const absNum = Math.abs(num);
   const sign = num < 0 ? "-" : "";
 
-  if (absNum >= 1e12) {
+  if (absNum >= 1e15) {
+    return `${sign}${(absNum / 1e15).toFixed(decimals)}Q`;
+  } else if (absNum >= 1e12) {
     return `${sign}${(absNum / 1e12).toFixed(decimals)}T`;
   } else if (absNum >= 1e9) {
     return `${sign}${(absNum / 1e9).toFixed(decimals)}B`;

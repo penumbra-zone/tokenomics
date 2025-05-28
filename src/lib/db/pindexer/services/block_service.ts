@@ -10,6 +10,8 @@ import {
 import type { BlockDetails } from "../schema";
 import { DB } from "../schema";
 
+const TABLE = DATA_SOURCES.BLOCK_DETAILS;
+
 export class BlockService {
   private db: Kysely<DB>;
 
@@ -18,36 +20,16 @@ export class BlockService {
   }
 
   /**
-   * Fetches the latest block height from the supply_total_unstaked table.
-   * This table is used in PindexerConnection as a source for the latest indexed height for some metrics.
-   */
-  async getLatestBlockHeightFromSupplyTable(): Promise<number | null> {
-    try {
-      const result = await this.db
-        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name)
-        .select(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT)
-        .orderBy(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT, "desc")
-        .limit(1)
-        .executeTakeFirst();
-
-      return result ? FIELD_TRANSFORMERS.toTokenAmount(result.height) : null;
-    } catch (error) {
-      console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
-      throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
-    }
-  }
-
-  /**
    * Fetches the latest block details from the block_details table.
    */
-  async getLatestBlockDetails(): Promise<Selectable<BlockDetails> | undefined> {
+  async getLatestBlockDetails(): Promise<Selectable<BlockDetails>> {
     try {
       return this.db
-        .selectFrom(DATA_SOURCES.BLOCK_DETAILS.name)
+        .selectFrom(TABLE.name)
         .selectAll()
-        .orderBy(DATA_SOURCES.BLOCK_DETAILS.fields.HEIGHT, "desc")
+        .orderBy(TABLE.fields.HEIGHT, "desc")
         .limit(1)
-        .executeTakeFirst();
+        .executeTakeFirstOrThrow();
     } catch (error) {
       console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
       throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
@@ -57,9 +39,12 @@ export class BlockService {
   /**
    * Fetches the start and end block heights for a given duration window.
    */
-  async getBlockHeightRangeForDays(
+  async getBlockRangeForDays(
     days: number
-  ): Promise<{ startHeight: number | null; endHeight: number | null }> {
+  ): Promise<{
+    startBlock: { height: string; timestamp: Date };
+    endBlock: { height: string; timestamp: Date };
+  }> {
     try {
       if (!days || days < 0) {
         throw new Error(DB_ERROR_MESSAGES.INVALID_HEIGHT);
@@ -69,36 +54,27 @@ export class BlockService {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
 
-      const result = await this.db
-        .with("time_range", (_db) =>
-          _db.selectNoFrom((eb) => [
-            eb
-              .selectFrom(DATA_SOURCES.BLOCK_DETAILS.name)
-              .select(DATA_SOURCES.BLOCK_DETAILS.fields.HEIGHT)
-              .where(DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP, "<=", endDate)
-              .orderBy(DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP, "desc")
-              .limit(1)
-              .as("end_height_bigint"),
-            eb
-              .selectFrom(DATA_SOURCES.BLOCK_DETAILS.name)
-              .select(DATA_SOURCES.BLOCK_DETAILS.fields.HEIGHT)
-              .where(DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP, "<=", startDate)
-              .orderBy(DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP, "desc")
-              .limit(1)
-              .as("start_height_bigint"),
-          ])
-        )
-        .selectFrom("time_range")
-        .select(["end_height_bigint" as any, "start_height_bigint" as any])
-        .executeTakeFirst();
+      // Get the closest block to the end date (most recent)
+      const endHeightResult = await this.db
+        .selectFrom(DATA_SOURCES.BLOCK_DETAILS.name)
+        .selectAll()
+        .where(DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP, "<=", endDate)
+        .orderBy(DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP, "desc")
+        .limit(1)
+        .executeTakeFirstOrThrow();
+
+      // Get the closest block to the start date
+      const startHeightResult = await this.db
+        .selectFrom(DATA_SOURCES.BLOCK_DETAILS.name)
+        .selectAll()
+        .where(DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP, "<=", startDate)
+        .orderBy(DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP, "desc")
+        .limit(1)
+        .executeTakeFirstOrThrow();
 
       return {
-        startHeight: result?.start_height_bigint
-          ? FIELD_TRANSFORMERS.toTokenAmount(result.start_height_bigint)
-          : null,
-        endHeight: result?.end_height_bigint
-          ? FIELD_TRANSFORMERS.toTokenAmount(result.end_height_bigint)
-          : null,
+        startBlock: startHeightResult,
+        endBlock: endHeightResult,
       };
     } catch (error) {
       console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
@@ -110,16 +86,16 @@ export class BlockService {
    * Fetches the timestamp for a specific block height.
    * @param height The block height.
    */
-  async getBlockTimestampByHeight(height: number): Promise<Date | null> {
+  async getBlockTimestampByHeight(height: string): Promise<Date | null> {
     try {
-      if (!height || height < 0) {
+      if (!height || Number(height) < 0) {
         throw new Error(DB_ERROR_MESSAGES.INVALID_HEIGHT);
       }
 
       const result = await this.db
-        .selectFrom(DATA_SOURCES.BLOCK_DETAILS.name)
-        .select(DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP)
-        .where(DATA_SOURCES.BLOCK_DETAILS.fields.HEIGHT, "=", String(height))
+        .selectFrom(TABLE.name)
+        .select(TABLE.fields.TIMESTAMP)
+        .where(TABLE.fields.HEIGHT, "=", String(height))
         .executeTakeFirst();
 
       return result ? FIELD_TRANSFORMERS.toTimestamp(result.timestamp) : null;
@@ -156,15 +132,15 @@ export class BlockService {
       }
 
       const results = await this.db
-        .selectFrom(DATA_SOURCES.BLOCK_DETAILS.name)
+        .selectFrom(TABLE.name)
         .select([
-          DATA_SOURCES.BLOCK_DETAILS.fields.HEIGHT,
-          DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP,
-          DATA_SOURCES.BLOCK_DETAILS.fields.ROOT,
+          TABLE.fields.HEIGHT,
+          TABLE.fields.TIMESTAMP,
+          TABLE.fields.ROOT,
         ])
-        .where(DATA_SOURCES.BLOCK_DETAILS.fields.HEIGHT, ">=", String(startHeight))
-        .where(DATA_SOURCES.BLOCK_DETAILS.fields.HEIGHT, "<=", String(endHeight))
-        .orderBy(DATA_SOURCES.BLOCK_DETAILS.fields.HEIGHT, "asc")
+        .where(TABLE.fields.HEIGHT, ">=", String(startHeight))
+        .where(TABLE.fields.HEIGHT, "<=", String(endHeight))
+        .orderBy(TABLE.fields.HEIGHT, "asc")
         .execute();
 
       return results.map((row) => ({
@@ -193,13 +169,13 @@ export class BlockService {
       const validLimit = Math.min(Math.max(1, limit), DB_CONFIG.MAX_HISTORY_LIMIT);
 
       const results = await this.db
-        .selectFrom(DATA_SOURCES.BLOCK_DETAILS.name)
+        .selectFrom(TABLE.name)
         .select([
-          DATA_SOURCES.BLOCK_DETAILS.fields.HEIGHT,
-          DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP,
-          DATA_SOURCES.BLOCK_DETAILS.fields.ROOT,
+          TABLE.fields.HEIGHT,
+          TABLE.fields.TIMESTAMP,
+          TABLE.fields.ROOT,
         ])
-        .orderBy(DATA_SOURCES.BLOCK_DETAILS.fields.HEIGHT, "desc")
+        .orderBy(TABLE.fields.HEIGHT, "desc")
         .limit(validLimit)
         .execute();
 

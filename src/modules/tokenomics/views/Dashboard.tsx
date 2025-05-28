@@ -9,10 +9,10 @@ import LiquidityTournamentSection from "@/modules/tokenomics/components/sections
 import SummarySection from "@/modules/tokenomics/components/sections/SummarySection";
 import SupplyVisualizationSection from "@/modules/tokenomics/components/sections/SupplyVisualizationSection";
 import TokenDistributionSection from "@/modules/tokenomics/components/sections/TokenDistributionSection";
-import { useGetSocialMetricsQuery } from "@/store/api/tokenomicsApi";
+import { useGetSummaryMetricsQuery } from "@/store/api/tokenomicsApi";
 
 export default function Dashboard() {
-  const { data: socialMetrics } = useGetSocialMetricsQuery();
+  const { data: socialMetrics } = useGetSummaryMetricsQuery();
 
   const handleShare = () => {
     if (navigator.share) {

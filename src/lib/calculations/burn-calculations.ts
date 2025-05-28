@@ -7,10 +7,13 @@ import { BurnData, BurnMetrics, CalculationContext } from "./types";
  * Calculate total burned tokens from all sources
  * Formula: TotalBurned = Σ(DEXBurns + AuctionBurns + DexArbitrageBurns + TransactionFeesBurned)
  */
-export function calculateTotalBurned(burnData: BurnData[]): number {
-  return burnData.reduce((total, data) => {
-    return total + data.fees + data.dexArb + data.auctionBurns + data.dexBurns;
-  }, 0);
+export function calculateTotalBurned(
+  totalArbitrageBurns: number,
+  totalFeeBurns: number,
+  totalAuctionBurns: number,
+  totalDexBurns: number
+): number {
+  return totalArbitrageBurns + totalFeeBurns + totalAuctionBurns + totalDexBurns;
 }
 
 /**
@@ -37,9 +40,9 @@ export function calculatePercentageOfSupplyBurned(
  * Calculate burn rate per block
  * Formula: BurnRate = TotalBurned / BlockHeight
  */
-export function calculateBurnRatePerBlock(totalBurned: number, blockHeight: number): number {
-  if (blockHeight === 0) return 0;
-  return totalBurned / blockHeight;
+export function calculateBurnRatePerBlock(totalBurned: number, blockHeight: string): number {
+  if (Number(blockHeight) === 0) return 0;
+  return totalBurned / Number(blockHeight);
 }
 
 /**
@@ -48,14 +51,6 @@ export function calculateBurnRatePerBlock(totalBurned: number, blockHeight: numb
  */
 export function calculateBurnRatePerDay(burnRatePerBlock: number, blocksPerDay: number): number {
   return burnRatePerBlock * blocksPerDay;
-}
-
-/**
- * Calculate burn amount for a specific interval
- * Formula: BurnAmount_interval = Σ(DEXBurns_interval + AuctionBurns_interval + DexArbitrage_interval + TxFeesBurned_interval)
- */
-export function calculateBurnAmountForInterval(burnDataForInterval: BurnData[]): number {
-  return calculateTotalBurned(burnDataForInterval);
 }
 
 /**
@@ -72,7 +67,7 @@ export function calculateBurnsBySource(burnData: BurnData[]): {
       transactionFees: totals.transactionFees + data.fees,
       dexArbitrage: totals.dexArbitrage + data.dexArb,
       auctionBurns: totals.auctionBurns + data.auctionBurns,
-      dexBurns: totals.dexBurns + -data.dexBurns,
+      dexBurns: totals.dexBurns + data.dexBurns,
     }),
     {
       transactionFees: 0,
@@ -117,7 +112,12 @@ export function calculateBurnMetrics(
   const { blocksPerDay } = context.config;
 
   // Calculate total burned across all data
-  const totalBurned = calculateTotalBurned(burnData);
+  const totalBurned = calculateTotalBurned(
+    burnData[burnData.length - 1].fees,
+    burnData[burnData.length - 1].dexArb,
+    burnData[burnData.length - 1].auctionBurns,
+    burnData[burnData.length - 1].dexBurns
+  );
 
   // Calculate percentage of supply burned
   const percentageOfSupplyBurned = calculatePercentageOfSupplyBurned(
