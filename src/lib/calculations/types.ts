@@ -11,10 +11,8 @@ export interface SupplyData {
 }
 
 export interface BurnData {
-  fees: number;
-  dexArb: number;
-  auctionBurns: number;
-  dexBurns: number;
+  arbitrageBurns: number;
+  feeBurns: number;
   height: string;
   timestamp: Date;
 }
@@ -65,10 +63,8 @@ export interface BurnMetrics {
   percentageOfSupplyBurned: number;
   burnRatePerDay: number;
   burnsBySource: {
-    transactionFees: number;
-    dexArbitrage: number;
-    auctionBurns: number;
-    dexBurns: number;
+    arbitrageBurns: number;
+    feeBurns: number;
   };
 }
 

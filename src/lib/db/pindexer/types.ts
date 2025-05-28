@@ -28,10 +28,8 @@ export interface LqtMetrics {
 export interface BurnMetrics {
   totalBurned: number;
   bySource: {
-    transactionFees: number;
-    dexArbitrage: number;
-    auctionBurns: number;
-    dexBurns: number;
+    arbitrageBurns: number;
+    feeBurns: number;
   };
   burnRate: number;
   historicalBurnRate: Array<{
@@ -100,18 +98,16 @@ export interface DelegatedSupplyComponent {
 }
 
 export interface BurnSourcesData {
-  fees: number;
-  dexArb: number;
-  auctionBurns: number;
-  dexBurns: number;
+  arbitrageBurns: number;
+  feeBurns: number;
+  totalBurned: number;
 }
 
 export interface HistoricalBurnEntryRaw {
   height: string;
-  fees: number;
-  dexArb: number;
-  auctionBurns: number;
-  dexBurns: number;
+  arbitrageBurns: number;
+  feeBurns: number;
+  totalBurned: number;
 }
 
 export abstract class AbstractPindexerConnection {

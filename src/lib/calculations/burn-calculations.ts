@@ -4,23 +4,23 @@
 import { BurnData, BurnMetrics, CalculationContext } from "./types";
 
 /**
- * Calculate total burned tokens from all sources
- * Formula: TotalBurned = Σ(DEXBurns + AuctionBurns + DexArbitrageBurns + TransactionFeesBurned)
+ * Calculate total permanently burned tokens from all sources
+ * Only includes: arbitrage burns and fee burns (permanently burned)
+ * Excludes: auction and dex burns (locked but recoverable)
+ * Formula: TotalBurned = ArbitrageBurns + FeeBurns
  */
 export function calculateTotalBurned(
   totalArbitrageBurns: number,
-  totalFeeBurns: number,
-  totalAuctionBurns: number,
-  totalDexBurns: number
+  totalFeeBurns: number
 ): number {
-  return totalArbitrageBurns + totalFeeBurns + totalAuctionBurns + totalDexBurns;
+  return totalArbitrageBurns + totalFeeBurns;
 }
 
 /**
  * Calculate total burned for a single entry
  */
 export function calculateTotalBurnedForEntry(burnData: BurnData): number {
-  return burnData.fees + burnData.dexArb + burnData.auctionBurns + burnData.dexBurns;
+  return burnData.arbitrageBurns + burnData.feeBurns;
 }
 
 /**
@@ -57,23 +57,17 @@ export function calculateBurnRatePerDay(burnRatePerBlock: number, blocksPerDay: 
  * Calculate burns by source for a period
  */
 export function calculateBurnsBySource(burnData: BurnData[]): {
-  transactionFees: number;
-  dexArbitrage: number;
-  auctionBurns: number;
-  dexBurns: number;
+  arbitrageBurns: number;
+  feeBurns: number;
 } {
   return burnData.reduce(
     (totals, data) => ({
-      transactionFees: totals.transactionFees + data.fees,
-      dexArbitrage: totals.dexArbitrage + data.dexArb,
-      auctionBurns: totals.auctionBurns + data.auctionBurns,
-      dexBurns: totals.dexBurns + data.dexBurns,
+      arbitrageBurns: totals.arbitrageBurns + data.arbitrageBurns,
+      feeBurns: totals.feeBurns + data.feeBurns,
     }),
     {
-      transactionFees: 0,
-      dexArbitrage: 0,
-      auctionBurns: 0,
-      dexBurns: 0,
+      arbitrageBurns: 0,
+      feeBurns: 0,
     }
   );
 }
@@ -111,12 +105,10 @@ export function calculateBurnMetrics(
 ): BurnMetrics {
   const { blocksPerDay } = context.config;
 
-  // Calculate total burned across all data
+  // Calculate total burned across all data (only permanent burns)
   const totalBurned = calculateTotalBurned(
-    burnData[burnData.length - 1].fees,
-    burnData[burnData.length - 1].dexArb,
-    burnData[burnData.length - 1].auctionBurns,
-    burnData[burnData.length - 1].dexBurns
+    burnData[burnData.length - 1].arbitrageBurns,
+    burnData[burnData.length - 1].feeBurns
   );
 
   // Calculate percentage of supply burned
@@ -147,35 +139,23 @@ export function calculateBurnMetrics(
  * Calculate burn source percentages for pie charts
  */
 export function calculateBurnSourcePercentages(burnsBySource: {
-  transactionFees: number;
-  dexArbitrage: number;
-  auctionBurns: number;
-  dexBurns: number;
+  arbitrageBurns: number;
+  feeBurns: number;
 }): {
-  transactionFees: number;
-  dexArbitrage: number;
-  auctionBurns: number;
-  dexBurns: number;
+  arbitrageBurns: number;
+  feeBurns: number;
 } {
-  const total =
-    burnsBySource.transactionFees +
-    burnsBySource.dexArbitrage +
-    burnsBySource.auctionBurns +
-    burnsBySource.dexBurns;
+  const total = burnsBySource.arbitrageBurns + burnsBySource.feeBurns;
 
   if (total === 0) {
     return {
-      transactionFees: 0,
-      dexArbitrage: 0,
-      auctionBurns: 0,
-      dexBurns: 0,
+      arbitrageBurns: 0,
+      feeBurns: 0,
     };
   }
 
   return {
-    transactionFees: (burnsBySource.transactionFees / total) * 100,
-    dexArbitrage: (burnsBySource.dexArbitrage / total) * 100,
-    auctionBurns: (burnsBySource.auctionBurns / total) * 100,
-    dexBurns: (burnsBySource.dexBurns / total) * 100,
+    arbitrageBurns: (burnsBySource.arbitrageBurns / total) * 100,
+    feeBurns: (burnsBySource.feeBurns / total) * 100,
   };
 }

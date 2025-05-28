@@ -52,7 +52,7 @@ export class Pindexer extends AbstractPindexerConnection {
     const config = getCurrentNetworkConfig();
     this.calculationContext = {
       config,
-      currentHeight: 0, // Will be updated dynamically
+      currentHeight: 0, // Will be updated dynamically TODO: set height and timestamp and set ttls
       currentTimestamp: new Date(),
     };
   }
@@ -83,9 +83,7 @@ export class Pindexer extends AbstractPindexerConnection {
     );
     const totalBurned = calculateTotalBurned(
       burns.totalArbitrageBurns,
-      burns.totalFeeBurns,
-      burns.totalAuctionBurns,
-      burns.totalDexBurns
+      burns.totalFeeBurns
     );
 
     return {
@@ -95,23 +93,6 @@ export class Pindexer extends AbstractPindexerConnection {
       price,
       inflationRate,
       totalBurned,
-    };
-  }
-
-  async getLqtMetrics(): Promise<LqtMetrics> {
-    // TODO: Implement with Kysely if LQT tables are in the schema, or keep as mock
-    return {
-      availableRewards: 10000000,
-      delegatorRewards: 5000000,
-      lpRewards: 3000000,
-      votingPower: {
-        total: 800000000,
-        byAsset: [
-          { asset: "PEN", votes: 500000000, share: 0.625 },
-          { asset: "USDC", votes: 200000000, share: 0.25 },
-          { asset: "ETH", votes: 100000000, share: 0.125 },
-        ],
-      },
     };
   }
 
@@ -158,18 +139,16 @@ export class Pindexer extends AbstractPindexerConnection {
     if (!latestBurnSources || blockHeight === null) {
       return {
         totalBurned: 0,
-        bySource: { transactionFees: 0, dexArbitrage: 0, auctionBurns: 0, dexBurns: 0 },
+        bySource: { arbitrageBurns: 0, feeBurns: 0 },
         burnRate: 0,
         historicalBurnRate: [],
       };
     }
 
-    // Prepare burn data for centralized calculations
+    // Prepare burn data for centralized calculations - only permanent burns
     const currentBurnData: BurnData = {
-      fees: latestBurnSources.fees,
-      dexArb: latestBurnSources.dexArb,
-      auctionBurns: latestBurnSources.auctionBurns,
-      dexBurns: latestBurnSources.dexBurns,
+      arbitrageBurns: latestBurnSources.arbitrageBurns,
+      feeBurns: latestBurnSources.feeBurns,
       height: blockHeight,
       timestamp: new Date(),
     };
@@ -183,10 +162,8 @@ export class Pindexer extends AbstractPindexerConnection {
         const entryHeight = entry.height || "1";
         const timestamp = await this.blockService.getBlockTimestampByHeight(entryHeight);
         return {
-          fees: entry.fees,
-          dexArb: entry.dexArb,
-          auctionBurns: entry.auctionBurns,
-          dexBurns: entry.dexBurns,
+          arbitrageBurns: entry.arbitrageBurns,
+          feeBurns: entry.feeBurns,
           height: entryHeight,
           timestamp: timestamp || new Date(),
         };
@@ -294,7 +271,21 @@ export class Pindexer extends AbstractPindexerConnection {
       price,
     };
   }
-}
 
-// Optional: Export an instance if commonly used, or let consumers instantiate.
-// export const pindexer = new Pindexer();
+  async getLqtMetrics(): Promise<LqtMetrics> {
+    // TODO: Implement with Kysely if LQT tables are in the schema, or keep as mock
+    return {
+      availableRewards: 10000000,
+      delegatorRewards: 5000000,
+      lpRewards: 3000000,
+      votingPower: {
+        total: 800000000,
+        byAsset: [
+          { asset: "PEN", votes: 500000000, share: 0.625 },
+          { asset: "USDC", votes: 200000000, share: 0.25 },
+          { asset: "ETH", votes: 100000000, share: 0.125 },
+        ],
+      },
+    };
+  }
+}
