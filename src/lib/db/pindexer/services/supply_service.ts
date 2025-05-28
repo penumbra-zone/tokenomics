@@ -1,7 +1,7 @@
 import { Kysely, sql } from "kysely";
 
 import { DATA_SOURCES, DB_ERROR_MESSAGES, FIELD_TRANSFORMERS } from "../database-mappings";
-import { DB, InsightsSupply, Int8 } from "../schema";
+import { DB } from "../schema";
 import type { DelegatedSupplyComponent, UnstakedSupplyComponents } from "../types";
 
 // Define an interface for the raw row structure from getDelegatedSupplyComponentsByHeight
@@ -113,7 +113,6 @@ export class SupplyService {
     }
   }
 
-
   async getInsightsSupply(blockHeight: string): Promise<{
     totalSupply: string;
     stakedSupply: string;
@@ -133,7 +132,7 @@ export class SupplyService {
         ])
         .where(DATA_SOURCES.INSIGHTS_SUPPLY.fields.HEIGHT, "=", blockHeight)
         .limit(1);
-  
+
       return query.executeTakeFirstOrThrow();
     } catch (error) {
       console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);

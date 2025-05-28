@@ -61,7 +61,7 @@ export class BurnService {
       throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
     }
   }
-  
+
   /**
    * Calculates cumulative total burns across all categories from start up to a specific height.
    * This aggregates DEX burns, auction burns, arbitrage burns, and fee burns.
@@ -82,10 +82,18 @@ export class BurnService {
         .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name)
         .select([
           // Sum all burn mechanisms up to the specified height with explicit casting
-          sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS)})`.as("total_arbitrage_burns"),
-          sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS)})`.as("total_fee_burns"),
-          sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.AUCTION_LOCKED)})`.as("total_auction_burns"),
-          sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.DEX_LIQUIDITY)})`.as("total_dex_burns"),
+          sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS)})`.as(
+            "total_arbitrage_burns"
+          ),
+          sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS)})`.as(
+            "total_fee_burns"
+          ),
+          sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.AUCTION_LOCKED)})`.as(
+            "total_auction_burns"
+          ),
+          sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.DEX_LIQUIDITY)})`.as(
+            "total_dex_burns"
+          ),
         ])
         .where(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT, "<=", height)
         .executeTakeFirstOrThrow();
@@ -129,7 +137,7 @@ export class BurnService {
         .execute();
 
       return results.map((row: RawBurnEntryRow) => ({
-        height: row.height ? String(row.height) : '',
+        height: row.height ? String(row.height) : "",
         fees: FIELD_TRANSFORMERS.toTokenAmount(row.fees),
         dexArb: FIELD_TRANSFORMERS.toTokenAmount(row.dexArb),
         auctionBurns: FIELD_TRANSFORMERS.toTokenAmount(row.auctionBurns),

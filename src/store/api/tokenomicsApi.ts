@@ -1,4 +1,4 @@
-import { SummaryMetrics } from '@/lib/db/pindexer';
+import { SummaryMetrics } from "@/lib/db/pindexer";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export interface SupplyMetrics {

@@ -1,13 +1,7 @@
 // Token Distribution Calculations
 // Based on the tokenomics calculation documentation
 
-import {
-  CalculationContext,
-  DelegatedSupplyComponent,
-  DistributionMetrics,
-  SupplyData,
-  UnstakedSupplyComponents,
-} from "./types";
+import { DistributionMetrics, SupplyData, UnstakedSupplyComponents } from "./types";
 
 /**
  * Calculate circulating tokens (tokens not locked in specific categories)
@@ -42,44 +36,6 @@ export function calculateTotalUnstakedSupply(unstakedComponents: UnstakedSupplyC
     unstakedComponents.arb +
     unstakedComponents.fees
   );
-}
-
-/**
- * Calculate total delegated supply from components
- */
-export function calculateTotalDelegatedSupply(delegatedComponents: DelegatedSupplyComponent[]): {
-  totalDelegatedBase: number;
-  totalDelegatedDelegated: number;
-  avgConversionRate: number;
-} {
-  const totalDelegatedBase = delegatedComponents.reduce((sum, v) => sum + v.um, 0);
-  const totalDelegatedDelegated = delegatedComponents.reduce((sum, v) => sum + v.del_um, 0);
-
-  const avgConversionRate =
-    delegatedComponents.length > 0
-      ? delegatedComponents.reduce((sum, v) => sum + v.rate_bps2, 0) /
-        (delegatedComponents.length * 10000)
-      : 0;
-
-  return {
-    totalDelegatedBase,
-    totalDelegatedDelegated,
-    avgConversionRate,
-  };
-}
-
-/**
- * Calculate total supply from components
- */
-export function calculateTotalSupplyFromComponents(
-  unstakedComponents: UnstakedSupplyComponents,
-  delegatedComponents: DelegatedSupplyComponent[]
-): number {
-  const totalUnstaked = calculateTotalUnstakedSupply(unstakedComponents);
-  const { totalDelegatedBase, totalDelegatedDelegated } =
-    calculateTotalDelegatedSupply(delegatedComponents);
-
-  return totalUnstaked + totalDelegatedBase + totalDelegatedDelegated;
 }
 
 /**
@@ -134,42 +90,12 @@ export function calculateTokenDistributionBreakdown(
 }
 
 /**
- * Calculate staking breakdown with subcategories
- */
-export function calculateStakingBreakdown(delegatedComponents: DelegatedSupplyComponent[]): {
-  validators: { amount: number; percentage: number };
-  delegators: { amount: number; percentage: number };
-  total: number;
-} {
-  const { totalDelegatedBase, totalDelegatedDelegated } =
-    calculateTotalDelegatedSupply(delegatedComponents);
-  const totalStaked = totalDelegatedBase + totalDelegatedDelegated;
-
-  const calculatePercentage = (amount: number) =>
-    totalStaked > 0 ? (amount / totalStaked) * 100 : 0;
-
-  return {
-    validators: {
-      amount: totalDelegatedBase,
-      percentage: calculatePercentage(totalDelegatedBase),
-    },
-    delegators: {
-      amount: totalDelegatedDelegated,
-      percentage: calculatePercentage(totalDelegatedDelegated),
-    },
-    total: totalStaked,
-  };
-}
-
-/**
  * Calculate comprehensive distribution metrics
  */
 export function calculateDistributionMetrics(
   currentSupplyData: SupplyData,
   unstakedComponents: UnstakedSupplyComponents,
-  delegatedComponents: DelegatedSupplyComponent[],
-  communityPoolSupply: number,
-  context: CalculationContext
+  communityPoolSupply: number
 ): DistributionMetrics {
   const { total: totalSupply, staked: stakedSupply } = currentSupplyData;
 

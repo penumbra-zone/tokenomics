@@ -1,16 +1,19 @@
 import InfoCard from "@/common/components/cards/InfoCard";
 import { useGetSummaryMetricsQuery } from "@/store/api/tokenomicsApi";
+import { useEffect, useState } from "react";
 
 export function PercentOfTotalStakedCard() {
   const { data: summaryMetrics, isLoading } = useGetSummaryMetricsQuery();
+  const [percentage, setPercentage] = useState(0);
 
-  if (!summaryMetrics) {
-    return null;
-  }
-
-  const totalSupply = summaryMetrics.totalSupply;
-  const stakedTokens = summaryMetrics.stakedTokens;
-  const percentage = (stakedTokens / totalSupply) * 100;
+  useEffect(() => {
+    if (summaryMetrics) {
+      const totalSupply = summaryMetrics.totalSupply;
+      const stakedTokens = summaryMetrics.stakedTokens;
+      const percentage = (stakedTokens / totalSupply) * 100;
+      setPercentage(percentage);
+    }
+  }, [summaryMetrics]);
 
   return (
     <InfoCard

@@ -39,9 +39,7 @@ export class BlockService {
   /**
    * Fetches the start and end block heights for a given duration window.
    */
-  async getBlockRangeForDays(
-    days: number
-  ): Promise<{
+  async getBlockRangeForDays(days: number): Promise<{
     startBlock: { height: string; timestamp: Date };
     endBlock: { height: string; timestamp: Date };
   }> {
@@ -133,11 +131,7 @@ export class BlockService {
 
       const results = await this.db
         .selectFrom(TABLE.name)
-        .select([
-          TABLE.fields.HEIGHT,
-          TABLE.fields.TIMESTAMP,
-          TABLE.fields.ROOT,
-        ])
+        .select([TABLE.fields.HEIGHT, TABLE.fields.TIMESTAMP, TABLE.fields.ROOT])
         .where(TABLE.fields.HEIGHT, ">=", String(startHeight))
         .where(TABLE.fields.HEIGHT, "<=", String(endHeight))
         .orderBy(TABLE.fields.HEIGHT, "asc")
@@ -170,11 +164,7 @@ export class BlockService {
 
       const results = await this.db
         .selectFrom(TABLE.name)
-        .select([
-          TABLE.fields.HEIGHT,
-          TABLE.fields.TIMESTAMP,
-          TABLE.fields.ROOT,
-        ])
+        .select([TABLE.fields.HEIGHT, TABLE.fields.TIMESTAMP, TABLE.fields.ROOT])
         .orderBy(TABLE.fields.HEIGHT, "desc")
         .limit(validLimit)
         .execute();

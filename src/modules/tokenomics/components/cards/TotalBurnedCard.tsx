@@ -1,16 +1,20 @@
 import InfoCard from "@/common/components/cards/InfoCard";
 import { formatNumber } from "@/lib/utils";
 import { useGetSummaryMetricsQuery } from "@/store/api/tokenomicsApi";
+import { useEffect, useState } from "react";
 
 export function TotalBurnedCard() {
   const { data: summaryMetrics, isLoading } = useGetSummaryMetricsQuery();
 
-  if (!summaryMetrics) {
-    return null;
-  }
+  const [totalBurned, setTotalBurned] = useState(0);
+  const [percentageOfTotalSupply, setPercentageOfTotalSupply] = useState(0);
 
-  const totalBurned = summaryMetrics.totalBurned;
-  const percentageOfTotalSupply = (totalBurned / summaryMetrics.totalSupply) * 100;
+  useEffect(() => {
+    if (summaryMetrics) {
+      setTotalBurned(summaryMetrics.totalBurned);
+      setPercentageOfTotalSupply((summaryMetrics.totalBurned / summaryMetrics.totalSupply) * 100);
+    }
+  }, [summaryMetrics]);
 
   return (
     <InfoCard

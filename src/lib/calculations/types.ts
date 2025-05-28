@@ -92,7 +92,26 @@ export interface CalculationConfig {
   genesisAllocation: number;
   blocksPerDay: number;
   inflationWindowDays: number;
-  communityPoolAddresses: string[];
+
+  // Network parameters from genesis
+  epochDuration?: number; // blocks per epoch
+  stakingIssuancePerBlock?: number; // staking rewards issued per block
+
+  // Governance parameters
+  proposalVotingBlocks?: number; // blocks for proposal voting period
+  proposalDepositAmount?: number; // minimum deposit for proposals
+
+  // Staking parameters
+  activeValidatorLimit?: number; // maximum number of active validators
+  unbondingDelay?: number; // unbonding period in blocks
+  minValidatorStake?: number; // minimum stake required for validators
+
+  // Community pool
+  communityPoolInitialBalance?: number; // initial community pool balance
+
+  // Genesis metadata
+  genesisTime?: string; // genesis timestamp
+  chainId?: string; // chain identifier
 }
 
 // Time period types

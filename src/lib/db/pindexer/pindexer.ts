@@ -1,6 +1,5 @@
 import { Kysely } from "kysely";
 
-import { BLOCKS_PER_DAY, INFLATION_WINDOW_DAYS } from "../constants";
 import { dbClient as defaultDb } from "./client";
 import { DB } from "./schema";
 // Import service classes
@@ -11,11 +10,8 @@ import {
   calculateCirculatingSupply,
   calculateInflationRate,
   calculateIssuanceSinceLaunch,
-  calculateMarketCap,
   calculateTokenDistributionBreakdown,
   calculateTotalBurned,
-  calculateTotalDelegatedSupply,
-  calculateTotalSupplyFromComponents,
   calculateTotalUnstakedSupply,
   CalculationContext,
   getCurrentNetworkConfig,
@@ -28,8 +24,6 @@ import {
   AbstractPindexerConnection,
   BurnMetrics,
   BurnSourcesData,
-  CurrentMarketData,
-  DelegatedSupplyComponent,
   HistoricalBurnEntryRaw,
   LqtMetrics,
   PriceHistoryEntry,
@@ -64,7 +58,8 @@ export class Pindexer extends AbstractPindexerConnection {
   }
 
   async getSummaryMetrics(): Promise<SummaryMetrics> {
-    const { startBlock: startHeight, endBlock: endHeight } = await this.blockService.getBlockRangeForDays(30);
+    const { startBlock: startHeight, endBlock: endHeight } =
+      await this.blockService.getBlockRangeForDays(30);
 
     // Get insights
     const insightsPromise = this.supplyService.getInsightsSupply(endHeight.height);
@@ -87,9 +82,9 @@ export class Pindexer extends AbstractPindexerConnection {
       Number(insightsStart.totalSupply)
     );
     const totalBurned = calculateTotalBurned(
-      burns.totalArbitrageBurns, 
-      burns.totalFeeBurns, 
-      burns.totalAuctionBurns, 
+      burns.totalArbitrageBurns,
+      burns.totalFeeBurns,
+      burns.totalAuctionBurns,
       burns.totalDexBurns
     );
 
@@ -128,29 +123,21 @@ export class Pindexer extends AbstractPindexerConnection {
     }
 
     const latestStakedHeight = await this.blockService.getLatestBlockDetails();
-    let delegatedSupplyComponents: DelegatedSupplyComponent[] = [];
-    if (latestStakedHeight === null) {
-      throw new Error("No staked height found");
-    }
 
-    delegatedSupplyComponents = await this.supplyService.getDelegatedSupplyComponentsByHeight(
+    const { totalSupply, stakedSupply } = await this.supplyService.getInsightsSupply(
       latestStakedHeight.height
     );
 
     // Use centralized calculations for supply components
     const totalUnstaked = calculateTotalUnstakedSupply(unstakedComponents);
-    const delegatedSupplyData = calculateTotalDelegatedSupply(delegatedSupplyComponents);
-    const totalSupply = calculateTotalSupplyFromComponents(
-      unstakedComponents,
-      delegatedSupplyComponents
-    );
 
     // Use centralized calculation for issuance since launch
     const { genesisAllocation } = this.calculationContext.config;
-    const issuedSinceLaunch = calculateIssuanceSinceLaunch(totalSupply, genesisAllocation);
+    const issuedSinceLaunch = calculateIssuanceSinceLaunch(Number(totalSupply), genesisAllocation);
 
     return {
-      totalSupply,
+      totalSupply: Number(totalSupply),
+      totalStaked: Number(stakedSupply),
       totalUnstaked,
       genesisAllocation,
       issuedSinceLaunch,
@@ -160,11 +147,6 @@ export class Pindexer extends AbstractPindexerConnection {
         dex: unstakedComponents.dex,
         arbitrage: unstakedComponents.arb,
         fees: unstakedComponents.fees,
-      },
-      delegatedSupply: {
-        base: delegatedSupplyData.totalDelegatedBase,
-        delegated: delegatedSupplyData.totalDelegatedDelegated,
-        conversionRate: delegatedSupplyData.avgConversionRate,
       },
     };
   }
@@ -198,7 +180,7 @@ export class Pindexer extends AbstractPindexerConnection {
 
     const historicalBurnData: BurnData[] = await Promise.all(
       rawHistoricalBurns.map(async (entry) => {
-        const entryHeight = entry.height || '1';
+        const entryHeight = entry.height || "1";
         const timestamp = await this.blockService.getBlockTimestampByHeight(entryHeight);
         return {
           fees: entry.fees,
@@ -242,8 +224,7 @@ export class Pindexer extends AbstractPindexerConnection {
     // Get current supply metrics to calculate distribution
     const supplyMetrics = await this.getSupplyMetrics();
     const totalSupply = supplyMetrics.totalSupply;
-    const stakedSupply =
-      supplyMetrics.delegatedSupply.base + supplyMetrics.delegatedSupply.delegated;
+    const stakedSupply = supplyMetrics.totalStaked;
     const dexLiquiditySupply = supplyMetrics.unstakedSupply.dex;
     const communityPoolSupply = 0; // TODO: Get actual community pool supply
 
@@ -261,20 +242,6 @@ export class Pindexer extends AbstractPindexerConnection {
         category: "Staked",
         percentage: distributionBreakdown.staked.percentage,
         amount: distributionBreakdown.staked.amount,
-        subcategories: [
-          {
-            name: "Validators",
-            amount: supplyMetrics.delegatedSupply.base,
-            percentage:
-              stakedSupply > 0 ? (supplyMetrics.delegatedSupply.base / stakedSupply) * 100 : 0,
-          },
-          {
-            name: "Delegators",
-            amount: supplyMetrics.delegatedSupply.delegated,
-            percentage:
-              stakedSupply > 0 ? (supplyMetrics.delegatedSupply.delegated / stakedSupply) * 100 : 0,
-          },
-        ],
       },
       {
         category: "DEX Liquidity",
@@ -308,16 +275,23 @@ export class Pindexer extends AbstractPindexerConnection {
 
   async getTokenMetrics(): Promise<TokenMetrics> {
     // Get actual metrics from centralized calculations
-    const supplyMetrics = await this.getSupplyMetrics();
-    const burnMetrics = await this.getBurnMetrics();
-    const socialMetrics = await this.getSummaryMetrics();
+    const { totalSupply, totalStaked, unstakedSupply } = await this.getSupplyMetrics();
+    const { totalBurned: burnedTokens } = await this.getBurnMetrics();
+    const { marketCap, price } = await this.getSummaryMetrics();
+    const communityPoolSupply = 0; // TODO: Get actual community pool supply from https://buf.build/penumbra-zone/penumbra/docs/main:penumbra.core.component.community_pool.v1#penumbra.core.component.community_pool.v1.QueryService.CommunityPoolAssetBalances
+    const circulatingSupply = calculateCirculatingSupply(
+      totalSupply,
+      totalStaked,
+      unstakedSupply.dex,
+      communityPoolSupply
+    );
 
     return {
-      totalSupply: supplyMetrics.totalSupply,
-      circulatingSupply: supplyMetrics.delegatedSupply.base + supplyMetrics.delegatedSupply.delegated,
-      burnedTokens: burnMetrics.totalBurned,
-      marketCap: socialMetrics.marketCap,
-      price: socialMetrics.price,
+      totalSupply,
+      circulatingSupply,
+      burnedTokens,
+      marketCap,
+      price,
     };
   }
 }

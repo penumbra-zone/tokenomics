@@ -42,6 +42,7 @@ export interface BurnMetrics {
 
 export interface SupplyMetrics {
   totalSupply: number;
+  totalStaked: number;
   totalUnstaked: number;
   genesisAllocation: number;
   issuedSinceLaunch: number;
@@ -51,11 +52,6 @@ export interface SupplyMetrics {
     dex: number;
     arbitrage: number;
     fees: number;
-  };
-  delegatedSupply: {
-    base: number;
-    delegated: number;
-    conversionRate: number;
   };
 }
 
