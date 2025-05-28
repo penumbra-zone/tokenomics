@@ -1,7 +1,7 @@
 // Liquidity Tournament (LQT) Calculations
 // Based on the tokenomics calculation documentation
 
-import { LQTMetrics, CalculationContext } from './types';
+import { CalculationContext, LQTMetrics } from "./types";
 
 // LQT-specific types
 export interface LQTSummaryData {
@@ -48,10 +48,7 @@ export function calculateTotalAvailableRewards(
  * Calculate voting power share for an asset
  * Formula: Share = AssetVotes / TotalVotingPower
  */
-export function calculateVotingPowerShare(
-  assetVotes: number,
-  totalVotingPower: number
-): number {
+export function calculateVotingPowerShare(assetVotes: number, totalVotingPower: number): number {
   if (totalVotingPower === 0) return 0;
   return assetVotes / totalVotingPower;
 }
@@ -63,7 +60,7 @@ export function calculateVotingPowerByAsset(
   votingData: Array<{ asset: string; votes: number }>,
   totalVotingPower: number
 ): LQTVotingPowerByAsset[] {
-  return votingData.map(data => ({
+  return votingData.map((data) => ({
     asset: data.asset,
     votes: data.votes,
     share: calculateVotingPowerShare(data.votes, totalVotingPower),
@@ -75,8 +72,8 @@ export function calculateVotingPowerByAsset(
  */
 export function formatPositionId(positionId: Uint8Array): string {
   return Array.from(positionId)
-    .map(byte => byte.toString(16).padStart(2, '0'))
-    .join('');
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 /**
@@ -85,14 +82,14 @@ export function formatPositionId(positionId: Uint8Array): string {
  */
 export function calculateLiquidityProvided(
   lpData: LQTLPData,
-  method: 'points' | 'volume' | 'combined' = 'points'
+  method: "points" | "volume" | "combined" = "points"
 ): number {
   switch (method) {
-    case 'points':
+    case "points":
       return lpData.points;
-    case 'volume':
+    case "volume":
       return lpData.umVolume + lpData.assetVolume;
-    case 'combined':
+    case "combined":
       // Weighted combination of points and volume
       return lpData.points * 0.7 + (lpData.umVolume + lpData.assetVolume) * 0.3;
     default:
@@ -105,10 +102,10 @@ export function calculateLiquidityProvided(
  */
 export function calculateLQTRankings(
   lpDataArray: LQTLPData[],
-  rankingMethod: 'points' | 'volume' | 'combined' = 'points'
+  rankingMethod: "points" | "volume" | "combined" = "points"
 ): LQTRankingEntry[] {
   // Calculate liquidity provided for each LP
-  const lpWithMetrics = lpDataArray.map(lpData => ({
+  const lpWithMetrics = lpDataArray.map((lpData) => ({
     positionId: formatPositionId(lpData.positionId),
     liquidityProvided: calculateLiquidityProvided(lpData, rankingMethod),
     points: lpData.points,
@@ -173,11 +170,7 @@ export function calculateLQTMetrics(
   const votingPowerByAsset = calculateVotingPowerByAsset(votingPowerData, totalVotingPower);
 
   // Calculate reward distribution
-  const rewardDistribution = calculateRewardDistribution(
-    totalRewards,
-    delegatorRewards,
-    lpRewards
-  );
+  const rewardDistribution = calculateRewardDistribution(totalRewards, delegatorRewards, lpRewards);
 
   return {
     availableRewards: totalRewards,
@@ -195,9 +188,7 @@ export function calculateLQTMetrics(
 /**
  * Calculate LP performance metrics
  */
-export function calculateLPPerformanceMetrics(
-  lpData: LQTLPData[]
-): {
+export function calculateLPPerformanceMetrics(lpData: LQTLPData[]): {
   totalPoints: number;
   totalVolume: number;
   averagePoints: number;
@@ -216,12 +207,12 @@ export function calculateLPPerformanceMetrics(
 
   const totalPoints = lpData.reduce((sum, lp) => sum + lp.points, 0);
   const totalVolume = lpData.reduce((sum, lp) => sum + lp.umVolume + lp.assetVolume, 0);
-  
+
   const averagePoints = totalPoints / lpData.length;
   const averageVolume = totalVolume / lpData.length;
 
   // Find top performer by points
-  const topPerformer = lpData.reduce((top, current) => 
+  const topPerformer = lpData.reduce((top, current) =>
     current.points > top.points ? current : top
   );
 
@@ -237,20 +228,19 @@ export function calculateLPPerformanceMetrics(
 /**
  * Calculate epoch participation statistics
  */
-export function calculateEpochParticipation(
-  lpData: LQTLPData[]
-): {
+export function calculateEpochParticipation(lpData: LQTLPData[]): {
   totalParticipants: number;
   activeParticipants: number; // Those with points > 0
   participationRate: number;
 } {
   const totalParticipants = lpData.length;
-  const activeParticipants = lpData.filter(lp => lp.points > 0).length;
-  const participationRate = totalParticipants > 0 ? (activeParticipants / totalParticipants) * 100 : 0;
+  const activeParticipants = lpData.filter((lp) => lp.points > 0).length;
+  const participationRate =
+    totalParticipants > 0 ? (activeParticipants / totalParticipants) * 100 : 0;
 
   return {
     totalParticipants,
     activeParticipants,
     participationRate,
   };
-} 
+}

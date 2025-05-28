@@ -1,7 +1,7 @@
 // Calculation Configuration
 // Centralized configuration for all tokenomics calculations
 
-import { CalculationConfig } from './types';
+import { CalculationConfig } from "./types";
 
 /**
  * Default calculation configuration
@@ -11,18 +11,18 @@ export const DEFAULT_CALCULATION_CONFIG: CalculationConfig = {
   // Genesis allocation - should be set to the actual genesis allocation amount
   // Note: Genesis data source is pending - initial genesis.json for mainnet needs to be located
   genesisAllocation: 1_000_000_000, // 1B tokens (placeholder until genesis data is available)
-  
+
   // Network parameters
   blocksPerDay: 14400, // Assuming ~6 second block times (24*60*60/6)
-  
+
   // Time windows for calculations
   inflationWindowDays: 30, // Default window for inflation calculations
-  
+
   // Community pool addresses - should be updated with actual addresses
   // Note: Community pool balances available via viewService
   communityPoolAddresses: [
     // Add actual community pool addresses here
-    'penumbra1...',
+    "penumbra1...",
   ],
 };
 
@@ -38,7 +38,7 @@ export const NETWORK_CONFIGS = {
       // Add actual mainnet community pool addresses
     ],
   },
-  
+
   testnet: {
     ...DEFAULT_CALCULATION_CONFIG,
     genesisAllocation: 100_000_000, // Smaller testnet allocation
@@ -47,7 +47,7 @@ export const NETWORK_CONFIGS = {
       // Add actual testnet community pool addresses
     ],
   },
-  
+
   devnet: {
     ...DEFAULT_CALCULATION_CONFIG,
     genesisAllocation: 10_000_000, // Even smaller devnet allocation
@@ -67,37 +67,37 @@ export const PRECISION_CONFIG = {
   tokenAmounts: 6,
   rates: 8,
   prices: 4,
-  
+
   // Tolerance for validation checks
   validationTolerance: 0.01,
-  
+
   // Rounding modes
-  roundingMode: 'round' as 'round' | 'floor' | 'ceil',
+  roundingMode: "round" as "round" | "floor" | "ceil",
 };
 
 /**
  * Time period configurations
  */
 export const TIME_PERIODS = {
-  '7d': {
+  "7d": {
     days: 7,
-    label: '7 Days',
-    shortLabel: '7D',
+    label: "7 Days",
+    shortLabel: "7D",
   },
-  '30d': {
+  "30d": {
     days: 30,
-    label: '30 Days',
-    shortLabel: '30D',
+    label: "30 Days",
+    shortLabel: "30D",
   },
-  '90d': {
+  "90d": {
     days: 90,
-    label: '90 Days',
-    shortLabel: '90D',
+    label: "90 Days",
+    shortLabel: "90D",
   },
-  '1y': {
+  "1y": {
     days: 365,
-    label: '1 Year',
-    shortLabel: '1Y',
+    label: "1 Year",
+    shortLabel: "1Y",
   },
 } as const;
 
@@ -107,19 +107,19 @@ export const TIME_PERIODS = {
 export const CHART_CONFIG = {
   // Default number of data points for time series charts
   defaultDataPoints: 90,
-  
+
   // Maximum number of data points to prevent performance issues
   maxDataPoints: 365,
-  
+
   // Minimum number of data points for meaningful calculations
   minDataPoints: 7,
-  
+
   // Default aggregation intervals
   aggregationIntervals: {
-    hourly: 'hour',
-    daily: 'day',
-    weekly: 'week',
-    monthly: 'month',
+    hourly: "hour",
+    daily: "day",
+    weekly: "week",
+    monthly: "month",
   } as const,
 };
 
@@ -128,17 +128,17 @@ export const CHART_CONFIG = {
  */
 export const LQT_CONFIG = {
   // Default ranking method for LPs
-  defaultRankingMethod: 'points' as const,
-  
+  defaultRankingMethod: "points" as const,
+
   // Weights for combined ranking method
   combinedRankingWeights: {
     points: 0.7,
     volume: 0.3,
   },
-  
+
   // Minimum points threshold for active participation
   minPointsThreshold: 0.01,
-  
+
   // Default epoch duration (in days)
   epochDurationDays: 30,
 };
@@ -149,16 +149,16 @@ export const LQT_CONFIG = {
 export const BURN_CONFIG = {
   // Categories of burns to track (based on supply_total_unstaked table)
   burnCategories: [
-    'fees', // fee_burns from supply_total_unstaked.fees
-    'arb',  // arbitrage_burns from supply_total_unstaked.arb
+    "fees", // fee_burns from supply_total_unstaked.fees
+    "arb", // arbitrage_burns from supply_total_unstaked.arb
   ] as const,
-  
+
   // Note: DEX burns and auction burns are not separate fields in supply_total_unstaked
   // They may be included in the arb and fees categories
-  
+
   // Default burn rate calculation method
-  defaultBurnRateMethod: 'daily' as const,
-  
+  defaultBurnRateMethod: "daily" as const,
+
   // Burn rate smoothing window (in days)
   burnRateSmoothingWindow: 7,
 };
@@ -169,15 +169,15 @@ export const BURN_CONFIG = {
 export const DISTRIBUTION_CONFIG = {
   // Categories for token distribution (based on actual data sources)
   distributionCategories: [
-    'staked',      // insights_supply.staked
-    'dexLiquidity', // supply_total_unstaked.dex
-    'auctionLocked', // supply_total_unstaked.auction
-    'circulating',  // supply_total_unstaked.um
+    "staked", // insights_supply.staked
+    "dexLiquidity", // supply_total_unstaked.dex
+    "auctionLocked", // supply_total_unstaked.auction
+    "circulating", // supply_total_unstaked.um
   ] as const,
-  
+
   // Minimum percentage threshold for "Other" category in charts
   otherCategoryThreshold: 1.0, // 1%
-  
+
   // Validation tolerance for distribution totals
   distributionValidationTolerance: 0.001, // 0.1%
 };
@@ -187,13 +187,13 @@ export const DISTRIBUTION_CONFIG = {
  */
 export const ISSUANCE_CONFIG = {
   // Issuance type - should be net issuance (issuance - burns)
-  issuanceType: 'net' as 'gross' | 'net',
-  
+  issuanceType: "net" as "gross" | "net",
+
   // Source for issuance per block constant
-  issuancePerBlockSource: 'viewService.appParams.distributionParams',
-  
+  issuancePerBlockSource: "viewService.appParams.distributionParams",
+
   // Default calculation method for current issuance
-  currentIssuanceMethod: 'supply_change' as 'supply_change' | 'block_constant',
+  currentIssuanceMethod: "supply_change" as "supply_change" | "block_constant",
 };
 
 /**
@@ -209,7 +209,7 @@ export function getNetworkConfig(network: keyof typeof NETWORK_CONFIGS): Calcula
 export function getCurrentNetworkConfig(): CalculationConfig {
   // This should be determined based on your environment variables
   // For now, defaulting to mainnet
-  const network = process.env.NEXT_PUBLIC_NETWORK as keyof typeof NETWORK_CONFIGS || 'mainnet';
+  const network = (process.env.NEXT_PUBLIC_NETWORK as keyof typeof NETWORK_CONFIGS) || "mainnet";
   return getNetworkConfig(network);
 }
 
@@ -218,12 +218,12 @@ export function getCurrentNetworkConfig(): CalculationConfig {
  */
 export function formatNumber(
   value: number,
-  type: 'percentages' | 'tokenAmounts' | 'rates' | 'prices',
+  type: "percentages" | "tokenAmounts" | "rates" | "prices",
   options?: Intl.NumberFormatOptions
 ): string {
   const decimals = PRECISION_CONFIG[type];
-  
-  return new Intl.NumberFormat('en-US', {
+
+  return new Intl.NumberFormat("en-US", {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
     ...options,
@@ -235,14 +235,14 @@ export function formatNumber(
  */
 export function roundNumber(value: number, decimals: number): number {
   const factor = Math.pow(10, decimals);
-  
+
   switch (PRECISION_CONFIG.roundingMode) {
-    case 'floor':
+    case "floor":
       return Math.floor(value * factor) / factor;
-    case 'ceil':
+    case "ceil":
       return Math.ceil(value * factor) / factor;
-    case 'round':
+    case "round":
     default:
       return Math.round(value * factor) / factor;
   }
-} 
+}

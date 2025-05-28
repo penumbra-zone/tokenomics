@@ -7,11 +7,13 @@ This module centralizes all tokenomics calculations for the dashboard, making fo
 Based on the latest clarifications, here are the specific data sources and implementation details:
 
 ### Asset IDs
+
 - **UM Token ID**: Use the registry package: https://github.com/prax-wallet/registry/tree/main
 - **Implementation**: `registryClient.bundled.globals().stakingAssetId` (can be cached)
 - **Note**: UM token ID is hardcoded but fetching from registry is recommended
 
 ### Burn Data Sources
+
 All burn data can be retrieved from the `supply_total_unstaked` table:
 
 ```sql
@@ -48,7 +50,7 @@ WITH latest_supply AS (
 latest_unstaked AS (
   SELECT * FROM supply_total_unstaked ORDER BY height DESC LIMIT 1
 )
-SELECT 
+SELECT
   ls.total as total_supply,
   ls.staked as staked_tokens,
   lu.dex as dex_liquidity,
@@ -67,6 +69,7 @@ FROM latest_supply ls, latest_unstaked lu;
 6. **Community Pool Balances**: Available via viewService at `penumbra.core.component.community_pool.v1.CommunityPoolAssetBalances`
 
 ### Genesis Data
+
 - Genesis data source is pending - initial genesis.json for mainnet needs to be located
 - Nodes only serve post-upgrade genesis checkpoint currently
 
@@ -96,7 +99,7 @@ import {
   calculateTotalBurned,
   getCurrentNetworkConfig,
   CalculationContext,
-} from '@/lib/calculations';
+} from "@/lib/calculations";
 ```
 
 ### Configuration
@@ -104,7 +107,7 @@ import {
 The module uses a centralized configuration system:
 
 ```typescript
-import { getCurrentNetworkConfig, DEFAULT_CALCULATION_CONFIG } from '@/lib/calculations';
+import { getCurrentNetworkConfig, DEFAULT_CALCULATION_CONFIG } from "@/lib/calculations";
 
 // Get network-specific configuration
 const config = getCurrentNetworkConfig();
@@ -120,7 +123,7 @@ const context: CalculationContext = {
 ### Supply Calculations
 
 ```typescript
-import { calculateSupplyMetrics, calculateMarketCap } from '@/lib/calculations';
+import { calculateSupplyMetrics, calculateMarketCap } from "@/lib/calculations";
 
 // Calculate market cap
 const marketCap = calculateMarketCap(totalSupply, priceInUSDC);
@@ -137,34 +140,30 @@ const supplyMetrics = calculateSupplyMetrics(
 ### Issuance Calculations
 
 ```typescript
-import { 
-  calculateInflationRate, 
+import {
+  calculateInflationRate,
   calculateIssuanceMetrics,
-  calculateInflationTimeSeries 
-} from '@/lib/calculations';
+  calculateInflationTimeSeries,
+} from "@/lib/calculations";
 
 // Calculate inflation rate for a period
 const inflationRate = calculateInflationRate(currentSupply, pastSupply);
 
 // Calculate comprehensive issuance metrics
-const issuanceMetrics = calculateIssuanceMetrics(
-  currentSupplyData,
-  pastSupplyData,
-  context
-);
+const issuanceMetrics = calculateIssuanceMetrics(currentSupplyData, pastSupplyData, context);
 
 // Generate time series for charts
-const timeSeries = calculateInflationTimeSeries(supplyDataPoints, '30d');
+const timeSeries = calculateInflationTimeSeries(supplyDataPoints, "30d");
 ```
 
 ### Burn Calculations
 
 ```typescript
-import { 
+import {
   calculateBurnMetrics,
   calculateBurnsBySource,
-  calculateBurnRateTimeSeries 
-} from '@/lib/calculations';
+  calculateBurnRateTimeSeries,
+} from "@/lib/calculations";
 
 // Calculate comprehensive burn metrics
 const burnMetrics = calculateBurnMetrics(burnData, currentTotalSupply, context);
@@ -173,17 +172,17 @@ const burnMetrics = calculateBurnMetrics(burnData, currentTotalSupply, context);
 const burnsBySource = calculateBurnsBySource(burnData);
 
 // Generate burn rate time series
-const burnTimeSeries = calculateBurnRateTimeSeries(burnData, '90d', blocksPerDay);
+const burnTimeSeries = calculateBurnRateTimeSeries(burnData, "90d", blocksPerDay);
 ```
 
 ### Distribution Calculations
 
 ```typescript
-import { 
+import {
   calculateDistributionMetrics,
   calculateTokenDistributionBreakdown,
-  validateDistributionTotals 
-} from '@/lib/calculations';
+  validateDistributionTotals,
+} from "@/lib/calculations";
 
 // Calculate distribution metrics
 const distributionMetrics = calculateDistributionMetrics(
@@ -209,17 +208,17 @@ const validation = validateDistributionTotals(totalSupply, breakdown);
 ### LQT Calculations
 
 ```typescript
-import { 
+import {
   calculateLQTMetrics,
   calculateLQTRankings,
-  calculateLPPerformanceMetrics 
-} from '@/lib/calculations';
+  calculateLPPerformanceMetrics,
+} from "@/lib/calculations";
 
 // Calculate LQT metrics for an epoch
 const lqtMetrics = calculateLQTMetrics(summaryData, votingPowerData, context);
 
 // Calculate LP rankings
-const rankings = calculateLQTRankings(lpDataArray, 'points');
+const rankings = calculateLQTRankings(lpDataArray, "points");
 
 // Calculate performance metrics
 const performance = calculateLPPerformanceMetrics(lpData);
@@ -232,22 +231,22 @@ const performance = calculateLPPerformanceMetrics(lpData);
 The module supports different network configurations:
 
 ```typescript
-import { getNetworkConfig, NETWORK_CONFIGS } from '@/lib/calculations';
+import { getNetworkConfig, NETWORK_CONFIGS } from "@/lib/calculations";
 
 // Get specific network config
-const mainnetConfig = getNetworkConfig('mainnet');
-const testnetConfig = getNetworkConfig('testnet');
-const devnetConfig = getNetworkConfig('devnet');
+const mainnetConfig = getNetworkConfig("mainnet");
+const testnetConfig = getNetworkConfig("testnet");
+const devnetConfig = getNetworkConfig("devnet");
 ```
 
 ### Precision and Formatting
 
 ```typescript
-import { formatNumber, roundNumber, PRECISION_CONFIG } from '@/lib/calculations';
+import { formatNumber, roundNumber, PRECISION_CONFIG } from "@/lib/calculations";
 
 // Format numbers with appropriate precision
-const formattedPercentage = formatNumber(12.3456, 'percentages'); // "12.35%"
-const formattedTokens = formatNumber(1234567.89, 'tokenAmounts'); // "1,234,567.890000"
+const formattedPercentage = formatNumber(12.3456, "percentages"); // "12.35%"
+const formattedTokens = formatNumber(1234567.89, "tokenAmounts"); // "1,234,567.890000"
 
 // Round numbers
 const rounded = roundNumber(12.3456, 2); // 12.35
@@ -300,7 +299,7 @@ const rounded = roundNumber(12.3456, 2); // 12.35
 ### Time Periods
 
 - `7d`: 7 days
-- `30d`: 30 days  
+- `30d`: 30 days
 - `90d`: 90 days
 - `1y`: 1 year
 
@@ -340,4 +339,4 @@ When implementing these calculations in your components, ensure you:
 2. Validate that percentages add up to 100% where expected
 3. Check that time series data is properly sorted
 4. Verify that network-specific configurations are applied correctly
-5. Test with actual database queries using the provided SQL examples 
+5. Test with actual database queries using the provided SQL examples

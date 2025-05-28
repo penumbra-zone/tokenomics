@@ -1,13 +1,13 @@
 // Token Distribution Calculations
 // Based on the tokenomics calculation documentation
 
-import { 
-  SupplyData, 
-  DistributionMetrics, 
-  UnstakedSupplyComponents, 
+import {
+  CalculationContext,
   DelegatedSupplyComponent,
-  CalculationContext 
-} from './types';
+  DistributionMetrics,
+  SupplyData,
+  UnstakedSupplyComponents,
+} from "./types";
 
 /**
  * Calculate circulating tokens (tokens not locked in specific categories)
@@ -26,10 +26,7 @@ export function calculateCirculatingTokens(
  * Calculate percentage staked
  * Formula: %Staked = (CurrentStakedSupply / CurrentTotalSupply) × 100%
  */
-export function calculatePercentageStaked(
-  stakedSupply: number,
-  totalSupply: number
-): number {
+export function calculatePercentageStaked(stakedSupply: number, totalSupply: number): number {
   if (totalSupply === 0) return 0;
   return (stakedSupply / totalSupply) * 100;
 }
@@ -37,9 +34,7 @@ export function calculatePercentageStaked(
 /**
  * Calculate total unstaked supply from components
  */
-export function calculateTotalUnstakedSupply(
-  unstakedComponents: UnstakedSupplyComponents
-): number {
+export function calculateTotalUnstakedSupply(unstakedComponents: UnstakedSupplyComponents): number {
   return (
     unstakedComponents.um +
     unstakedComponents.auction +
@@ -52,19 +47,19 @@ export function calculateTotalUnstakedSupply(
 /**
  * Calculate total delegated supply from components
  */
-export function calculateTotalDelegatedSupply(
-  delegatedComponents: DelegatedSupplyComponent[]
-): {
+export function calculateTotalDelegatedSupply(delegatedComponents: DelegatedSupplyComponent[]): {
   totalDelegatedBase: number;
   totalDelegatedDelegated: number;
   avgConversionRate: number;
 } {
   const totalDelegatedBase = delegatedComponents.reduce((sum, v) => sum + v.um, 0);
   const totalDelegatedDelegated = delegatedComponents.reduce((sum, v) => sum + v.del_um, 0);
-  
-  const avgConversionRate = delegatedComponents.length > 0
-    ? delegatedComponents.reduce((sum, v) => sum + v.rate_bps2, 0) / (delegatedComponents.length * 10000)
-    : 0;
+
+  const avgConversionRate =
+    delegatedComponents.length > 0
+      ? delegatedComponents.reduce((sum, v) => sum + v.rate_bps2, 0) /
+        (delegatedComponents.length * 10000)
+      : 0;
 
   return {
     totalDelegatedBase,
@@ -81,17 +76,16 @@ export function calculateTotalSupplyFromComponents(
   delegatedComponents: DelegatedSupplyComponent[]
 ): number {
   const totalUnstaked = calculateTotalUnstakedSupply(unstakedComponents);
-  const { totalDelegatedBase, totalDelegatedDelegated } = calculateTotalDelegatedSupply(delegatedComponents);
-  
+  const { totalDelegatedBase, totalDelegatedDelegated } =
+    calculateTotalDelegatedSupply(delegatedComponents);
+
   return totalUnstaked + totalDelegatedBase + totalDelegatedDelegated;
 }
 
 /**
  * Calculate DEX liquidity supply from unstaked components
  */
-export function calculateDEXLiquiditySupply(
-  unstakedComponents: UnstakedSupplyComponents
-): number {
+export function calculateDEXLiquiditySupply(unstakedComponents: UnstakedSupplyComponents): number {
   return unstakedComponents.dex;
 }
 
@@ -116,7 +110,7 @@ export function calculateTokenDistributionBreakdown(
     communityPoolSupply
   );
 
-  const calculatePercentage = (amount: number) => 
+  const calculatePercentage = (amount: number) =>
     totalSupply > 0 ? (amount / totalSupply) * 100 : 0;
 
   return {
@@ -142,17 +136,16 @@ export function calculateTokenDistributionBreakdown(
 /**
  * Calculate staking breakdown with subcategories
  */
-export function calculateStakingBreakdown(
-  delegatedComponents: DelegatedSupplyComponent[]
-): {
+export function calculateStakingBreakdown(delegatedComponents: DelegatedSupplyComponent[]): {
   validators: { amount: number; percentage: number };
   delegators: { amount: number; percentage: number };
   total: number;
 } {
-  const { totalDelegatedBase, totalDelegatedDelegated } = calculateTotalDelegatedSupply(delegatedComponents);
+  const { totalDelegatedBase, totalDelegatedDelegated } =
+    calculateTotalDelegatedSupply(delegatedComponents);
   const totalStaked = totalDelegatedBase + totalDelegatedDelegated;
 
-  const calculatePercentage = (amount: number) => 
+  const calculatePercentage = (amount: number) =>
     totalStaked > 0 ? (amount / totalStaked) * 100 : 0;
 
   return {
@@ -179,10 +172,10 @@ export function calculateDistributionMetrics(
   context: CalculationContext
 ): DistributionMetrics {
   const { total: totalSupply, staked: stakedSupply } = currentSupplyData;
-  
+
   // Calculate DEX liquidity from unstaked components
   const dexLiquidity = calculateDEXLiquiditySupply(unstakedComponents);
-  
+
   // Calculate circulating supply
   const circulating = calculateCirculatingTokens(
     totalSupply,
@@ -219,7 +212,7 @@ export function validateDistributionTotals(
   calculatedTotal: number;
   difference: number;
 } {
-  const calculatedTotal = 
+  const calculatedTotal =
     distributionBreakdown.staked.amount +
     distributionBreakdown.dexLiquidity.amount +
     distributionBreakdown.communityPool.amount +
@@ -233,4 +226,4 @@ export function validateDistributionTotals(
     calculatedTotal,
     difference,
   };
-} 
+}

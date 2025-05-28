@@ -1,7 +1,7 @@
 // Supply Visualization Calculations
 // Based on the tokenomics calculation documentation
 
-import { SupplyData, SupplyMetrics, CalculationContext } from './types';
+import { CalculationContext, SupplyData, SupplyMetrics } from "./types";
 
 /**
  * Calculate market cap from total supply and current price
@@ -91,4 +91,4 @@ export function calculateGenesisVsIssuanceBreakdown(
     genesisPercentage,
     issuancePercentage,
   };
-} 
+}

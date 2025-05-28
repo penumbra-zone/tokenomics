@@ -26,23 +26,24 @@ export function getCustomTooltipConfig(
       color: TEXT_COLORS.primary,
       fontSize: 12,
     },
-    formatter: trigger === "item" 
-      ? () => {
-          if (!data || data.length === 0) {
-            return "";
-          }
-          let tooltipHtml = '<div style="min-width: 220px; padding: 8px;">';
-          
-          // Add title if provided
-          if (title) {
-            tooltipHtml += `<div style="margin-bottom: 8px; color: ${TEXT_COLORS.primary}; font-weight: 600; font-size: 13px;">${title}</div>`;
-          }
-          
-          data.forEach((item, index) => {
-            const dotColor = CHART_PALETTES.default[index % CHART_PALETTES.default.length];
-            const valueDisplay =
-              typeof item.amount === "number" ? item.amount.toLocaleString() : item.amount;
-            tooltipHtml += `
+    formatter:
+      trigger === "item"
+        ? () => {
+            if (!data || data.length === 0) {
+              return "";
+            }
+            let tooltipHtml = '<div style="min-width: 220px; padding: 8px;">';
+
+            // Add title if provided
+            if (title) {
+              tooltipHtml += `<div style="margin-bottom: 8px; color: ${TEXT_COLORS.primary}; font-weight: 600; font-size: 13px;">${title}</div>`;
+            }
+
+            data.forEach((item, index) => {
+              const dotColor = CHART_PALETTES.default[index % CHART_PALETTES.default.length];
+              const valueDisplay =
+                typeof item.amount === "number" ? item.amount.toLocaleString() : item.amount;
+              tooltipHtml += `
               <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: ${index === data.length - 1 ? "0" : "8px"};">
                 <div style="display: flex; align-items: center;">
                   <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${dotColor}; margin-right: 10px;"></span>
@@ -50,41 +51,41 @@ export function getCustomTooltipConfig(
                 </div>
                 <span style="color: ${TEXT_COLORS.primary}; font-weight: 500; font-size: 13px;">${valueDisplay}</span>
               </div>`;
-          });
-          tooltipHtml += "</div>";
-          return tooltipHtml;
-        }
-      : (params: any[]) => {
-          if (!params || params.length === 0) return "";
-          
-          const dataPoint = params[0];
-          const formattedValue = valueFormatter 
-            ? valueFormatter(dataPoint.value)
-            : dataPoint.value.toLocaleString();
-          
-          // Format the date - try to parse and format it nicely
-          let formattedDate = dataPoint.axisValueLabel;
-          try {
-            const date = new Date(dataPoint.axisValueLabel);
-            if (!isNaN(date.getTime())) {
-              formattedDate = date.toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'short', 
-                day: '2-digit' 
-              });
+            });
+            tooltipHtml += "</div>";
+            return tooltipHtml;
+          }
+        : (params: any[]) => {
+            if (!params || params.length === 0) return "";
+
+            const dataPoint = params[0];
+            const formattedValue = valueFormatter
+              ? valueFormatter(dataPoint.value)
+              : dataPoint.value.toLocaleString();
+
+            // Format the date - try to parse and format it nicely
+            let formattedDate = dataPoint.axisValueLabel;
+            try {
+              const date = new Date(dataPoint.axisValueLabel);
+              if (!isNaN(date.getTime())) {
+                formattedDate = date.toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "2-digit",
+                });
+              }
+            } catch (e) {
+              // Keep original if parsing fails
             }
-          } catch (e) {
-            // Keep original if parsing fails
-          }
-          
-          let tooltipHtml = '<div style="min-width: 180px; padding: 8px;">';
-          
-          // Add title if provided
-          if (title) {
-            tooltipHtml += `<div style="margin-bottom: 8px; color: ${TEXT_COLORS.primary}; font-weight: 600; font-size: 13px;">${title}</div>`;
-          }
-          
-          tooltipHtml += `
+
+            let tooltipHtml = '<div style="min-width: 180px; padding: 8px;">';
+
+            // Add title if provided
+            if (title) {
+              tooltipHtml += `<div style="margin-bottom: 8px; color: ${TEXT_COLORS.primary}; font-weight: 600; font-size: 13px;">${title}</div>`;
+            }
+
+            tooltipHtml += `
             <div style="display: flex; align-items: center; justify-content: space-between;">
               <div style="display: flex; align-items: center;">
                 <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${lineColor || CHART_PALETTES.default[0]}; margin-right: 10px;"></span>
@@ -93,8 +94,8 @@ export function getCustomTooltipConfig(
               <span style="color: ${TEXT_COLORS.primary}; font-weight: 600; margin-left: 15px; font-size: 13px;">${formattedValue}</span>
             </div>
           </div>`;
-          
-          return tooltipHtml;
-        },
+
+            return tooltipHtml;
+          },
   };
 }

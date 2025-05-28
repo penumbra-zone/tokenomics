@@ -1,7 +1,7 @@
 // Issuance Metrics Calculations
 // Based on the tokenomics calculation documentation
 
-import { SupplyData, IssuanceMetrics, CalculationContext, TimePeriod } from './types';
+import { CalculationContext, IssuanceMetrics, SupplyData, TimePeriod } from "./types";
 
 /**
  * Calculate daily gross issuance rate from block parameters
@@ -79,9 +79,9 @@ export function calculateSubPeriodInflationRates(
   for (let i = 1; i < supplyDataPoints.length; i++) {
     const current = supplyDataPoints[i];
     const previous = supplyDataPoints[i - 1];
-    
+
     const inflationRate = calculateInflationRate(current.total, previous.total);
-    
+
     results.push({
       timestamp: current.timestamp,
       inflationRate,
@@ -118,9 +118,8 @@ export function calculateIssuanceMetrics(
   );
 
   // Annualize the inflation rate based on the actual time window
-  const inflationRateLastMonth = timeDiffDays > 0 
-    ? calculateAnnualizedInflationRate(inflationRateForPeriod, timeDiffDays)
-    : 0;
+  const inflationRateLastMonth =
+    timeDiffDays > 0 ? calculateAnnualizedInflationRate(inflationRateForPeriod, timeDiffDays) : 0;
 
   return {
     currentDailyIssuance,
@@ -135,11 +134,16 @@ export function calculateIssuanceMetrics(
  */
 export function getTimePeriodDays(period: TimePeriod): number {
   switch (period) {
-    case '7d': return 7;
-    case '30d': return 30;
-    case '90d': return 90;
-    case '1y': return 365;
-    default: return 30;
+    case "7d":
+      return 7;
+    case "30d":
+      return 30;
+    case "90d":
+      return 90;
+    case "1y":
+      return 365;
+    default:
+      return 30;
   }
 }
 
@@ -153,8 +157,8 @@ export function calculateInflationTimeSeries(
   const periodDays = getTimePeriodDays(period);
   const subPeriodRates = calculateSubPeriodInflationRates(supplyDataPoints);
 
-  return subPeriodRates.map(point => ({
+  return subPeriodRates.map((point) => ({
     date: point.timestamp.toISOString().slice(0, 10),
     inflationRate: calculateAnnualizedInflationRate(point.inflationRate, 1), // Annualize daily rate
   }));
-} 
+}

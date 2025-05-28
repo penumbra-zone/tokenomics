@@ -1,7 +1,7 @@
 // Burn Metrics Calculations
 // Based on the tokenomics calculation documentation
 
-import { BurnData, BurnMetrics, CalculationContext, TimePeriod } from './types';
+import { BurnData, BurnMetrics, CalculationContext, TimePeriod } from "./types";
 
 /**
  * Calculate total burned tokens from all sources
@@ -46,10 +46,7 @@ export function calculateBurnRatePerBlock(totalBurned: number, blockHeight: numb
  * Calculate burn rate per day
  * Formula: DailyBurnRate = BurnRatePerBlock × BlocksPerDay
  */
-export function calculateBurnRatePerDay(
-  burnRatePerBlock: number,
-  blocksPerDay: number
-): number {
+export function calculateBurnRatePerDay(burnRatePerBlock: number, blocksPerDay: number): number {
   return burnRatePerBlock * blocksPerDay;
 }
 
@@ -64,9 +61,7 @@ export function calculateBurnAmountForInterval(burnDataForInterval: BurnData[]):
 /**
  * Calculate burns by source for a period
  */
-export function calculateBurnsBySource(
-  burnData: BurnData[]
-): {
+export function calculateBurnsBySource(burnData: BurnData[]): {
   transactionFees: number;
   dexArbitrage: number;
   auctionBurns: number;
@@ -99,7 +94,7 @@ export function calculateBurnRateTimeSeries(
   // Group burn data by day/period
   const groupedData = new Map<string, BurnData[]>();
 
-  burnData.forEach(data => {
+  burnData.forEach((data) => {
     const dateKey = data.timestamp.toISOString().slice(0, 10);
     if (!groupedData.has(dateKey)) {
       groupedData.set(dateKey, []);
@@ -114,7 +109,7 @@ export function calculateBurnRateTimeSeries(
     const totalBurnedForDay = calculateTotalBurned(dataForDay);
     // Convert to daily rate (assuming the data represents the total for that day)
     const burnRate = totalBurnedForDay;
-    
+
     results.push({
       date,
       burnRate,
@@ -145,7 +140,7 @@ export function calculateBurnMetrics(
 
   // Calculate burn rate per day (using latest data point for rate calculation)
   const latestBurnData = burnData[burnData.length - 1];
-  const burnRatePerBlock = latestBurnData 
+  const burnRatePerBlock = latestBurnData
     ? calculateBurnRatePerBlock(calculateTotalBurnedForEntry(latestBurnData), latestBurnData.height)
     : 0;
   const burnRatePerDay = calculateBurnRatePerDay(burnRatePerBlock, blocksPerDay);
@@ -164,20 +159,18 @@ export function calculateBurnMetrics(
 /**
  * Calculate burn source percentages for pie charts
  */
-export function calculateBurnSourcePercentages(
-  burnsBySource: {
-    transactionFees: number;
-    dexArbitrage: number;
-    auctionBurns: number;
-    dexBurns: number;
-  }
-): {
+export function calculateBurnSourcePercentages(burnsBySource: {
+  transactionFees: number;
+  dexArbitrage: number;
+  auctionBurns: number;
+  dexBurns: number;
+}): {
   transactionFees: number;
   dexArbitrage: number;
   auctionBurns: number;
   dexBurns: number;
 } {
-  const total = 
+  const total =
     burnsBySource.transactionFees +
     burnsBySource.dexArbitrage +
     burnsBySource.auctionBurns +
@@ -198,4 +191,4 @@ export function calculateBurnSourcePercentages(
     auctionBurns: (burnsBySource.auctionBurns / total) * 100,
     dexBurns: (burnsBySource.dexBurns / total) * 100,
   };
-} 
+}

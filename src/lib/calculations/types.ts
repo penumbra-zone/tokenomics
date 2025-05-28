@@ -96,11 +96,11 @@ export interface CalculationConfig {
 }
 
 // Time period types
-export type TimePeriod = '7d' | '30d' | '90d' | '1y';
+export type TimePeriod = "7d" | "30d" | "90d" | "1y";
 
 // Calculation context
 export interface CalculationContext {
   config: CalculationConfig;
   currentHeight: number;
   currentTimestamp: Date;
-} 
+}
