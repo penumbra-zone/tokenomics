@@ -2,6 +2,7 @@ import {
   AbstractPindexerConnection,
   BurnMetrics,
   DurationWindow,
+  IssuanceMetrics,
   LqtMetrics,
   PriceHistoryEntry,
   SummaryMetrics,
@@ -46,10 +47,8 @@ export class MockPindexerConnection extends AbstractPindexerConnection {
     return {
       totalBurned: 50000000,
       bySource: {
-        transactionFees: 12500000,
-        dexArbitrage: 12000000,
-        auctionBurns: 11500000,
-        dexBurns: 10000000,
+        arbitrageBurns: 12500000,
+        feeBurns: 12000000,
       },
       burnRate: 0.0001,
       historicalBurnRate: [
@@ -182,6 +181,8 @@ export class MockPindexerConnection extends AbstractPindexerConnection {
   async getSupplyMetrics(): Promise<SupplyMetrics> {
     return {
       totalSupply: 1000000000,
+      totalStaked: 900000000,
+      totalUnstaked: 100000000,
       genesisAllocation: 800000000,
       issuedSinceLaunch: 200000000,
       unstakedSupply: {
@@ -191,11 +192,13 @@ export class MockPindexerConnection extends AbstractPindexerConnection {
         arbitrage: 25000000,
         fees: 10000000,
       },
-      delegatedSupply: {
-        base: 500000000,
-        delegated: 300000000,
-        conversionRate: 0.6,
-      },
+    };
+  }
+
+  async getIssuanceMetrics(): Promise<IssuanceMetrics> {
+    return {
+      currentIssuance: 100000000,
+      annualIssuance: 1000000000,
     };
   }
 

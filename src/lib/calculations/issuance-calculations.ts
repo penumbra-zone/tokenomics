@@ -27,10 +27,13 @@ export function calculateDailyNetIssuance(
 
 /**
  * Calculate projected annual issuance
- * Formula: ProjectedAnnualIssuance = CurrentDailyGrossIssuanceRate × 365
+ * Formula: ProjectedAnnualIssuance = IssuancePerBlock × blocksPerDay × daysPerYear
  */
-export function calculateProjectedAnnualIssuance(dailyIssuanceRate: number): number {
-  return dailyIssuanceRate * 365;
+export function calculateProjectedAnnualIssuance(
+  context: CalculationContext,
+  issuancePerBlock: number
+): number {
+  return context.config.blocksPerDay * issuancePerBlock * 365;
 }
 
 /**
@@ -94,39 +97,10 @@ export function calculateSubPeriodInflationRates(
 /**
  * Calculate comprehensive issuance metrics
  */
-export function calculateIssuanceMetrics(
-  currentSupplyData: SupplyData,
-  pastSupplyData: SupplyData,
-  context: CalculationContext,
-  issuancePerBlock?: number
-): IssuanceMetrics {
-  const { blocksPerDay, inflationWindowDays } = context.config;
-
-  // Calculate daily issuance (net from supply changes)
-  const timeDiffMs = currentSupplyData.timestamp.getTime() - pastSupplyData.timestamp.getTime();
-  const timeDiffDays = timeDiffMs / (1000 * 60 * 60 * 24);
-  const totalSupplyChange = currentSupplyData.total - pastSupplyData.total;
-  const currentDailyIssuance = timeDiffDays > 0 ? totalSupplyChange / timeDiffDays : 0;
-
-  // Calculate projected annual issuance
-  const projectedAnnualIssuance = calculateProjectedAnnualIssuance(currentDailyIssuance);
-
-  // Calculate inflation rates
-  const inflationRateForPeriod = calculateInflationRate(
-    currentSupplyData.total,
-    pastSupplyData.total
-  );
-
-  // Annualize the inflation rate based on the actual time window
-  const inflationRateLastMonth =
-    timeDiffDays > 0 ? calculateAnnualizedInflationRate(inflationRateForPeriod, timeDiffDays) : 0;
-
-  return {
-    currentDailyIssuance,
-    projectedAnnualIssuance,
-    inflationRateLastMonth,
-    inflationRateForPeriod,
-  };
+export function calculateIssuanceMetrics(context: CalculationContext): IssuanceMetrics {
+  const currentIssuance = context.config.stakingIssuancePerBlock ?? 0;
+  const annualIssuance = calculateProjectedAnnualIssuance(context, currentIssuance);
+  return { currentIssuance, projectedAnnualIssuance: annualIssuance };
 }
 
 /**

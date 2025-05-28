@@ -1,4 +1,4 @@
-import { SummaryMetrics } from "@/lib/db/pindexer";
+import { IssuanceMetrics, SummaryMetrics } from "@/lib/db/pindexer";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export interface SupplyMetrics {
@@ -77,11 +77,15 @@ export interface SocialMetrics {
 export const tokenomicsApi = createApi({
   reducerPath: "tokenomicsApi",
   baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
-  tagTypes: ["TokenMetrics", "TokenDistribution", "BurnMetrics", "LQTMetrics"],
+  tagTypes: ["TokenMetrics", "TokenDistribution", "BurnMetrics", "LQTMetrics", "IssuanceMetrics"],
   endpoints: (builder) => ({
     getSupplyMetrics: builder.query<SupplyMetrics, void>({
       query: () => "supply-metrics",
       providesTags: ["TokenMetrics"],
+    }),
+    getIssuanceMetrics: builder.query<IssuanceMetrics, void>({
+      query: () => "issuance-metrics",
+      providesTags: ["IssuanceMetrics"],
     }),
     getBurnMetrics: builder.query<BurnMetrics, void>({
       query: () => "burn-metrics",
@@ -107,6 +111,7 @@ export const tokenomicsApi = createApi({
 
 export const {
   useGetSupplyMetricsQuery,
+  useGetIssuanceMetricsQuery,
   useGetBurnMetricsQuery,
   useGetLQTMetricsQuery,
   useGetTokenDistributionQuery,

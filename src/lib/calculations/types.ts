@@ -52,10 +52,8 @@ export interface SupplyMetrics {
 }
 
 export interface IssuanceMetrics {
-  currentDailyIssuance: number;
+  currentIssuance: number;
   projectedAnnualIssuance: number;
-  inflationRateLastMonth: number;
-  inflationRateForPeriod: number;
 }
 
 export interface BurnMetrics {

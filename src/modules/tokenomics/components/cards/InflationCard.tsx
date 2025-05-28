@@ -59,8 +59,8 @@ export function InflationCard({
   return (
     <InfoCard
       title={
-        <div>
-          <div className="mb-2">Inflation</div>
+        <div className="flex items-center justify-between w-full">
+          <span>Inflation</span>
           {getInflationIndicator()}
         </div>
       }

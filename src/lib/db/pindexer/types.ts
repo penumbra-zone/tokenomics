@@ -53,6 +53,11 @@ export interface SupplyMetrics {
   };
 }
 
+export interface IssuanceMetrics {
+  currentIssuance: number;
+  annualIssuance: number;
+}
+
 export interface PriceHistoryEntry {
   date: string;
   price: number;
@@ -115,6 +120,7 @@ export abstract class AbstractPindexerConnection {
   abstract getLqtMetrics(): Promise<LqtMetrics>;
   abstract getBurnMetrics(): Promise<BurnMetrics>;
   abstract getSupplyMetrics(): Promise<SupplyMetrics>;
+  abstract getIssuanceMetrics(): Promise<IssuanceMetrics>;
   abstract getPriceHistory(days: number, window: DurationWindow): Promise<PriceHistoryEntry[]>;
   abstract getTokenDistribution(): Promise<TokenDistribution[]>;
   abstract getTokenMetrics(): Promise<TokenMetrics>;

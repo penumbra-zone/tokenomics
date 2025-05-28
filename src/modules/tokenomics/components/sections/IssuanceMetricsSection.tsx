@@ -2,18 +2,20 @@ import { useState } from "react";
 
 import { LoadingOverlay } from "@/common/components/LoadingOverlay";
 import { LoadingSpinner } from "@/common/components/LoadingSpinner";
-import InfoCard from "@/common/components/cards/InfoCard";
 import SimpleCard from "@/common/components/cards/SimpleCard";
 import ShareButton from "@/modules/tokenomics/components/ShareButton";
 import {
+  AnnualIssuanceCard,
+  CurrentIssuanceCard,
   InflationRateCard,
   InflationRateCardProps,
-} from "@/modules/tokenomics/components/cards/InflationRateCard";
+} from "@/modules/tokenomics/components/cards";
 import {
   PriceHistoryCard,
   PriceHistoryCardProps,
 } from "@/modules/tokenomics/components/cards/PriceHistoryCard";
 import { useGetPriceHistoryQuery } from "@/store/api/tokenomicsApi";
+import { InflationCard } from "../cards/InflationCard";
 
 interface SectionProps {
   handleShare: () => void;
@@ -61,30 +63,13 @@ export default function IssuanceMetricsSection({ handleShare }: SectionProps) {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="min-h-[100px]">
-          <InfoCard
-            title="Current Issuance"
-            isLoading={false}
-            value="0.05M"
-            valueClassName="text-3xl font-bold"
-          />
+          <CurrentIssuanceCard />
         </div>
         <div className="min-h-[100px]">
-          <InfoCard
-            title="Annual Issuance"
-            isLoading={false}
-            value="~1.0M"
-            valueClassName="text-3xl font-bold"
-            description="TOKEN/year"
-          />
+          <AnnualIssuanceCard />
         </div>
         <div className="min-h-[100px]">
-          <InfoCard
-            title="Inflation"
-            isLoading={false}
-            value="3.5%"
-            valueClassName="text-3xl font-bold"
-            description="during last month"
-          />
+          <InflationCard />
         </div>
       </div>
       <div className="grid grid-cols-1 gap-8">

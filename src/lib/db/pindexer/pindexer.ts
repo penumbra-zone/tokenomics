@@ -9,6 +9,7 @@ import {
   calculateBurnRateTimeSeries,
   calculateCirculatingSupply,
   calculateInflationRate,
+  calculateIssuanceMetrics,
   calculateIssuanceSinceLaunch,
   calculateTokenDistributionBreakdown,
   calculateTotalBurned,
@@ -25,6 +26,7 @@ import {
   BurnMetrics,
   BurnSourcesData,
   HistoricalBurnEntryRaw,
+  IssuanceMetrics,
   LqtMetrics,
   PriceHistoryEntry,
   SummaryMetrics,
@@ -94,6 +96,13 @@ export class Pindexer extends AbstractPindexerConnection {
       inflationRate,
       totalBurned,
     };
+  }
+
+  async getIssuanceMetrics(): Promise<IssuanceMetrics> {
+    const { currentIssuance, projectedAnnualIssuance } = calculateIssuanceMetrics(
+      this.calculationContext
+    );
+    return { currentIssuance, annualIssuance: projectedAnnualIssuance };
   }
 
   async getSupplyMetrics(): Promise<SupplyMetrics> {
