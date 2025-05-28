@@ -42,6 +42,7 @@ export interface BurnMetrics {
 
 export interface SupplyMetrics {
   totalSupply: number;
+  totalUnstaked: number;
   genesisAllocation: number;
   issuedSinceLaunch: number;
   unstakedSupply: {

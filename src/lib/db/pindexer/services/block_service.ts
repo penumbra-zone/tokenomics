@@ -1,6 +1,12 @@
 import type { Selectable } from "kysely";
 import { Kysely } from "kysely";
 
+import {
+  DATA_SOURCES,
+  DB_CONFIG,
+  DB_ERROR_MESSAGES,
+  FIELD_TRANSFORMERS,
+} from "../database-mappings";
 import type { BlockDetails } from "../schema";
 import { DB } from "../schema";
 
@@ -16,26 +22,36 @@ export class BlockService {
    * This table is used in PindexerConnection as a source for the latest indexed height for some metrics.
    */
   async getLatestBlockHeightFromSupplyTable(): Promise<number | null> {
-    const result = await this.db
-      .selectFrom("supply_total_unstaked")
-      .select("height")
-      .orderBy("height", "desc")
-      .limit(1)
-      .executeTakeFirst();
+    try {
+      const result = await this.db
+        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED)
+        .select(DATA_SOURCES.FIELDS.HEIGHT)
+        .orderBy(DATA_SOURCES.FIELDS.HEIGHT, "desc")
+        .limit(1)
+        .executeTakeFirst();
 
-    return result ? Number(result.height) : null;
+      return result ? FIELD_TRANSFORMERS.toTokenAmount(result.height) : null;
+    } catch (error) {
+      console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
+      throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
+    }
   }
 
   /**
    * Fetches the latest block details from the block_details table.
    */
   async getLatestBlockDetails(): Promise<Selectable<BlockDetails> | undefined> {
-    return this.db
-      .selectFrom("block_details")
-      .selectAll()
-      .orderBy("height", "desc")
-      .limit(1)
-      .executeTakeFirst();
+    try {
+      return this.db
+        .selectFrom(DATA_SOURCES.BLOCK_DETAILS)
+        .selectAll()
+        .orderBy(DATA_SOURCES.FIELDS.HEIGHT, "desc")
+        .limit(1)
+        .executeTakeFirst();
+    } catch (error) {
+      console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
+      throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
+    }
   }
 
   /**
@@ -44,37 +60,50 @@ export class BlockService {
   async getBlockHeightRangeForDays(
     days: number
   ): Promise<{ startHeight: number | null; endHeight: number | null }> {
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - days);
+    try {
+      if (!days || days < 0) {
+        throw new Error(DB_ERROR_MESSAGES.INVALID_HEIGHT);
+      }
 
-    const result = await this.db
-      .with("time_range", (_db) =>
-        _db.selectNoFrom((eb) => [
-          eb
-            .selectFrom("block_details")
-            .select("height")
-            .where("timestamp", "<=", endDate)
-            .orderBy("timestamp", "desc")
-            .limit(1)
-            .as("end_height_bigint"),
-          eb
-            .selectFrom("block_details")
-            .select("height")
-            .where("timestamp", "<=", startDate)
-            .orderBy("timestamp", "desc")
-            .limit(1)
-            .as("start_height_bigint"),
-        ])
-      )
-      .selectFrom("time_range")
-      .select(["end_height_bigint" as any, "start_height_bigint" as any])
-      .executeTakeFirst();
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
 
-    return {
-      startHeight: result?.start_height_bigint ? Number(result.start_height_bigint) : null,
-      endHeight: result?.end_height_bigint ? Number(result.end_height_bigint) : null,
-    };
+      const result = await this.db
+        .with("time_range", (_db) =>
+          _db.selectNoFrom((eb) => [
+            eb
+              .selectFrom(DATA_SOURCES.BLOCK_DETAILS)
+              .select(DATA_SOURCES.FIELDS.HEIGHT)
+              .where(DATA_SOURCES.FIELDS.TIMESTAMP, "<=", endDate)
+              .orderBy(DATA_SOURCES.FIELDS.TIMESTAMP, "desc")
+              .limit(1)
+              .as("end_height_bigint"),
+            eb
+              .selectFrom(DATA_SOURCES.BLOCK_DETAILS)
+              .select(DATA_SOURCES.FIELDS.HEIGHT)
+              .where(DATA_SOURCES.FIELDS.TIMESTAMP, "<=", startDate)
+              .orderBy(DATA_SOURCES.FIELDS.TIMESTAMP, "desc")
+              .limit(1)
+              .as("start_height_bigint"),
+          ])
+        )
+        .selectFrom("time_range")
+        .select(["end_height_bigint" as any, "start_height_bigint" as any])
+        .executeTakeFirst();
+
+      return {
+        startHeight: result?.start_height_bigint
+          ? FIELD_TRANSFORMERS.toTokenAmount(result.start_height_bigint)
+          : null,
+        endHeight: result?.end_height_bigint
+          ? FIELD_TRANSFORMERS.toTokenAmount(result.end_height_bigint)
+          : null,
+      };
+    } catch (error) {
+      console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
+      throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
+    }
   }
 
   /**
@@ -82,11 +111,106 @@ export class BlockService {
    * @param height The block height.
    */
   async getBlockTimestampByHeight(height: number): Promise<Date | null> {
-    const result = await this.db
-      .selectFrom("block_details")
-      .select("timestamp")
-      .where("height", "=", String(height))
-      .executeTakeFirst();
-    return result ? result.timestamp : null;
+    try {
+      if (!height || height < 0) {
+        throw new Error(DB_ERROR_MESSAGES.INVALID_HEIGHT);
+      }
+
+      const result = await this.db
+        .selectFrom(DATA_SOURCES.BLOCK_DETAILS)
+        .select(DATA_SOURCES.FIELDS.TIMESTAMP)
+        .where(DATA_SOURCES.FIELDS.HEIGHT, "=", String(height))
+        .executeTakeFirst();
+
+      return result ? FIELD_TRANSFORMERS.toTimestamp(result.timestamp) : null;
+    } catch (error) {
+      console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
+      throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
+    }
+  }
+
+  /**
+   * Fetches block details for a range of heights.
+   * @param startHeight The starting block height
+   * @param endHeight The ending block height
+   */
+  async getBlockDetailsRange(
+    startHeight: number,
+    endHeight: number
+  ): Promise<
+    Array<{
+      height: number;
+      timestamp: Date;
+      root: Buffer;
+    }>
+  > {
+    try {
+      if (
+        !startHeight ||
+        !endHeight ||
+        startHeight < 0 ||
+        endHeight < 0 ||
+        startHeight > endHeight
+      ) {
+        throw new Error(DB_ERROR_MESSAGES.INVALID_HEIGHT);
+      }
+
+      const results = await this.db
+        .selectFrom(DATA_SOURCES.BLOCK_DETAILS)
+        .select([
+          DATA_SOURCES.FIELDS.HEIGHT,
+          DATA_SOURCES.FIELDS.TIMESTAMP,
+          DATA_SOURCES.FIELDS.ROOT,
+        ])
+        .where(DATA_SOURCES.FIELDS.HEIGHT, ">=", String(startHeight))
+        .where(DATA_SOURCES.FIELDS.HEIGHT, "<=", String(endHeight))
+        .orderBy(DATA_SOURCES.FIELDS.HEIGHT, "asc")
+        .execute();
+
+      return results.map((row) => ({
+        height: FIELD_TRANSFORMERS.toTokenAmount(row.height),
+        timestamp: FIELD_TRANSFORMERS.toTimestamp(row.timestamp) || new Date(),
+        root: row.root,
+      }));
+    } catch (error) {
+      console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
+      throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
+    }
+  }
+
+  /**
+   * Fetches the latest N block details.
+   * @param limit Number of blocks to fetch
+   */
+  async getLatestBlockDetailsHistory(limit: number = DB_CONFIG.DEFAULT_HISTORY_LIMIT): Promise<
+    Array<{
+      height: number;
+      timestamp: Date;
+      root: Buffer;
+    }>
+  > {
+    try {
+      const validLimit = Math.min(Math.max(1, limit), DB_CONFIG.MAX_HISTORY_LIMIT);
+
+      const results = await this.db
+        .selectFrom(DATA_SOURCES.BLOCK_DETAILS)
+        .select([
+          DATA_SOURCES.FIELDS.HEIGHT,
+          DATA_SOURCES.FIELDS.TIMESTAMP,
+          DATA_SOURCES.FIELDS.ROOT,
+        ])
+        .orderBy(DATA_SOURCES.FIELDS.HEIGHT, "desc")
+        .limit(validLimit)
+        .execute();
+
+      return results.map((row) => ({
+        height: FIELD_TRANSFORMERS.toTokenAmount(row.height),
+        timestamp: FIELD_TRANSFORMERS.toTimestamp(row.timestamp) || new Date(),
+        root: row.root,
+      }));
+    } catch (error) {
+      console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
+      throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
+    }
   }
 }

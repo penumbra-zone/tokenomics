@@ -1,7 +1,12 @@
 import { Kysely } from "kysely";
 
+import {
+  DATA_SOURCES,
+  DB_CONFIG,
+  DB_ERROR_MESSAGES,
+  FIELD_TRANSFORMERS,
+} from "../database-mappings";
 import { DB } from "../schema";
-// Correct path for DB types
 import type { BurnSourcesData, HistoricalBurnEntryRaw } from "../types";
 
 // Assuming these types are in types.ts
@@ -29,21 +34,32 @@ export class BurnService {
    * These are interpreted as fees burned, dex arbitrage burned, etc.
    */
   async getLatestBurnSources(): Promise<BurnSourcesData | null> {
-    const result = await this.db
-      .selectFrom("supply_total_unstaked")
-      .select(["fees", "arb as dexArb", "auction as auctionBurns", "dex as dexBurns"])
-      .orderBy("height", "desc")
-      .limit(1)
-      .executeTakeFirst();
+    try {
+      const result = await this.db
+        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED)
+        .select([
+          DATA_SOURCES.FIELDS.FEE_BURNS,
+          `${DATA_SOURCES.FIELDS.ARBITRAGE_BURNS} as dexArb`,
+          `${DATA_SOURCES.FIELDS.AUCTION_LOCKED} as auctionBurns`,
+          `${DATA_SOURCES.FIELDS.DEX_LIQUIDITY} as dexBurns`,
+          DATA_SOURCES.FIELDS.HEIGHT,
+        ])
+        .orderBy(DATA_SOURCES.FIELDS.HEIGHT, "desc")
+        .limit(1)
+        .executeTakeFirst();
 
-    if (!result) return null;
+      if (!result) return null;
 
-    return {
-      fees: result.fees ? Number(result.fees) : 0,
-      dexArb: result.dexArb ? Number(result.dexArb) : 0,
-      auctionBurns: result.auctionBurns ? Number(result.auctionBurns) : 0,
-      dexBurns: result.dexBurns ? Number(result.dexBurns) : 0,
-    };
+      return {
+        fees: FIELD_TRANSFORMERS.toTokenAmount(result.fees),
+        dexArb: FIELD_TRANSFORMERS.toTokenAmount(result.dexArb),
+        auctionBurns: FIELD_TRANSFORMERS.toTokenAmount(result.auctionBurns),
+        dexBurns: FIELD_TRANSFORMERS.toTokenAmount(result.dexBurns),
+      };
+    } catch (error) {
+      console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
+      throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
+    }
   }
 
   /**
@@ -51,20 +67,115 @@ export class BurnService {
    * The rate calculation and timestamp association will be handled by the caller.
    * @param limit The number of historical entries to fetch.
    */
-  async getHistoricalBurnEntriesRaw(limit: number = 100): Promise<HistoricalBurnEntryRaw[]> {
-    const results = (await this.db
-      .selectFrom("supply_total_unstaked")
-      .select(["height", "fees", "arb as dexArb", "auction as auctionBurns", "dex as dexBurns"])
-      .orderBy("height", "desc")
-      .limit(limit)
-      .execute()) as RawBurnEntryRow[];
+  async getHistoricalBurnEntriesRaw(
+    limit: number = DB_CONFIG.DEFAULT_HISTORY_LIMIT
+  ): Promise<HistoricalBurnEntryRaw[]> {
+    try {
+      // Validate limit
+      const validLimit = Math.min(Math.max(1, limit), DB_CONFIG.MAX_HISTORY_LIMIT);
 
-    return results.map((row: RawBurnEntryRow) => ({
-      height: row.height ? Number(row.height) : 0,
-      fees: row.fees ? Number(row.fees) : 0,
-      dexArb: row.dexArb ? Number(row.dexArb) : 0,
-      auctionBurns: row.auctionBurns ? Number(row.auctionBurns) : 0,
-      dexBurns: row.dexBurns ? Number(row.dexBurns) : 0,
-    }));
+      const results = await this.db
+        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED)
+        .select([
+          DATA_SOURCES.FIELDS.HEIGHT,
+          DATA_SOURCES.FIELDS.FEE_BURNS,
+          `${DATA_SOURCES.FIELDS.ARBITRAGE_BURNS} as dexArb`,
+          `${DATA_SOURCES.FIELDS.AUCTION_LOCKED} as auctionBurns`,
+          `${DATA_SOURCES.FIELDS.DEX_LIQUIDITY} as dexBurns`,
+        ])
+        .orderBy(DATA_SOURCES.FIELDS.HEIGHT, "desc")
+        .limit(validLimit)
+        .execute();
+
+      return results.map((row: RawBurnEntryRow) => ({
+        height: FIELD_TRANSFORMERS.toTokenAmount(row.height),
+        fees: FIELD_TRANSFORMERS.toTokenAmount(row.fees),
+        dexArb: FIELD_TRANSFORMERS.toTokenAmount(row.dexArb),
+        auctionBurns: FIELD_TRANSFORMERS.toTokenAmount(row.auctionBurns),
+        dexBurns: FIELD_TRANSFORMERS.toTokenAmount(row.dexBurns),
+      }));
+    } catch (error) {
+      console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
+      throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
+    }
+  }
+
+  /**
+   * Fetches burn metrics over time with timestamps for time series analysis.
+   * @param startDate The start date for the range
+   * @param limit Maximum number of entries to return
+   */
+  async getBurnMetricsTimeSeries(
+    startDate: Date,
+    limit: number = DB_CONFIG.DEFAULT_HISTORY_LIMIT
+  ): Promise<
+    Array<{
+      height: number;
+      arbitrageBurns: number;
+      feeBurns: number;
+      totalBurns: number;
+      timestamp: Date;
+    }>
+  > {
+    try {
+      const validLimit = Math.min(Math.max(1, limit), DB_CONFIG.MAX_HISTORY_LIMIT);
+
+      const results = await this.db
+        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED)
+        .innerJoin(
+          DATA_SOURCES.BLOCK_DETAILS,
+          `${DATA_SOURCES.BLOCK_DETAILS}.${DATA_SOURCES.FIELDS.HEIGHT}`,
+          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED}.${DATA_SOURCES.FIELDS.HEIGHT}`
+        )
+        .select([
+          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED}.${DATA_SOURCES.FIELDS.HEIGHT}`,
+          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED}.${DATA_SOURCES.FIELDS.ARBITRAGE_BURNS}`,
+          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED}.${DATA_SOURCES.FIELDS.FEE_BURNS}`,
+          `${DATA_SOURCES.BLOCK_DETAILS}.${DATA_SOURCES.FIELDS.TIMESTAMP}`,
+        ])
+        .where(`${DATA_SOURCES.BLOCK_DETAILS}.${DATA_SOURCES.FIELDS.TIMESTAMP}`, ">=", startDate)
+        .orderBy(`${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED}.${DATA_SOURCES.FIELDS.HEIGHT}`, "asc")
+        .limit(validLimit)
+        .execute();
+
+      return results.map((row) => ({
+        height: FIELD_TRANSFORMERS.toTokenAmount(row.height),
+        arbitrageBurns: FIELD_TRANSFORMERS.toTokenAmount(row.arb),
+        feeBurns: FIELD_TRANSFORMERS.toTokenAmount(row.fees),
+        totalBurns:
+          FIELD_TRANSFORMERS.toTokenAmount(row.arb) + FIELD_TRANSFORMERS.toTokenAmount(row.fees),
+        timestamp: FIELD_TRANSFORMERS.toTimestamp(row.timestamp) || new Date(),
+      }));
+    } catch (error) {
+      console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
+      throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
+    }
+  }
+
+  /**
+   * Calculates total burns across all categories for a specific height.
+   * @param height The block height
+   */
+  async getTotalBurnsByHeight(height: number): Promise<number | null> {
+    try {
+      if (!height || height < 0) {
+        throw new Error(DB_ERROR_MESSAGES.INVALID_HEIGHT);
+      }
+
+      const result = await this.db
+        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED)
+        .select([DATA_SOURCES.FIELDS.ARBITRAGE_BURNS, DATA_SOURCES.FIELDS.FEE_BURNS])
+        .where(DATA_SOURCES.FIELDS.HEIGHT, "=", String(height))
+        .executeTakeFirst();
+
+      if (!result) return null;
+
+      return (
+        FIELD_TRANSFORMERS.toTokenAmount(result.arb) + FIELD_TRANSFORMERS.toTokenAmount(result.fees)
+      );
+    } catch (error) {
+      console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
+      throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
+    }
   }
 }

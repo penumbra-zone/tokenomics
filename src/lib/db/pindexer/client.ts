@@ -8,7 +8,7 @@ const connectionString = env.DATABASE_URL;
 
 const poolConfig = {
   connectionString,
-  ssl: connectionString?.includes('localhost') ? false : { rejectUnauthorized: false },
+  ssl: connectionString?.includes("localhost") ? false : { rejectUnauthorized: false },
 };
 
 let pool: Pool;

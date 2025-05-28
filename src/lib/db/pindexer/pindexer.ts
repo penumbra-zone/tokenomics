@@ -4,6 +4,21 @@ import { BLOCKS_PER_DAY, INFLATION_WINDOW_DAYS } from "../constants";
 import { dbClient as defaultDb } from "./client";
 import { DB } from "./schema";
 // Import service classes
+import {
+  BurnData,
+  calculateBurnMetrics,
+  calculateBurnRateTimeSeries,
+  calculateCirculatingSupply,
+  calculateInflationRate,
+  calculateIssuanceSinceLaunch,
+  calculateMarketCap,
+  calculateTokenDistributionBreakdown,
+  calculateTotalDelegatedSupply,
+  calculateTotalSupplyFromComponents,
+  calculateTotalUnstakedSupply,
+  CalculationContext,
+  getCurrentNetworkConfig,
+} from "../../calculations";
 import { BlockService } from "./services/block_service";
 import { BurnService } from "./services/burn_service";
 import { MarketService } from "./services/market_service";
@@ -24,12 +39,12 @@ import {
   UnstakedSupplyComponents,
 } from "./types";
 
-// --- Pindexer Class --- Pindexer (was PindexerConnection)
 export class Pindexer extends AbstractPindexerConnection {
   private readonly blockService: BlockService;
   private readonly marketService: MarketService;
   private readonly supplyService: SupplyService;
   private readonly burnService: BurnService;
+  private readonly calculationContext: CalculationContext;
 
   constructor(protected dbInstance: Kysely<DB> = defaultDb) {
     super();
@@ -37,6 +52,14 @@ export class Pindexer extends AbstractPindexerConnection {
     this.marketService = new MarketService(dbInstance);
     this.supplyService = new SupplyService(dbInstance);
     this.burnService = new BurnService(dbInstance);
+
+    // Initialize calculation context with current network config
+    const config = getCurrentNetworkConfig();
+    this.calculationContext = {
+      config,
+      currentHeight: 0, // Will be updated dynamically
+      currentTimestamp: new Date(),
+    };
   }
 
   async getSocialMetrics(): Promise<SocialMetrics> {
@@ -44,12 +67,25 @@ export class Pindexer extends AbstractPindexerConnection {
     const burn = await this.getBurnMetrics();
 
     const totalSupply = supply.totalSupply;
-    const circulatingSupply = totalSupply - burn.totalBurned;
+
+    // Use centralized calculation for circulating supply
+    const circulatingSupply = calculateCirculatingSupply(
+      totalSupply,
+      supply.delegatedSupply.base + supply.delegatedSupply.delegated, // staked supply
+      supply.unstakedSupply.dex, // dex liquidity
+      0 // community pool (TODO: get actual value)
+    );
 
     const marketData: CurrentMarketData | null = await this.marketService.getLatestMarketData();
 
     const price = marketData?.price || 0;
-    const marketCap = marketData?.marketCap || 0;
+    // Use centralized calculation for market cap
+    const marketCap = marketData?.marketCap || calculateMarketCap(totalSupply, price);
+
+    // Update calculation context with current data
+    const currentHeight = (await this.blockService.getLatestBlockHeightFromSupplyTable()) || 0;
+    this.calculationContext.currentHeight = currentHeight;
+    this.calculationContext.currentTimestamp = new Date();
 
     const inflationRate = await this.getInflationRate(totalSupply);
     const burnRate = burn.burnRate;
@@ -76,8 +112,11 @@ export class Pindexer extends AbstractPindexerConnection {
 
     if (pastTotalSupply === null || pastTotalSupply <= 0) return 0;
 
-    const windowInflation = (currentTotalSupply - pastTotalSupply) / pastTotalSupply;
-    const annualInflationRate = windowInflation * (365 / INFLATION_WINDOW_DAYS);
+    // Use centralized calculation for inflation rate
+    const windowInflationRate = calculateInflationRate(currentTotalSupply, pastTotalSupply);
+
+    // Convert to annual rate (the centralized function returns percentage, we need to convert to decimal and annualize)
+    const annualInflationRate = (windowInflationRate / 100) * (365 / INFLATION_WINDOW_DAYS);
 
     return annualInflationRate;
   }
@@ -103,42 +142,35 @@ export class Pindexer extends AbstractPindexerConnection {
     const unstakedComponents: UnstakedSupplyComponents | null =
       await this.supplyService.getLatestUnstakedSupplyComponents();
     if (!unstakedComponents) {
-      return {
-        totalSupply: 100,
-        genesisAllocation: 25,
-        issuedSinceLaunch: 75,
-        unstakedSupply: { base: 0, auction: 0, dex: 0, arbitrage: 0, fees: 0 },
-        delegatedSupply: { base: 0, delegated: 0, conversionRate: 0 },
-      };
+      throw new Error("No unstaked components found");
     }
 
     const latestStakedHeight = await this.blockService.getLatestBlockHeightFromSupplyTable();
     let delegatedSupplyComponents: DelegatedSupplyComponent[] = [];
-    if (latestStakedHeight !== null) {
-      delegatedSupplyComponents =
-        await this.supplyService.getDelegatedSupplyComponentsByHeight(latestStakedHeight);
+    if (latestStakedHeight === null) {
+      throw new Error("No staked height found");
     }
+    
+    delegatedSupplyComponents =
+      await this.supplyService.getDelegatedSupplyComponentsByHeight(latestStakedHeight || 0);
 
-    const totalUnstaked =
-      unstakedComponents.um +
-      unstakedComponents.auction +
-      unstakedComponents.dex +
-      unstakedComponents.arb +
-      unstakedComponents.fees;
-    const totalDelegatedBase = delegatedSupplyComponents.reduce((sum, v) => sum + v.um, 0);
-    const totalDelegatedDelegated = delegatedSupplyComponents.reduce((sum, v) => sum + v.del_um, 0);
-    const totalSupply = totalUnstaked + totalDelegatedBase + totalDelegatedDelegated;
+    // Use centralized calculations for supply components
+    const totalUnstaked = calculateTotalUnstakedSupply(unstakedComponents);
+    const delegatedSupplyData = calculateTotalDelegatedSupply(delegatedSupplyComponents);
+    const totalSupply = calculateTotalSupplyFromComponents(
+      unstakedComponents,
+      delegatedSupplyComponents
+    );
 
-    const avgConversionRate =
-      delegatedSupplyComponents.length > 0
-        ? delegatedSupplyComponents.reduce((sum, v) => sum + v.rate_bps2, 0) /
-          (delegatedSupplyComponents.length * 10000)
-        : 0;
+    // Use centralized calculation for issuance since launch
+    const { genesisAllocation } = this.calculationContext.config;
+    const issuedSinceLaunch = calculateIssuanceSinceLaunch(totalSupply, genesisAllocation);
 
     return {
       totalSupply,
-      genesisAllocation: 70, // Placeholder
-      issuedSinceLaunch: 30, // Placeholder
+      totalUnstaked,
+      genesisAllocation,
+      issuedSinceLaunch,
       unstakedSupply: {
         base: unstakedComponents.um,
         auction: unstakedComponents.auction,
@@ -147,9 +179,9 @@ export class Pindexer extends AbstractPindexerConnection {
         fees: unstakedComponents.fees,
       },
       delegatedSupply: {
-        base: totalDelegatedBase,
-        delegated: totalDelegatedDelegated,
-        conversionRate: avgConversionRate,
+        base: delegatedSupplyData.totalDelegatedBase,
+        delegated: delegatedSupplyData.totalDelegatedDelegated,
+        conversionRate: delegatedSupplyData.avgConversionRate,
       },
     };
   }
@@ -167,39 +199,54 @@ export class Pindexer extends AbstractPindexerConnection {
       };
     }
 
-    const totalBurned =
-      latestBurnSources.fees +
-      latestBurnSources.dexArb +
-      latestBurnSources.auctionBurns +
-      latestBurnSources.dexBurns;
-    const burnRate = blockHeight > 0 ? totalBurned / blockHeight : 0;
+    // Prepare burn data for centralized calculations
+    const currentBurnData: BurnData = {
+      fees: latestBurnSources.fees,
+      dexArb: latestBurnSources.dexArb,
+      auctionBurns: latestBurnSources.auctionBurns,
+      dexBurns: latestBurnSources.dexBurns,
+      height: blockHeight,
+      timestamp: new Date(),
+    };
 
+    // Get historical burn data
     const rawHistoricalBurns: HistoricalBurnEntryRaw[] =
       await this.burnService.getHistoricalBurnEntriesRaw(12);
-    const historicalBurnRate = await Promise.all(
+
+    const historicalBurnData: BurnData[] = await Promise.all(
       rawHistoricalBurns.map(async (entry) => {
-        const totalEntryBurns = entry.fees + entry.dexArb + entry.auctionBurns + entry.dexBurns;
         const entryHeight = entry.height || 1;
         const timestamp = await this.blockService.getBlockTimestampByHeight(entryHeight);
         return {
-          timestamp: timestamp ? timestamp.toISOString().slice(0, 10) : String(entryHeight),
-          rate: totalEntryBurns / entryHeight, // This rate is per block for that entry's total burns
+          fees: entry.fees,
+          dexArb: entry.dexArb,
+          auctionBurns: entry.auctionBurns,
+          dexBurns: entry.dexBurns,
+          height: entryHeight,
+          timestamp: timestamp || new Date(),
         };
       })
     );
 
+    const allBurnData = [...historicalBurnData, currentBurnData];
+
+    const totalSupply =
+      (await this.supplyService.getHistoricalTotalSupplyFromInsights(blockHeight)) || 0;
+    const burnMetrics = calculateBurnMetrics(allBurnData, totalSupply, this.calculationContext);
+
+    const burnRateTimeSeries = calculateBurnRateTimeSeries(historicalBurnData);
+
+    // Convert to the expected format for backward compatibility
+    const historicalBurnRate = burnRateTimeSeries.map((entry) => ({
+      timestamp: entry.date,
+      rate: entry.burnRate,
+    }));
+
     return {
-      totalBurned,
-      bySource: {
-        transactionFees: latestBurnSources.fees,
-        dexArbitrage: latestBurnSources.dexArb,
-        auctionBurns: latestBurnSources.auctionBurns,
-        dexBurns: latestBurnSources.dexBurns,
-      },
-      burnRate, // This is an average burn rate across all blocks
-      historicalBurnRate: historicalBurnRate.sort(
-        (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-      ), // Ensure chronological order
+      totalBurned: burnMetrics.totalBurned,
+      bySource: burnMetrics.burnsBySource,
+      burnRate: burnMetrics.burnRatePerDay,
+      historicalBurnRate,
     };
   }
 
@@ -209,39 +256,85 @@ export class Pindexer extends AbstractPindexerConnection {
   }
 
   async getTokenDistribution(): Promise<TokenDistribution[]> {
-    // TODO: Implement with Kysely if data source exists, or keep as mock
+    // Get current supply metrics to calculate distribution
+    const supplyMetrics = await this.getSupplyMetrics();
+    const totalSupply = supplyMetrics.totalSupply;
+    const stakedSupply =
+      supplyMetrics.delegatedSupply.base + supplyMetrics.delegatedSupply.delegated;
+    const dexLiquiditySupply = supplyMetrics.unstakedSupply.dex;
+    const communityPoolSupply = 0; // TODO: Get actual community pool supply
+
+    // Use centralized calculation for token distribution breakdown
+    const distributionBreakdown = calculateTokenDistributionBreakdown(
+      totalSupply,
+      stakedSupply,
+      dexLiquiditySupply,
+      communityPoolSupply
+    );
+
+    // Convert to the expected TokenDistribution format
     return [
       {
         category: "Staked",
-        percentage: 40,
-        amount: 400000000,
+        percentage: distributionBreakdown.staked.percentage,
+        amount: distributionBreakdown.staked.amount,
         subcategories: [
-          { name: "Validators", amount: 300000000, percentage: 75 },
-          { name: "Delegators", amount: 100000000, percentage: 25 },
+          {
+            name: "Validators",
+            amount: supplyMetrics.delegatedSupply.base,
+            percentage:
+              stakedSupply > 0 ? (supplyMetrics.delegatedSupply.base / stakedSupply) * 100 : 0,
+          },
+          {
+            name: "Delegators",
+            amount: supplyMetrics.delegatedSupply.delegated,
+            percentage:
+              stakedSupply > 0 ? (supplyMetrics.delegatedSupply.delegated / stakedSupply) * 100 : 0,
+          },
         ],
       },
       {
         category: "DEX Liquidity",
-        percentage: 25,
-        amount: 250000000,
+        percentage: distributionBreakdown.dexLiquidity.percentage,
+        amount: distributionBreakdown.dexLiquidity.amount,
         subcategories: [
-          { name: "PEN/USDC", amount: 150000000, percentage: 60 },
-          { name: "PEN/ETH", amount: 100000000, percentage: 40 },
+          {
+            name: "PEN/USDC",
+            amount: distributionBreakdown.dexLiquidity.amount * 0.6,
+            percentage: 60,
+          },
+          {
+            name: "PEN/ETH",
+            amount: distributionBreakdown.dexLiquidity.amount * 0.4,
+            percentage: 40,
+          },
         ],
       },
-      { category: "Community Pool", percentage: 15, amount: 150000000 },
-      { category: "Circulating", percentage: 20, amount: 200000000 },
+      {
+        category: "Community Pool",
+        percentage: distributionBreakdown.communityPool.percentage,
+        amount: distributionBreakdown.communityPool.amount,
+      },
+      {
+        category: "Circulating",
+        percentage: distributionBreakdown.circulating.percentage,
+        amount: distributionBreakdown.circulating.amount,
+      },
     ];
   }
 
   async getTokenMetrics(): Promise<TokenMetrics> {
-    // TODO: Implement with Kysely if data source exists, or keep as mock
+    // Get actual metrics from centralized calculations
+    const supplyMetrics = await this.getSupplyMetrics();
+    const burnMetrics = await this.getBurnMetrics();
+    const socialMetrics = await this.getSocialMetrics();
+
     return {
-      totalSupply: 1000000000,
-      circulatingSupply: 750000000,
-      burnedTokens: 50000000,
-      marketCap: 500000000,
-      price: 0.5,
+      totalSupply: supplyMetrics.totalSupply,
+      circulatingSupply: socialMetrics.circulatingSupply,
+      burnedTokens: burnMetrics.totalBurned,
+      marketCap: socialMetrics.marketCap,
+      price: socialMetrics.price,
     };
   }
 }

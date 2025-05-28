@@ -72,7 +72,7 @@ export function calculateBurnsBySource(burnData: BurnData[]): {
       transactionFees: totals.transactionFees + data.fees,
       dexArbitrage: totals.dexArbitrage + data.dexArb,
       auctionBurns: totals.auctionBurns + data.auctionBurns,
-      dexBurns: totals.dexBurns + data.dexBurns,
+      dexBurns: totals.dexBurns + (-data.dexBurns),
     }),
     {
       transactionFees: 0,
@@ -88,30 +88,17 @@ export function calculateBurnsBySource(burnData: BurnData[]): {
  */
 export function calculateBurnRateTimeSeries(
   burnData: BurnData[],
-  period: TimePeriod,
-  blocksPerDay: number
 ): Array<{ date: string; burnRate: number }> {
-  // Group burn data by day/period
-  const groupedData = new Map<string, BurnData[]>();
-
-  burnData.forEach((data) => {
-    const dateKey = data.timestamp.toISOString().slice(0, 10);
-    if (!groupedData.has(dateKey)) {
-      groupedData.set(dateKey, []);
-    }
-    groupedData.get(dateKey)!.push(data);
-  });
-
   // Calculate burn rate for each period
   const results: Array<{ date: string; burnRate: number }> = [];
 
-  for (const [date, dataForDay] of groupedData.entries()) {
-    const totalBurnedForDay = calculateTotalBurned(dataForDay);
+  for (const data of burnData) {
+    const totalBurnedForDay = calculateTotalBurnedForEntry(data);
     // Convert to daily rate (assuming the data represents the total for that day)
     const burnRate = totalBurnedForDay;
 
     results.push({
-      date,
+      date: data.timestamp.toISOString().slice(0, 10),
       burnRate,
     });
   }
