@@ -1,3 +1,4 @@
+import { formatNumber } from '@/lib/utils';
 import { CHART_PALETTES, COLORS } from "./colors";
 import { TEXT_COLORS } from "./typography";
 
@@ -14,7 +15,7 @@ export function getCustomTooltipConfig(
   title?: string,
   trigger: "item" | "axis" = "item",
   lineColor?: string,
-  valueFormatter?: (value: number) => string
+  valueFormatter: (value: number) => string = (value) => formatNumber(value, 2)
 ) {
   return {
     trigger,
@@ -41,8 +42,7 @@ export function getCustomTooltipConfig(
 
             data.forEach((item, index) => {
               const dotColor = CHART_PALETTES.default[index % CHART_PALETTES.default.length];
-              const valueDisplay =
-                typeof item.amount === "number" ? item.amount.toLocaleString() : item.amount;
+              const valueDisplay = valueFormatter(item.amount);
               tooltipHtml += `
               <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: ${index === data.length - 1 ? "0" : "8px"};">
                 <div style="display: flex; align-items: center;">
@@ -59,9 +59,7 @@ export function getCustomTooltipConfig(
             if (!params || params.length === 0) return "";
 
             const dataPoint = params[0];
-            const formattedValue = valueFormatter
-              ? valueFormatter(dataPoint.value)
-              : dataPoint.value.toLocaleString();
+            const formattedValue = valueFormatter(dataPoint.value);
 
             // Format the date - try to parse and format it nicely
             let formattedDate = dataPoint.axisValueLabel;
