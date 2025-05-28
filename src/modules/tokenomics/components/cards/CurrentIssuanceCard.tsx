@@ -12,7 +12,7 @@ export function CurrentIssuanceCard() {
       isLoading={isLoading}
       value={currentIssuance}
       valueFormatter={(v) => formatNumber(v, 2)}
-      description="TOKEN/block"
+      description="$UM/block"
     />
   );
 }

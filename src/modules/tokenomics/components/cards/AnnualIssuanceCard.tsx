@@ -12,7 +12,7 @@ export function AnnualIssuanceCard() {
       isLoading={isLoading}
       value={annualIssuance}
       valueFormatter={(v) => "~" + formatNumber(v, 2)}
-      description="TOKEN/year"
+      description="$UM/year"
     />
   );
 }
