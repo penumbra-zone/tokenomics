@@ -24,9 +24,9 @@ export class BlockService {
   async getLatestBlockHeightFromSupplyTable(): Promise<number | null> {
     try {
       const result = await this.db
-        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED)
-        .select(DATA_SOURCES.FIELDS.HEIGHT)
-        .orderBy(DATA_SOURCES.FIELDS.HEIGHT, "desc")
+        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name)
+        .select(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT)
+        .orderBy(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT, "desc")
         .limit(1)
         .executeTakeFirst();
 
@@ -43,9 +43,9 @@ export class BlockService {
   async getLatestBlockDetails(): Promise<Selectable<BlockDetails> | undefined> {
     try {
       return this.db
-        .selectFrom(DATA_SOURCES.BLOCK_DETAILS)
+        .selectFrom(DATA_SOURCES.BLOCK_DETAILS.name)
         .selectAll()
-        .orderBy(DATA_SOURCES.FIELDS.HEIGHT, "desc")
+        .orderBy(DATA_SOURCES.BLOCK_DETAILS.fields.HEIGHT, "desc")
         .limit(1)
         .executeTakeFirst();
     } catch (error) {
@@ -73,17 +73,17 @@ export class BlockService {
         .with("time_range", (_db) =>
           _db.selectNoFrom((eb) => [
             eb
-              .selectFrom(DATA_SOURCES.BLOCK_DETAILS)
-              .select(DATA_SOURCES.FIELDS.HEIGHT)
-              .where(DATA_SOURCES.FIELDS.TIMESTAMP, "<=", endDate)
-              .orderBy(DATA_SOURCES.FIELDS.TIMESTAMP, "desc")
+              .selectFrom(DATA_SOURCES.BLOCK_DETAILS.name)
+              .select(DATA_SOURCES.BLOCK_DETAILS.fields.HEIGHT)
+              .where(DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP, "<=", endDate)
+              .orderBy(DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP, "desc")
               .limit(1)
               .as("end_height_bigint"),
             eb
-              .selectFrom(DATA_SOURCES.BLOCK_DETAILS)
-              .select(DATA_SOURCES.FIELDS.HEIGHT)
-              .where(DATA_SOURCES.FIELDS.TIMESTAMP, "<=", startDate)
-              .orderBy(DATA_SOURCES.FIELDS.TIMESTAMP, "desc")
+              .selectFrom(DATA_SOURCES.BLOCK_DETAILS.name)
+              .select(DATA_SOURCES.BLOCK_DETAILS.fields.HEIGHT)
+              .where(DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP, "<=", startDate)
+              .orderBy(DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP, "desc")
               .limit(1)
               .as("start_height_bigint"),
           ])
@@ -117,9 +117,9 @@ export class BlockService {
       }
 
       const result = await this.db
-        .selectFrom(DATA_SOURCES.BLOCK_DETAILS)
-        .select(DATA_SOURCES.FIELDS.TIMESTAMP)
-        .where(DATA_SOURCES.FIELDS.HEIGHT, "=", String(height))
+        .selectFrom(DATA_SOURCES.BLOCK_DETAILS.name)
+        .select(DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP)
+        .where(DATA_SOURCES.BLOCK_DETAILS.fields.HEIGHT, "=", String(height))
         .executeTakeFirst();
 
       return result ? FIELD_TRANSFORMERS.toTimestamp(result.timestamp) : null;
@@ -156,15 +156,15 @@ export class BlockService {
       }
 
       const results = await this.db
-        .selectFrom(DATA_SOURCES.BLOCK_DETAILS)
+        .selectFrom(DATA_SOURCES.BLOCK_DETAILS.name)
         .select([
-          DATA_SOURCES.FIELDS.HEIGHT,
-          DATA_SOURCES.FIELDS.TIMESTAMP,
-          DATA_SOURCES.FIELDS.ROOT,
+          DATA_SOURCES.BLOCK_DETAILS.fields.HEIGHT,
+          DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP,
+          DATA_SOURCES.BLOCK_DETAILS.fields.ROOT,
         ])
-        .where(DATA_SOURCES.FIELDS.HEIGHT, ">=", String(startHeight))
-        .where(DATA_SOURCES.FIELDS.HEIGHT, "<=", String(endHeight))
-        .orderBy(DATA_SOURCES.FIELDS.HEIGHT, "asc")
+        .where(DATA_SOURCES.BLOCK_DETAILS.fields.HEIGHT, ">=", String(startHeight))
+        .where(DATA_SOURCES.BLOCK_DETAILS.fields.HEIGHT, "<=", String(endHeight))
+        .orderBy(DATA_SOURCES.BLOCK_DETAILS.fields.HEIGHT, "asc")
         .execute();
 
       return results.map((row) => ({
@@ -193,13 +193,13 @@ export class BlockService {
       const validLimit = Math.min(Math.max(1, limit), DB_CONFIG.MAX_HISTORY_LIMIT);
 
       const results = await this.db
-        .selectFrom(DATA_SOURCES.BLOCK_DETAILS)
+        .selectFrom(DATA_SOURCES.BLOCK_DETAILS.name)
         .select([
-          DATA_SOURCES.FIELDS.HEIGHT,
-          DATA_SOURCES.FIELDS.TIMESTAMP,
-          DATA_SOURCES.FIELDS.ROOT,
+          DATA_SOURCES.BLOCK_DETAILS.fields.HEIGHT,
+          DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP,
+          DATA_SOURCES.BLOCK_DETAILS.fields.ROOT,
         ])
-        .orderBy(DATA_SOURCES.FIELDS.HEIGHT, "desc")
+        .orderBy(DATA_SOURCES.BLOCK_DETAILS.fields.HEIGHT, "desc")
         .limit(validLimit)
         .execute();
 

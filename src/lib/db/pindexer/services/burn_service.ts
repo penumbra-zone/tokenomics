@@ -36,15 +36,15 @@ export class BurnService {
   async getLatestBurnSources(): Promise<BurnSourcesData | null> {
     try {
       const result = await this.db
-        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED)
+        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name)
         .select([
-          DATA_SOURCES.FIELDS.FEE_BURNS,
-          `${DATA_SOURCES.FIELDS.ARBITRAGE_BURNS} as dexArb`,
-          `${DATA_SOURCES.FIELDS.AUCTION_LOCKED} as auctionBurns`,
-          `${DATA_SOURCES.FIELDS.DEX_LIQUIDITY} as dexBurns`,
-          DATA_SOURCES.FIELDS.HEIGHT,
+          DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS,
+          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS} as dexArb`,
+          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.AUCTION_LOCKED} as auctionBurns`,
+          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.DEX_LIQUIDITY} as dexBurns`,
+          DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT,
         ])
-        .orderBy(DATA_SOURCES.FIELDS.HEIGHT, "desc")
+        .orderBy(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT, "desc")
         .limit(1)
         .executeTakeFirst();
 
@@ -75,15 +75,15 @@ export class BurnService {
       const validLimit = Math.min(Math.max(1, limit), DB_CONFIG.MAX_HISTORY_LIMIT);
 
       const results = await this.db
-        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED)
+        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name)
         .select([
-          DATA_SOURCES.FIELDS.HEIGHT,
-          DATA_SOURCES.FIELDS.FEE_BURNS,
-          `${DATA_SOURCES.FIELDS.ARBITRAGE_BURNS} as dexArb`,
-          `${DATA_SOURCES.FIELDS.AUCTION_LOCKED} as auctionBurns`,
-          `${DATA_SOURCES.FIELDS.DEX_LIQUIDITY} as dexBurns`,
+          DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT,
+          DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS,
+          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS} as dexArb`,
+          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.AUCTION_LOCKED} as auctionBurns`,
+          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.DEX_LIQUIDITY} as dexBurns`,
         ])
-        .orderBy(DATA_SOURCES.FIELDS.HEIGHT, "desc")
+        .orderBy(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT, "desc")
         .limit(validLimit)
         .execute();
 
@@ -121,20 +121,27 @@ export class BurnService {
       const validLimit = Math.min(Math.max(1, limit), DB_CONFIG.MAX_HISTORY_LIMIT);
 
       const results = await this.db
-        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED)
+        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name)
         .innerJoin(
-          DATA_SOURCES.BLOCK_DETAILS,
-          `${DATA_SOURCES.BLOCK_DETAILS}.${DATA_SOURCES.FIELDS.HEIGHT}`,
-          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED}.${DATA_SOURCES.FIELDS.HEIGHT}`
+          DATA_SOURCES.BLOCK_DETAILS.name,
+          `${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.HEIGHT}`,
+          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name}.${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT}`
         )
         .select([
-          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED}.${DATA_SOURCES.FIELDS.HEIGHT}`,
-          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED}.${DATA_SOURCES.FIELDS.ARBITRAGE_BURNS}`,
-          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED}.${DATA_SOURCES.FIELDS.FEE_BURNS}`,
-          `${DATA_SOURCES.BLOCK_DETAILS}.${DATA_SOURCES.FIELDS.TIMESTAMP}`,
+          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name}.${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT}`,
+          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name}.${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS}`,
+          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name}.${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS}`,
+          `${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`,
         ])
-        .where(`${DATA_SOURCES.BLOCK_DETAILS}.${DATA_SOURCES.FIELDS.TIMESTAMP}`, ">=", startDate)
-        .orderBy(`${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED}.${DATA_SOURCES.FIELDS.HEIGHT}`, "asc")
+        .where(
+          `${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`,
+          ">=",
+          startDate
+        )
+        .orderBy(
+          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name}.${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT}`,
+          "asc"
+        )
         .limit(validLimit)
         .execute();
 
@@ -163,9 +170,12 @@ export class BurnService {
       }
 
       const result = await this.db
-        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED)
-        .select([DATA_SOURCES.FIELDS.ARBITRAGE_BURNS, DATA_SOURCES.FIELDS.FEE_BURNS])
-        .where(DATA_SOURCES.FIELDS.HEIGHT, "=", String(height))
+        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name)
+        .select([
+          DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS,
+          DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS,
+        ])
+        .where(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT, "=", String(height))
         .executeTakeFirst();
 
       if (!result) return null;

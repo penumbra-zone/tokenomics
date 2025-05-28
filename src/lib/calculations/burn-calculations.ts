@@ -1,7 +1,7 @@
 // Burn Metrics Calculations
 // Based on the tokenomics calculation documentation
 
-import { BurnData, BurnMetrics, CalculationContext, TimePeriod } from "./types";
+import { BurnData, BurnMetrics, CalculationContext } from "./types";
 
 /**
  * Calculate total burned tokens from all sources
@@ -72,7 +72,7 @@ export function calculateBurnsBySource(burnData: BurnData[]): {
       transactionFees: totals.transactionFees + data.fees,
       dexArbitrage: totals.dexArbitrage + data.dexArb,
       auctionBurns: totals.auctionBurns + data.auctionBurns,
-      dexBurns: totals.dexBurns + (-data.dexBurns),
+      dexBurns: totals.dexBurns + -data.dexBurns,
     }),
     {
       transactionFees: 0,
@@ -87,7 +87,7 @@ export function calculateBurnsBySource(burnData: BurnData[]): {
  * Calculate burn rate time series for charts
  */
 export function calculateBurnRateTimeSeries(
-  burnData: BurnData[],
+  burnData: BurnData[]
 ): Array<{ date: string; burnRate: number }> {
   // Calculate burn rate for each period
   const results: Array<{ date: string; burnRate: number }> = [];

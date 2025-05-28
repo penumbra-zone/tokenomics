@@ -8,78 +8,159 @@
  */
 export const DATA_SOURCES = {
   // Primary supply data
-  INSIGHTS_SUPPLY: "insights_supply",
-  SUPPLY_TOTAL_UNSTAKED: "supply_total_unstaked",
-  SUPPLY_TOTAL_STAKED: "supply_total_staked",
-  BLOCK_DETAILS: "block_details",
+  INSIGHTS_SUPPLY: {
+    name: "insights_supply",
+    fields: {
+      TOTAL_SUPPLY: "total",
+      STAKED_SUPPLY: "staked",
+      MARKET_CAP: "market_cap",
+      PRICE: "price",
+      PRICE_NUMERAIRE_ASSET_ID: "price_numeraire_asset_id",
+      HEIGHT: "height",
+    },
+  },
+  SUPPLY_TOTAL_UNSTAKED: {
+    name: "supply_total_unstaked",
+    fields: {
+      CIRCULATING: "um",
+      DEX_LIQUIDITY: "dex",
+      AUCTION_LOCKED: "auction",
+      ARBITRAGE_BURNS: "arb",
+      FEE_BURNS: "fees",
+      HEIGHT: "height",
+    },
+  },
+  SUPPLY_TOTAL_STAKED: {
+    name: "supply_total_staked",
+    fields: {
+      STAKED_UM: "um",
+      DELEGATED_UM: "del_um",
+      RATE_BPS2: "rate_bps2",
+      VALIDATOR_ID: "validator_id",
+      HEIGHT: "height",
+    },
+  },
+  BLOCK_DETAILS: {
+    name: "block_details",
+    fields: {
+      HEIGHT: "height",
+      TIMESTAMP: "timestamp",
+      ROOT: "root",
+    },
+  },
 
   // Price and market data
-  DEX_EX_PRICE_CHARTS: "dex_ex_price_charts",
-  DEX_EX_AGGREGATE_SUMMARY: "dex_ex_aggregate_summary",
-  DEX_EX_PAIRS_SUMMARY: "dex_ex_pairs_summary",
-  DEX_EX_POSITION_STATE: "dex_ex_position_state",
-  DEX_EX_POSITION_EXECUTIONS: "dex_ex_position_executions",
-  DEX_EX_POSITION_RESERVES: "dex_ex_position_reserves",
-  DEX_EX_POSITION_WITHDRAWALS: "dex_ex_position_withdrawals",
-  DEX_EX_BLOCK_SUMMARY: "dex_ex_block_summary",
-  DEX_EX_TRANSACTIONS: "dex_ex_transactions",
+  DEX_EX_PRICE_CHARTS: {
+    name: "dex_ex_price_charts",
+    fields: {
+      HEIGHT: "height",
+      START_TIME: "start_time",
+      OPEN: "open",
+      HIGH: "high",
+      LOW: "low",
+      CLOSE: "close",
+      DIRECT_VOLUME: "direct_volume",
+      SWAP_VOLUME: "swap_volume",
+      THE_WINDOW: "the_window",
+      ASSET_START: "asset_start",
+      ASSET_END: "asset_end",
+    },
+  },
+  DEX_EX_AGGREGATE_SUMMARY: {
+    name: "dex_ex_aggregate_summary",
+    fields: {
+      HEIGHT: "height",
+      THE_WINDOW: "the_window",
+    },
+  },
+  DEX_EX_PAIRS_SUMMARY: {
+    name: "dex_ex_pairs_summary",
+    fields: {
+      HEIGHT: "height",
+      THE_WINDOW: "the_window",
+    },
+  },
+  DEX_EX_POSITION_STATE: {
+    name: "dex_ex_position_state",
+    fields: {
+      POSITION_ID: "position_id",
+      HEIGHT: "height",
+    },
+  },
+  DEX_EX_POSITION_EXECUTIONS: {
+    name: "dex_ex_position_executions",
+    fields: {
+      POSITION_ID: "position_id",
+      HEIGHT: "height",
+    },
+  },
+  DEX_EX_POSITION_RESERVES: {
+    name: "dex_ex_position_reserves",
+    fields: {
+      POSITION_ID: "position_id",
+      RESERVES_1: "reserves_1",
+      RESERVES_2: "reserves_2",
+      HEIGHT: "height",
+    },
+  },
+  DEX_EX_POSITION_WITHDRAWALS: {
+    name: "dex_ex_position_withdrawals",
+    fields: {
+      POSITION_ID: "position_id",
+      HEIGHT: "height",
+    },
+  },
+  DEX_EX_BLOCK_SUMMARY: {
+    name: "dex_ex_block_summary",
+    fields: {
+      HEIGHT: "height",
+    },
+  },
+  DEX_EX_TRANSACTIONS: {
+    name: "dex_ex_transactions",
+    fields: {
+      HEIGHT: "height",
+    },
+  },
 
   // LQT data
-  LQT_SUMMARY: "lqt.summary",
-  LQT_LPS: "lqt.lps",
-  LQT_GAUGE: "lqt.gauge",
-  LQT_DELEGATOR_SUMMARY: "lqt.delegator_summary",
-  LQT_DELEGATOR_HISTORY: "lqt.delegator_history",
-
-  // Field mappings
-  FIELDS: {
-    // insights_supply fields
-    TOTAL_SUPPLY: "total",
-    STAKED_SUPPLY: "staked",
-    MARKET_CAP: "market_cap",
-    PRICE: "price",
-    PRICE_NUMERAIRE_ASSET_ID: "price_numeraire_asset_id",
-    HEIGHT: "height",
-
-    // supply_total_unstaked fields
-    CIRCULATING: "um",
-    DEX_LIQUIDITY: "dex",
-    AUCTION_LOCKED: "auction",
-    ARBITRAGE_BURNS: "arb",
-    FEE_BURNS: "fees",
-
-    // supply_total_staked fields
-    STAKED_UM: "um",
-    DELEGATED_UM: "del_um",
-    RATE_BPS2: "rate_bps2",
-    VALIDATOR_ID: "validator_id",
-
-    // block_details fields
-    TIMESTAMP: "timestamp",
-    ROOT: "root",
-
-    // dex_ex_price_charts fields
-    START_TIME: "start_time",
-    OPEN: "open",
-    HIGH: "high",
-    LOW: "low",
-    CLOSE: "close",
-    DIRECT_VOLUME: "direct_volume",
-    SWAP_VOLUME: "swap_volume",
-    THE_WINDOW: "the_window",
-    ASSET_START: "asset_start",
-    ASSET_END: "asset_end",
-
-    // dex position fields
-    POSITION_ID: "position_id",
-    RESERVES_1: "reserves_1",
-    RESERVES_2: "reserves_2",
-
-    // lqt fields
-    EPOCH: "epoch",
-    POINTS: "points",
-    VOLUME: "volume",
-    REWARDS: "rewards",
+  LQT_SUMMARY: {
+    name: "lqt.summary",
+    fields: {
+      EPOCH: "epoch",
+      HEIGHT: "height",
+    },
+  },
+  LQT_LPS: {
+    name: "lqt.lps",
+    fields: {
+      EPOCH: "epoch",
+      POINTS: "points",
+      HEIGHT: "height",
+    },
+  },
+  LQT_GAUGE: {
+    name: "lqt.gauge",
+    fields: {
+      EPOCH: "epoch",
+      HEIGHT: "height",
+    },
+  },
+  LQT_DELEGATOR_SUMMARY: {
+    name: "lqt.delegator_summary",
+    fields: {
+      EPOCH: "epoch",
+      HEIGHT: "height",
+    },
+  },
+  LQT_DELEGATOR_HISTORY: {
+    name: "lqt.delegator_history",
+    fields: {
+      EPOCH: "epoch",
+      VOLUME: "volume",
+      REWARDS: "rewards",
+      HEIGHT: "height",
+    },
   },
 } as const;
 

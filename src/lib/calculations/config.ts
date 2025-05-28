@@ -74,4 +74,3 @@ export function getCurrentNetworkConfig(): CalculationConfig {
   const network = (process.env.NEXT_PUBLIC_NETWORK as keyof typeof NETWORK_CONFIGS) || "mainnet";
   return getNetworkConfig(network);
 }
-

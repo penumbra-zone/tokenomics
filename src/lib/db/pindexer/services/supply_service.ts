@@ -25,16 +25,16 @@ export class SupplyService {
   async getLatestUnstakedSupplyComponents(): Promise<UnstakedSupplyComponents | null> {
     try {
       const result = await this.db
-        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED)
+        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name)
         .select([
-          DATA_SOURCES.FIELDS.CIRCULATING,
-          DATA_SOURCES.FIELDS.AUCTION_LOCKED,
-          DATA_SOURCES.FIELDS.DEX_LIQUIDITY,
-          DATA_SOURCES.FIELDS.ARBITRAGE_BURNS,
-          DATA_SOURCES.FIELDS.FEE_BURNS,
-          DATA_SOURCES.FIELDS.HEIGHT,
+          DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.CIRCULATING,
+          DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.AUCTION_LOCKED,
+          DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.DEX_LIQUIDITY,
+          DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS,
+          DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS,
+          DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT,
         ])
-        .orderBy(DATA_SOURCES.FIELDS.HEIGHT, "desc")
+        .orderBy(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT, "desc")
         .limit(1)
         .executeTakeFirst();
 
@@ -64,14 +64,14 @@ export class SupplyService {
       }
 
       const results = await this.db
-        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_STAKED)
+        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_STAKED.name)
         .select([
-          DATA_SOURCES.FIELDS.STAKED_UM,
-          DATA_SOURCES.FIELDS.DELEGATED_UM,
-          DATA_SOURCES.FIELDS.RATE_BPS2,
-          DATA_SOURCES.FIELDS.VALIDATOR_ID,
+          DATA_SOURCES.SUPPLY_TOTAL_STAKED.fields.STAKED_UM,
+          DATA_SOURCES.SUPPLY_TOTAL_STAKED.fields.DELEGATED_UM,
+          DATA_SOURCES.SUPPLY_TOTAL_STAKED.fields.RATE_BPS2,
+          DATA_SOURCES.SUPPLY_TOTAL_STAKED.fields.VALIDATOR_ID,
         ])
-        .where(DATA_SOURCES.FIELDS.HEIGHT, "=", String(height))
+        .where(DATA_SOURCES.SUPPLY_TOTAL_STAKED.fields.HEIGHT, "=", String(height))
         .execute();
 
       return results.map((row: RawDelegatedSupplyRow) => ({
@@ -97,13 +97,13 @@ export class SupplyService {
       }
 
       const result = await this.db
-        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED)
+        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name)
         .select(
-          sql<number>`(${DATA_SOURCES.FIELDS.CIRCULATING} + ${DATA_SOURCES.FIELDS.AUCTION_LOCKED} + ${DATA_SOURCES.FIELDS.DEX_LIQUIDITY} + ${DATA_SOURCES.FIELDS.ARBITRAGE_BURNS} + ${DATA_SOURCES.FIELDS.FEE_BURNS})`.as(
+          sql<number>`(${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.CIRCULATING} + ${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.AUCTION_LOCKED} + ${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.DEX_LIQUIDITY} + ${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS} + ${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS})`.as(
             "total_unstaked"
           )
         )
-        .where(DATA_SOURCES.FIELDS.HEIGHT, "=", String(height))
+        .where(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT, "=", String(height))
         .executeTakeFirst();
 
       return result?.total_unstaked ?? null;
@@ -124,9 +124,9 @@ export class SupplyService {
       }
 
       const result = await this.db
-        .selectFrom(DATA_SOURCES.INSIGHTS_SUPPLY)
-        .select([`${DATA_SOURCES.FIELDS.TOTAL_SUPPLY} as totalSupply`])
-        .where(DATA_SOURCES.FIELDS.HEIGHT, "=", String(height))
+        .selectFrom(DATA_SOURCES.INSIGHTS_SUPPLY.name)
+        .select([`${DATA_SOURCES.INSIGHTS_SUPPLY.fields.TOTAL_SUPPLY} as totalSupply`])
+        .where(DATA_SOURCES.INSIGHTS_SUPPLY.fields.HEIGHT, "=", String(height))
         .executeTakeFirst();
 
       return result?.totalSupply ? FIELD_TRANSFORMERS.toTokenAmount(result.totalSupply) : null;
@@ -154,21 +154,32 @@ export class SupplyService {
   > {
     try {
       const results = await this.db
-        .selectFrom(DATA_SOURCES.INSIGHTS_SUPPLY)
+        .selectFrom(DATA_SOURCES.INSIGHTS_SUPPLY.name)
         .innerJoin(
-          DATA_SOURCES.BLOCK_DETAILS,
-          `${DATA_SOURCES.BLOCK_DETAILS}.${DATA_SOURCES.FIELDS.HEIGHT}`,
-          `${DATA_SOURCES.INSIGHTS_SUPPLY}.${DATA_SOURCES.FIELDS.HEIGHT}`
+          DATA_SOURCES.BLOCK_DETAILS.name,
+          `${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.HEIGHT}`,
+          `${DATA_SOURCES.INSIGHTS_SUPPLY.name}.${DATA_SOURCES.INSIGHTS_SUPPLY.fields.HEIGHT}`
         )
         .select([
-          `${DATA_SOURCES.INSIGHTS_SUPPLY}.${DATA_SOURCES.FIELDS.HEIGHT}`,
-          `${DATA_SOURCES.INSIGHTS_SUPPLY}.${DATA_SOURCES.FIELDS.TOTAL_SUPPLY}`,
-          `${DATA_SOURCES.INSIGHTS_SUPPLY}.${DATA_SOURCES.FIELDS.STAKED_SUPPLY}`,
-          `${DATA_SOURCES.BLOCK_DETAILS}.${DATA_SOURCES.FIELDS.TIMESTAMP}`,
+          `${DATA_SOURCES.INSIGHTS_SUPPLY.name}.${DATA_SOURCES.INSIGHTS_SUPPLY.fields.HEIGHT}`,
+          `${DATA_SOURCES.INSIGHTS_SUPPLY.name}.${DATA_SOURCES.INSIGHTS_SUPPLY.fields.TOTAL_SUPPLY}`,
+          `${DATA_SOURCES.INSIGHTS_SUPPLY.name}.${DATA_SOURCES.INSIGHTS_SUPPLY.fields.STAKED_SUPPLY}`,
+          `${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`,
         ])
-        .where(`${DATA_SOURCES.BLOCK_DETAILS}.${DATA_SOURCES.FIELDS.TIMESTAMP}`, ">=", startDate)
-        .where(`${DATA_SOURCES.BLOCK_DETAILS}.${DATA_SOURCES.FIELDS.TIMESTAMP}`, "<=", endDate)
-        .orderBy(`${DATA_SOURCES.INSIGHTS_SUPPLY}.${DATA_SOURCES.FIELDS.HEIGHT}`, "asc")
+        .where(
+          `${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`,
+          ">=",
+          startDate
+        )
+        .where(
+          `${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`,
+          "<=",
+          endDate
+        )
+        .orderBy(
+          `${DATA_SOURCES.INSIGHTS_SUPPLY.name}.${DATA_SOURCES.INSIGHTS_SUPPLY.fields.HEIGHT}`,
+          "asc"
+        )
         .execute();
 
       return results.map((row) => ({

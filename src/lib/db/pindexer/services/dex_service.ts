@@ -18,9 +18,9 @@ export class DexService {
       }
 
       return this.db
-        .selectFrom(DATA_SOURCES.DEX_EX_AGGREGATE_SUMMARY)
+        .selectFrom(DATA_SOURCES.DEX_EX_AGGREGATE_SUMMARY.name)
         .selectAll()
-        .where(DATA_SOURCES.FIELDS.THE_WINDOW, "=", window)
+        .where(DATA_SOURCES.DEX_EX_AGGREGATE_SUMMARY.fields.THE_WINDOW, "=", window)
         .executeTakeFirst();
     } catch (error) {
       console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
@@ -35,9 +35,9 @@ export class DexService {
       }
 
       return this.db
-        .selectFrom(DATA_SOURCES.DEX_EX_PAIRS_SUMMARY)
+        .selectFrom(DATA_SOURCES.DEX_EX_PAIRS_SUMMARY.name)
         .selectAll()
-        .where(DATA_SOURCES.FIELDS.THE_WINDOW, "=", window)
+        .where(DATA_SOURCES.DEX_EX_PAIRS_SUMMARY.fields.THE_WINDOW, "=", window)
         .orderBy("direct_volume_indexing_denom_over_window", "desc")
         .execute();
     } catch (error) {
@@ -53,9 +53,9 @@ export class DexService {
       }
 
       return this.db
-        .selectFrom(DATA_SOURCES.DEX_EX_POSITION_STATE)
+        .selectFrom(DATA_SOURCES.DEX_EX_POSITION_STATE.name)
         .selectAll()
-        .where(DATA_SOURCES.FIELDS.POSITION_ID, "=", positionId)
+        .where(DATA_SOURCES.DEX_EX_POSITION_STATE.fields.POSITION_ID, "=", positionId)
         .executeTakeFirst();
     } catch (error) {
       console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
@@ -70,9 +70,9 @@ export class DexService {
       }
 
       return this.db
-        .selectFrom(DATA_SOURCES.DEX_EX_POSITION_EXECUTIONS)
+        .selectFrom(DATA_SOURCES.DEX_EX_POSITION_EXECUTIONS.name)
         .selectAll()
-        .where(DATA_SOURCES.FIELDS.POSITION_ID, "=", positionId)
+        .where(DATA_SOURCES.DEX_EX_POSITION_EXECUTIONS.fields.POSITION_ID, "=", positionId)
         .orderBy("time", "desc")
         .execute();
     } catch (error) {
@@ -88,9 +88,9 @@ export class DexService {
       }
 
       return this.db
-        .selectFrom(DATA_SOURCES.DEX_EX_POSITION_RESERVES)
+        .selectFrom(DATA_SOURCES.DEX_EX_POSITION_RESERVES.name)
         .selectAll()
-        .where(DATA_SOURCES.FIELDS.POSITION_ID, "=", positionId)
+        .where(DATA_SOURCES.DEX_EX_POSITION_RESERVES.fields.POSITION_ID, "=", positionId)
         .orderBy("time", "desc")
         .execute();
     } catch (error) {
@@ -106,9 +106,9 @@ export class DexService {
       }
 
       return this.db
-        .selectFrom(DATA_SOURCES.DEX_EX_POSITION_WITHDRAWALS)
+        .selectFrom(DATA_SOURCES.DEX_EX_POSITION_WITHDRAWALS.name)
         .selectAll()
-        .where(DATA_SOURCES.FIELDS.POSITION_ID, "=", positionId)
+        .where(DATA_SOURCES.DEX_EX_POSITION_WITHDRAWALS.fields.POSITION_ID, "=", positionId)
         .orderBy("time", "desc")
         .execute();
     } catch (error) {
@@ -124,9 +124,9 @@ export class DexService {
       }
 
       return this.db
-        .selectFrom(DATA_SOURCES.DEX_EX_BLOCK_SUMMARY)
+        .selectFrom(DATA_SOURCES.DEX_EX_BLOCK_SUMMARY.name)
         .selectAll()
-        .where(DATA_SOURCES.FIELDS.HEIGHT, "=", height)
+        .where(DATA_SOURCES.DEX_EX_BLOCK_SUMMARY.fields.HEIGHT, "=", height)
         .executeTakeFirst();
     } catch (error) {
       console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
@@ -141,7 +141,7 @@ export class DexService {
       }
 
       return this.db
-        .selectFrom(DATA_SOURCES.DEX_EX_TRANSACTIONS)
+        .selectFrom(DATA_SOURCES.DEX_EX_TRANSACTIONS.name)
         .selectAll()
         .where("transaction_id", "=", txHash)
         .executeTakeFirst();
@@ -164,12 +164,12 @@ export class DexService {
       }
 
       return this.db
-        .selectFrom(DATA_SOURCES.DEX_EX_PRICE_CHARTS)
+        .selectFrom(DATA_SOURCES.DEX_EX_PRICE_CHARTS.name)
         .selectAll()
-        .where(DATA_SOURCES.FIELDS.ASSET_START, "=", assetStart)
-        .where(DATA_SOURCES.FIELDS.ASSET_END, "=", assetEnd)
-        .where(DATA_SOURCES.FIELDS.THE_WINDOW, "=", window)
-        .orderBy(DATA_SOURCES.FIELDS.START_TIME, "asc")
+        .where(DATA_SOURCES.DEX_EX_PRICE_CHARTS.fields.ASSET_START, "=", assetStart)
+        .where(DATA_SOURCES.DEX_EX_PRICE_CHARTS.fields.ASSET_END, "=", assetEnd)
+        .where(DATA_SOURCES.DEX_EX_PRICE_CHARTS.fields.THE_WINDOW, "=", window)
+        .orderBy(DATA_SOURCES.DEX_EX_PRICE_CHARTS.fields.START_TIME, "asc")
         .execute();
     } catch (error) {
       console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
@@ -187,10 +187,10 @@ export class DexService {
       const validLimit = Math.min(Math.max(1, limit), DB_CONFIG.MAX_HISTORY_LIMIT);
 
       return this.db
-        .selectFrom(DATA_SOURCES.DEX_EX_PRICE_CHARTS)
+        .selectFrom(DATA_SOURCES.DEX_EX_PRICE_CHARTS.name)
         .selectAll()
-        .where(DATA_SOURCES.FIELDS.START_TIME, ">=", startTime)
-        .orderBy(DATA_SOURCES.FIELDS.START_TIME, "desc")
+        .where(DATA_SOURCES.DEX_EX_PRICE_CHARTS.fields.START_TIME, ">=", startTime)
+        .orderBy(DATA_SOURCES.DEX_EX_PRICE_CHARTS.fields.START_TIME, "desc")
         .limit(validLimit)
         .execute();
     } catch (error) {

@@ -30,13 +30,13 @@ export class MarketService {
   async getLatestMarketData(): Promise<CurrentMarketData | null> {
     try {
       const result = await this.db
-        .selectFrom(DATA_SOURCES.INSIGHTS_SUPPLY)
+        .selectFrom(DATA_SOURCES.INSIGHTS_SUPPLY.name)
         .select([
-          DATA_SOURCES.FIELDS.PRICE,
-          DATA_SOURCES.FIELDS.MARKET_CAP,
+          DATA_SOURCES.INSIGHTS_SUPPLY.fields.PRICE,
+          DATA_SOURCES.INSIGHTS_SUPPLY.fields.MARKET_CAP,
         ])
-        .where(DATA_SOURCES.FIELDS.PRICE, "is not", null)
-        .orderBy(DATA_SOURCES.FIELDS.HEIGHT, "desc")
+        .where(DATA_SOURCES.INSIGHTS_SUPPLY.fields.PRICE, "is not", null)
+        .orderBy(DATA_SOURCES.INSIGHTS_SUPPLY.fields.HEIGHT, "desc")
         .limit(1)
         .executeTakeFirst();
 
@@ -76,8 +76,8 @@ export class MarketService {
       const dailyResults = await this.db
         .with("daily_blocks", (eb) =>
           eb
-            .selectFrom(`${DATA_SOURCES.INSIGHTS_SUPPLY} as i`)
-            .innerJoin(`${DATA_SOURCES.BLOCK_DETAILS} as b`, "b.height", "i.height")
+            .selectFrom(`${DATA_SOURCES.INSIGHTS_SUPPLY.name} as i`)
+            .innerJoin(`${DATA_SOURCES.BLOCK_DETAILS.name} as b`, "b.height", "i.height")
             .select([
               "i.height",
               "i.price",
@@ -115,8 +115,8 @@ export class MarketService {
   async getPriceHistoryRange(startDate: Date, endDate: Date): Promise<PriceHistoryEntry[]> {
     try {
       const results = await this.db
-        .selectFrom(`${DATA_SOURCES.INSIGHTS_SUPPLY} as i`)
-        .innerJoin(`${DATA_SOURCES.BLOCK_DETAILS} as b`, "b.height", "i.height")
+        .selectFrom(`${DATA_SOURCES.INSIGHTS_SUPPLY.name} as i`)
+        .innerJoin(`${DATA_SOURCES.BLOCK_DETAILS.name} as b`, "b.height", "i.height")
         .select(["i.height", "i.price", "i.market_cap", sql<string>`DATE(b.timestamp)`.as("date")])
         .where("i.price", "is not", null)
         .where("b.timestamp", ">=", startDate)
@@ -147,16 +147,16 @@ export class MarketService {
   } | null> {
     try {
       const result = await this.db
-        .selectFrom(DATA_SOURCES.INSIGHTS_SUPPLY)
+        .selectFrom(DATA_SOURCES.INSIGHTS_SUPPLY.name)
         .select([
-          DATA_SOURCES.FIELDS.PRICE,
-          DATA_SOURCES.FIELDS.MARKET_CAP,
-          DATA_SOURCES.FIELDS.TOTAL_SUPPLY,
-          DATA_SOURCES.FIELDS.STAKED_SUPPLY,
-          DATA_SOURCES.FIELDS.HEIGHT,
+          DATA_SOURCES.INSIGHTS_SUPPLY.fields.PRICE,
+          DATA_SOURCES.INSIGHTS_SUPPLY.fields.MARKET_CAP,
+          DATA_SOURCES.INSIGHTS_SUPPLY.fields.TOTAL_SUPPLY,
+          DATA_SOURCES.INSIGHTS_SUPPLY.fields.STAKED_SUPPLY,
+          DATA_SOURCES.INSIGHTS_SUPPLY.fields.HEIGHT,
         ])
-        .where(DATA_SOURCES.FIELDS.PRICE, "is not", null)
-        .orderBy(DATA_SOURCES.FIELDS.HEIGHT, "desc")
+        .where(DATA_SOURCES.INSIGHTS_SUPPLY.fields.PRICE, "is not", null)
+        .orderBy(DATA_SOURCES.INSIGHTS_SUPPLY.fields.HEIGHT, "desc")
         .limit(1)
         .executeTakeFirst();
 
@@ -186,10 +186,10 @@ export class MarketService {
       }
 
       const result = await this.db
-        .selectFrom(DATA_SOURCES.INSIGHTS_SUPPLY)
-        .select(DATA_SOURCES.FIELDS.PRICE)
-        .where(DATA_SOURCES.FIELDS.HEIGHT, "=", String(height))
-        .where(DATA_SOURCES.FIELDS.PRICE, "is not", null)
+        .selectFrom(DATA_SOURCES.INSIGHTS_SUPPLY.name)
+        .select(DATA_SOURCES.INSIGHTS_SUPPLY.fields.PRICE)
+        .where(DATA_SOURCES.INSIGHTS_SUPPLY.fields.HEIGHT, "=", String(height))
+        .where(DATA_SOURCES.INSIGHTS_SUPPLY.fields.PRICE, "is not", null)
         .executeTakeFirst();
 
       return result ? FIELD_TRANSFORMERS.toTokenAmount(result.price) : null;

@@ -150,9 +150,10 @@ export class Pindexer extends AbstractPindexerConnection {
     if (latestStakedHeight === null) {
       throw new Error("No staked height found");
     }
-    
-    delegatedSupplyComponents =
-      await this.supplyService.getDelegatedSupplyComponentsByHeight(latestStakedHeight || 0);
+
+    delegatedSupplyComponents = await this.supplyService.getDelegatedSupplyComponentsByHeight(
+      latestStakedHeight || 0
+    );
 
     // Use centralized calculations for supply components
     const totalUnstaked = calculateTotalUnstakedSupply(unstakedComponents);
