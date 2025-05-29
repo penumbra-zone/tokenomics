@@ -1,6 +1,7 @@
 "use client";
 
 import CardWrapper from "@/common/components/cards/CardWrapper";
+import { LoadingOverlay } from "@/common/components/LoadingOverlay";
 import { LoadingSpinner } from "@/common/components/LoadingSpinner";
 import { formatDateForChart } from "@/lib/utils";
 import { useGetPriceHistoryQuery } from "@/store/api/tokenomicsApi";
@@ -24,20 +25,12 @@ export default function PriceHistoryChart({
     isFetching,
   } = useGetPriceHistoryQuery(currentSelectedDay);
 
-  if (isLoading || isFetching || !priceHistoryData) {
-    return (
-      <CardWrapper>
-        <div className="flex items-center justify-center h-[400px]">
-          <LoadingSpinner size="lg" />
-        </div>
-      </CardWrapper>
-    );
-  }
-
-  const chartData = priceHistoryData.priceHistory.map((item) => ({
+  const chartData = priceHistoryData?.priceHistory.map((item) => ({
     x: formatDateForChart(item.date),
     y: item.price,
   }));
+
+  const showLoadingOverlay = isFetching && priceHistoryData;
 
   return (
     <CardWrapper>
@@ -46,17 +39,24 @@ export default function PriceHistoryChart({
         selectedDay={currentSelectedDay}
         onDaysChange={onDaysChange}
       />
-      <div className="h-[400px]">
-        <BarLineChart
-          data={chartData}
-          selectedDay={currentSelectedDay}
-          yLabelFormatter={(value) => `$${value.toFixed(2)}`}
-          showLine={true}
-          showBars={false}
-          areaLabel="Price"
-          minYZero={true}
-        />
-      </div>
+      {isLoading ? (
+        <div className="flex items-center justify-center h-[400px]">
+          <LoadingSpinner size="lg" />
+        </div>
+      ) : (
+        <div className="h-[400px]">
+          <BarLineChart
+            data={chartData ?? []}
+            selectedDay={currentSelectedDay}
+            yLabelFormatter={(value) => `$${value.toFixed(2)}`}
+            showLine={true}
+            showBars={false}
+            areaLabel="Price"
+            minYZero={true}
+          />
+        </div>
+      )}
+      {showLoadingOverlay && <LoadingOverlay />}
     </CardWrapper>
   );
 }
