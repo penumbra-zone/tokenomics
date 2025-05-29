@@ -1,34 +1,48 @@
 "use client";
 
-import { PriceHistory } from "@/store/api/tokenomicsApi";
+import { formatDateForChart } from "@/lib/utils";
+import { useGetPriceHistoryQuery } from "@/store/api/tokenomicsApi";
 import { useState } from "react";
 
+import { LoadingSpinner } from "@/common/components/LoadingSpinner";
 import TogglePill from "@/common/components/TogglePill";
 import BarLineChart from "./BarLineChart";
 import DaySelector from "./DaySelector";
 
 interface InflationRateChartProps {
-  data: PriceHistory[];
   onDaysChange: (days: number) => void;
   dayOptions?: number[];
   currentSelectedDay: number;
 }
 
 export default function InflationRateChart({
-  data,
   onDaysChange,
   dayOptions = [7, 30, 90],
   currentSelectedDay,
 }: InflationRateChartProps) {
   const [mode, setMode] = useState<"relative" | "absolute">("relative");
 
-  const chartData = data.map((item, index) => {
-    if (index === 0) return { x: item.date, y: 0 };
-    const prevPrice = data[index - 1].price;
+  const {
+    data: priceHistoryData,
+    isLoading,
+    isFetching,
+  } = useGetPriceHistoryQuery(currentSelectedDay);
+
+  if (isLoading || isFetching || !priceHistoryData) {
+    return (
+      <div className="flex items-center justify-center h-[400px]">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  const chartData = priceHistoryData.priceHistory.map((item, index) => {
+    if (index === 0) return { x: formatDateForChart(item.date), y: 0 };
+    const prevPrice = priceHistoryData.priceHistory[index - 1].price;
     const currentPrice = item.price;
     const inflationRate = ((currentPrice - prevPrice) / prevPrice) * 100;
     return {
-      x: item.date,
+      x: formatDateForChart(item.date),
       y: inflationRate,
     };
   });

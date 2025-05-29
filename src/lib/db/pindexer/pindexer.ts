@@ -1,4 +1,5 @@
 import { Kysely } from "kysely";
+import { AssetId } from '@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb';
 
 import { dbClient as defaultDb } from "./client";
 import { DB } from "./schema";
@@ -34,6 +35,8 @@ import {
   TokenDistribution,
   TokenMetrics,
   UnstakedSupplyComponents,
+  DurationWindow,
+  PriceHistoryResult,
 } from "./types";
 
 export class Pindexer extends AbstractPindexerConnection {
@@ -181,8 +184,7 @@ export class Pindexer extends AbstractPindexerConnection {
 
     const allBurnData = [...historicalBurnData, currentBurnData];
 
-    const totalSupply =
-      (await this.supplyService.getHistoricalTotalSupplyFromInsights(blockHeight)) || 0;
+    const totalSupply = Number((await this.supplyService.getInsightsSupply(blockHeight)).totalSupply);
     const burnMetrics = calculateBurnMetrics(allBurnData, totalSupply, this.calculationContext);
 
     const burnRateTimeSeries = calculateBurnRateTimeSeries(historicalBurnData);
@@ -201,9 +203,14 @@ export class Pindexer extends AbstractPindexerConnection {
     };
   }
 
-  async getPriceHistory(days: number): Promise<PriceHistoryEntry[]> {
-    const historyData = await this.marketService.getPriceHistory(days);
-    return historyData;
+  async getPriceHistory(params: {
+    baseAsset: AssetId;
+    quoteAsset: AssetId;
+    chainId: string;
+    days?: number;
+    window?: DurationWindow;
+  }): Promise<PriceHistoryResult> {
+    return await this.marketService.getPriceHistory(params);
   }
 
   async getTokenDistribution(): Promise<TokenDistribution[]> {

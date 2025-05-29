@@ -1,3 +1,4 @@
+import { AssetId } from '@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb';
 import {
   AbstractPindexerConnection,
   BurnMetrics,
@@ -5,6 +6,7 @@ import {
   IssuanceMetrics,
   LqtMetrics,
   PriceHistoryEntry,
+  PriceHistoryResult,
   SummaryMetrics,
   SupplyMetrics,
   TokenDistribution,
@@ -202,10 +204,14 @@ export class MockPindexerConnection extends AbstractPindexerConnection {
     };
   }
 
-  async getPriceHistory(
-    days: number = 90,
-    window: DurationWindow = "1d"
-  ): Promise<PriceHistoryEntry[]> {
+  async getPriceHistory(params: {
+    baseAsset: AssetId;
+    quoteAsset: AssetId;
+    chainId: string;
+    days?: number;
+    window?: DurationWindow;
+  }): Promise<PriceHistoryResult> {
+    const { days = 90, window = "1d" } = params;
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - (days - 1));
     let price = 2.0;
@@ -214,16 +220,22 @@ export class MockPindexerConnection extends AbstractPindexerConnection {
     for (let i = 0; i < days; i++) {
       const change = (Math.random() - 0.5) * 0.08;
       price = Math.max(0.5, price + change);
-      marketCap = Math.round(price * 100_000_000 + (Math.random() - 0.5) * 1_000_000);
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
       data.push({
-        date: date.toISOString().slice(0, 10),
+        date: date,
         price: Number(price.toFixed(2)),
-        marketCap,
       });
     }
-    return data;
+
+    const allTimeHigh = Math.max(...data.map((entry) => entry.price));
+    const allTimeLow = Math.min(...data.map((entry) => entry.price));
+
+    return {
+      priceHistory: data,
+      allTimeHigh,
+      allTimeLow,
+    };
   }
 
   async getTokenDistribution(): Promise<TokenDistribution[]> {

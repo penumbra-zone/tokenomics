@@ -1,4 +1,4 @@
-import { IssuanceMetrics, SummaryMetrics } from "@/lib/db/pindexer";
+import { IssuanceMetrics, PriceHistoryEntry, SummaryMetrics } from "@/lib/db/pindexer";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export interface SupplyMetrics {
@@ -60,9 +60,9 @@ export interface TokenDistribution {
 }
 
 export interface PriceHistory {
-  date: string;
-  price: number;
-  marketCap: number;
+  priceHistory: PriceHistoryEntry[];
+  allTimeHigh: number;
+  allTimeLow: number;
 }
 
 export interface SocialMetrics {
@@ -99,7 +99,7 @@ export const tokenomicsApi = createApi({
       query: () => "token-distribution",
       providesTags: ["TokenDistribution"],
     }),
-    getPriceHistory: builder.query<PriceHistory[], number>({
+    getPriceHistory: builder.query<PriceHistory, number>({
       query: (days) => `price-history?days=${days}`,
     }),
     getSummaryMetrics: builder.query<SummaryMetrics, void>({

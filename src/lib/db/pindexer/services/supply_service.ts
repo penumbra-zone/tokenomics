@@ -53,66 +53,6 @@ export class SupplyService {
     }
   }
 
-  /**
-   * Fetches delegated supply components for a given block height.
-   * @param height The block height to fetch delegated supply for.
-   */
-  async getDelegatedSupplyComponentsByHeight(height: string): Promise<DelegatedSupplyComponent[]> {
-    try {
-      if (!height || Number(height) < 0) {
-        throw new Error(DB_ERROR_MESSAGES.INVALID_HEIGHT);
-      }
-
-      const results = await this.db
-        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_STAKED.name)
-        .select([
-          DATA_SOURCES.SUPPLY_TOTAL_STAKED.fields.STAKED_UM,
-          DATA_SOURCES.SUPPLY_TOTAL_STAKED.fields.DELEGATED_UM,
-          DATA_SOURCES.SUPPLY_TOTAL_STAKED.fields.RATE_BPS2,
-          DATA_SOURCES.SUPPLY_TOTAL_STAKED.fields.VALIDATOR_ID,
-        ])
-        .where(DATA_SOURCES.SUPPLY_TOTAL_STAKED.fields.HEIGHT, "=", String(height))
-        .execute();
-
-      return results.map((row: RawDelegatedSupplyRow) => ({
-        um: FIELD_TRANSFORMERS.toTokenAmount(row.um),
-        del_um: FIELD_TRANSFORMERS.toTokenAmount(row.del_um),
-        rate_bps2: FIELD_TRANSFORMERS.toTokenAmount(row.rate_bps2),
-      }));
-    } catch (error) {
-      console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
-      throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
-    }
-  }
-
-  /**
-   * Fetches the sum of unstaked supply components (um, auction, dex, arb, fees)
-   * from supply_total_unstaked at a specific block height.
-   * @param height The block height.
-   */
-  async getHistoricalUnstakedSupplySumByHeight(height: string): Promise<number | null> {
-    try {
-      if (!height || Number(height) < 0) {
-        throw new Error(DB_ERROR_MESSAGES.INVALID_HEIGHT);
-      }
-
-      const result = await this.db
-        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name)
-        .select(
-          sql<number>`(${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.CIRCULATING} + ${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.AUCTION_LOCKED} + ${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.DEX_LIQUIDITY} + ${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS} + ${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS})`.as(
-            "total_unstaked"
-          )
-        )
-        .where(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT, "=", String(height))
-        .executeTakeFirst();
-
-      return result?.total_unstaked ?? null;
-    } catch (error) {
-      console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
-      throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
-    }
-  }
-
   async getInsightsSupply(blockHeight: string): Promise<{
     totalSupply: string;
     stakedSupply: string;
@@ -134,29 +74,6 @@ export class SupplyService {
         .limit(1);
 
       return query.executeTakeFirstOrThrow();
-    } catch (error) {
-      console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
-      throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
-    }
-  }
-
-  /**
-   * Fetches the total supply from the insights_supply table for a specific block height.
-   * @param height The block height.
-   */
-  async getHistoricalTotalSupplyFromInsights(height: string): Promise<number | null> {
-    try {
-      if (!height || Number(height) < 0) {
-        throw new Error(DB_ERROR_MESSAGES.INVALID_HEIGHT);
-      }
-
-      const result = await this.db
-        .selectFrom(DATA_SOURCES.INSIGHTS_SUPPLY.name)
-        .select([`${DATA_SOURCES.INSIGHTS_SUPPLY.fields.TOTAL_SUPPLY} as totalSupply`])
-        .where(DATA_SOURCES.INSIGHTS_SUPPLY.fields.HEIGHT, "=", String(height))
-        .executeTakeFirst();
-
-      return result?.totalSupply ? FIELD_TRANSFORMERS.toTokenAmount(result.totalSupply) : null;
     } catch (error) {
       console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
       throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);

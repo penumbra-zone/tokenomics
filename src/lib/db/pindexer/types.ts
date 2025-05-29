@@ -1,4 +1,6 @@
 // --- Types ---
+import { AssetId } from '@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb';
+
 export const durationWindows = ["1m", "15m", "1h", "4h", "1d", "1w", "1mo"] as const;
 export type DurationWindow = (typeof durationWindows)[number];
 
@@ -59,9 +61,14 @@ export interface IssuanceMetrics {
 }
 
 export interface PriceHistoryEntry {
-  date: string;
+  date: Date;
   price: number;
-  marketCap: number;
+}
+
+export interface PriceHistoryResult {
+  priceHistory: PriceHistoryEntry[];
+  allTimeHigh: number;
+  allTimeLow: number;
 }
 
 export interface TokenDistribution {
@@ -121,7 +128,13 @@ export abstract class AbstractPindexerConnection {
   abstract getBurnMetrics(): Promise<BurnMetrics>;
   abstract getSupplyMetrics(): Promise<SupplyMetrics>;
   abstract getIssuanceMetrics(): Promise<IssuanceMetrics>;
-  abstract getPriceHistory(days: number, window: DurationWindow): Promise<PriceHistoryEntry[]>;
+  abstract getPriceHistory(params: {
+    baseAsset: AssetId;
+    quoteAsset: AssetId;
+    chainId: string;
+    days?: number;
+    window?: DurationWindow;
+  }): Promise<PriceHistoryResult>;
   abstract getTokenDistribution(): Promise<TokenDistribution[]>;
   abstract getTokenMetrics(): Promise<TokenMetrics>;
 }
