@@ -5,7 +5,8 @@ import { LoadingOverlay } from "@/common/components/LoadingOverlay";
 import { LoadingSpinner } from "@/common/components/LoadingSpinner";
 import { formatDateForChart } from "@/lib/utils";
 import { useGetPriceHistoryQuery } from "@/store/api/tokenomicsApi";
-import BarLineChart from "./BarLineChart";
+import { useEffect, useState } from "react";
+import BarLineChart, { BarLineChartData } from "./BarLineChart";
 import DaySelector from "./DaySelector";
 
 interface PriceHistoryChartProps {
@@ -19,32 +20,41 @@ export default function PriceHistoryChart({
   dayOptions = [7, 30, 90],
   currentSelectedDay,
 }: PriceHistoryChartProps) {
+  const [chartData, setChartData] = useState<BarLineChartData[]>([]);
+
   const {
     data: priceHistoryData,
     isLoading,
     isFetching,
   } = useGetPriceHistoryQuery(currentSelectedDay);
 
-  const chartData = priceHistoryData?.priceHistory.map((item) => ({
-    x: formatDateForChart(item.date),
-    y: item.price,
-  }));
+  useEffect(() => {
+    if (priceHistoryData) {
+      setChartData(
+        priceHistoryData.priceHistory.map((item) => ({
+          x: formatDateForChart(item.date),
+          y: item.price,
+        }))
+      );
+    }
+  }, [priceHistoryData]);
 
   const showLoadingOverlay = isFetching && priceHistoryData;
 
   return (
-    <CardWrapper>
+    <CardWrapper className="relative">
+      {showLoadingOverlay && <LoadingOverlay />}
       <DaySelector
         dayOptions={dayOptions}
         selectedDay={currentSelectedDay}
         onDaysChange={onDaysChange}
       />
-      {isLoading ? (
-        <div className="flex items-center justify-center h-[400px]">
-          <LoadingSpinner size="lg" />
-        </div>
-      ) : (
-        <div className="h-[400px]">
+      <div className="h-[450px]">
+        {isLoading ? (
+          <div className="flex items-center justify-center h-[400px]">
+            <LoadingSpinner size="lg" />
+          </div>
+        ) : (
           <BarLineChart
             data={chartData ?? []}
             selectedDay={currentSelectedDay}
@@ -54,9 +64,8 @@ export default function PriceHistoryChart({
             areaLabel="Price"
             minYZero={true}
           />
-        </div>
-      )}
-      {showLoadingOverlay && <LoadingOverlay />}
+        )}
+      </div>
     </CardWrapper>
   );
 }

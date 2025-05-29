@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 import { useState } from "react";
 
-import CardWrapper from "@/common/components/cards/CardWrapper";
+import { HintCard } from "@/common/components/cards/HintCard";
 
 // Import chart component with SSR disabled
 const InflationRateChart = dynamic(
@@ -14,7 +14,6 @@ const DAY_OPTIONS = [7, 30, 90];
 const DEFAULT_DAYS = 30;
 
 export interface InflationRateCardProps {
-  // Remove the external props since we're managing state internally now
   dayOptions?: number[];
 }
 
@@ -27,14 +26,19 @@ export function InflationRateCard({ dayOptions = DAY_OPTIONS }: InflationRateCar
   };
 
   return (
-    <CardWrapper>
-      <div className="h-[400px]">
+    <div className="h-full flex flex-col gap-4">
+      <div className="flex-1 min-h-[450px]">
         <InflationRateChart
           onDaysChange={handleDaysChange}
           currentSelectedDay={currentSelectedDay}
           dayOptions={dayOptions}
         />
       </div>
-    </CardWrapper>
+
+      <HintCard
+        title="Why is inflation going down?"
+        description="Each block issues the same number of tokens, but the total supply keeps increasing. That means new tokens represent a smaller share of the total, and inflation naturally decreases over time."
+      />
+    </div>
   );
 }

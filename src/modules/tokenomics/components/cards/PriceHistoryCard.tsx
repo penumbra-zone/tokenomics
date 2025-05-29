@@ -27,23 +27,20 @@ export function PriceHistoryCard({ dayOptions = DAY_OPTIONS }: PriceHistoryCardP
     setCurrentSelectedDay(days);
   };
 
-  const {
-    data: priceHistoryData,
-    isLoading,
-    isFetching,
-  } = useGetPriceHistoryQuery(currentSelectedDay);
+  const { data: priceHistoryData, isLoading } = useGetPriceHistoryQuery(currentSelectedDay);
 
   return (
-    <>
-      <div className="relative h-[450px]">
+    <div className="h-full flex flex-col gap-6">
+      <div className="flex-1 min-h-[450px]">
         <PriceHistoryChart
           onDaysChange={handleDaysChange}
           currentSelectedDay={currentSelectedDay}
           dayOptions={dayOptions}
         />
       </div>
-      {/* Metrics grid below chart */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">
+
+      {/* Metrics grid at bottom */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {/* Current Price */}
         <InfoCard
           title="Current Price"
@@ -66,6 +63,6 @@ export function PriceHistoryCard({ dayOptions = DAY_OPTIONS }: PriceHistoryCardP
           valuePrefix="$"
         />
       </div>
-    </>
+    </div>
   );
 }
