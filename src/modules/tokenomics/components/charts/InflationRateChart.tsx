@@ -1,7 +1,7 @@
 "use client";
 
-import { formatDateForChart } from "@/lib/utils";
-import { useGetPriceHistoryQuery } from "@/store/api/tokenomicsApi";
+import { formatDateForChart, formatNumber } from "@/lib/utils";
+import { useGetInflationTimeSeriesQuery } from "@/store/api/tokenomicsApi";
 import { useState } from "react";
 
 import CardWrapper from "@/common/components/cards/CardWrapper";
@@ -25,23 +25,25 @@ export default function InflationRateChart({
   const [mode, setMode] = useState<"relative" | "absolute">("relative");
 
   const {
-    data: priceHistoryData,
+    data: inflationData,
     isLoading,
     isFetching,
-  } = useGetPriceHistoryQuery(currentSelectedDay);
+  } = useGetInflationTimeSeriesQuery(currentSelectedDay);
 
-  const chartData = priceHistoryData?.priceHistory.map((item, index) => {
-    if (index === 0) return { x: formatDateForChart(item.date), y: 0 };
-    const prevPrice = priceHistoryData.priceHistory[index - 1].price;
-    const currentPrice = item.price;
-    const inflationRate = ((currentPrice - prevPrice) / prevPrice) * 100;
-    return {
-      x: formatDateForChart(item.date),
-      y: inflationRate,
-    };
-  });
+  const chartData = inflationData?.timeSeries.map((item) => ({
+    x: formatDateForChart(item.date),
+    y: mode === "relative" ? item.inflationRate : item.absoluteAmount,
+  }));
 
-  const showLoadingOverlay = isFetching && priceHistoryData;
+  const showLoadingOverlay = isFetching && inflationData;
+
+  const valueFormatter = (value: number) => {
+    if (mode === "relative") {
+      return `${formatNumber(value, 2)}%`;
+    } else {
+      return `${formatNumber(value, 1)} UM`;
+    }
+  };
 
   return (
     <CardWrapper>
@@ -57,25 +59,22 @@ export default function InflationRateChart({
               selectedDay={currentSelectedDay}
               onDaysChange={onDaysChange}
             />
-            <div className="self-start sm:self-auto">
-              <TogglePill
-                options={[
-                  { label: "Relative", value: "relative" },
-                  { label: "Absolute", value: "absolute" },
-                ]}
-                value={mode}
-                onChange={(val) => setMode(val as "relative" | "absolute")}
-              />
-            </div>
+            <TogglePill
+              options={[
+                { label: "Relative (%)", value: "relative" },
+                { label: "Absolute (UM)", value: "absolute" },
+              ]}
+              value={mode}
+              onChange={(val) => setMode(val as "relative" | "absolute")}
+            />
           </div>
           <BarLineChart
             data={chartData ?? []}
             selectedDay={currentSelectedDay}
-            yLabelFormatter={(value) =>
-              mode === "relative" ? `${value.toFixed(2)}%` : `$${value.toFixed(4)}`
-            }
-            areaLabel={mode === "relative" ? "Inflation Rate" : "Token Price"}
-            minYZero={mode === "absolute"}
+            yLabelFormatter={valueFormatter}
+            tooltipFormatter={valueFormatter}
+            areaLabel={mode === "relative" ? "Inflation Rate (%)" : "Net Issuance (UM)"}
+            minYZero={false}
           />
           {showLoadingOverlay && <LoadingOverlay />}
         </div>

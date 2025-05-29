@@ -6,7 +6,6 @@ import { useMemo } from "react";
 
 import { CHART_PALETTES, COLORS } from "@/common/helpers/colors";
 import { getCustomTooltipConfig } from "@/common/helpers/customTooltip";
-import { FONT_FAMILIES } from "@/common/helpers/typography";
 
 export interface BarLineChartData {
   x: string;
@@ -16,7 +15,7 @@ export interface BarLineChartData {
 interface BarLineChartProps {
   data: BarLineChartData[];
   yLabelFormatter?: (value: number) => string;
-  tooltipFormatter?: (params: any[]) => string;
+  tooltipFormatter?: (value: number) => string;
   selectedDay: number;
   areaLabel?: string;
   barGradientColors?: [string, string];
@@ -189,27 +188,13 @@ export default function BarLineChart({
   const option = useMemo((): EChartsOption => {
     return {
       backgroundColor: "transparent",
-      tooltip: tooltipFormatter
-        ? {
-            trigger: "axis",
-            backgroundColor: "#2263621A",
-            extraCssText: "backdrop-filter: blur(6px);",
-            borderRadius: 8,
-            confine: true,
-            textStyle: {
-              color: COLORS.neutral[50],
-              fontFamily: FONT_FAMILIES.primary,
-              fontSize: 12,
-            },
-            formatter: tooltipFormatter as any,
-          }
-        : (getCustomTooltipConfig(
-            [], // Empty data array for time-series charts
-            areaLabel, // Title
-            "axis", // Trigger type
-            lineColor || themeColors.primaryColor, // Line color
-            yLabelFormatter // Value formatter
-          ) as any),
+      tooltip: getCustomTooltipConfig(
+        [], // Empty data array for time-series charts
+        areaLabel, // Title
+        "axis", // Trigger type
+        lineColor || themeColors.primaryColor, // Line color
+        tooltipFormatter
+      ) as any,
       grid: {
         left: "0%",
         right: "0%",

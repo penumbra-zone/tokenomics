@@ -1,5 +1,7 @@
 // Types for calculation inputs and outputs
 
+import { durationWindows } from '../db/pindexer';
+
 // Base data types from database
 export interface SupplyData {
   total: number;
@@ -109,7 +111,7 @@ export interface CalculationConfig {
 }
 
 // Time period types
-export type TimePeriod = "7d" | "30d" | "90d" | "1y";
+export type TimePeriod = keyof typeof durationWindows;
 
 // Calculation context
 export interface CalculationContext {

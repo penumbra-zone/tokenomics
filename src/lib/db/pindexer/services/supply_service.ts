@@ -2,7 +2,8 @@ import { Kysely, sql } from "kysely";
 
 import { DATA_SOURCES, DB_ERROR_MESSAGES, FIELD_TRANSFORMERS } from "../database-mappings";
 import { DB } from "../schema";
-import type { DelegatedSupplyComponent, UnstakedSupplyComponents } from "../types";
+import type { DelegatedSupplyComponent, UnstakedSupplyComponents, DurationWindow } from "../types";
+import { getDateGroupExpression } from "../../utils";
 
 // Define an interface for the raw row structure from getDelegatedSupplyComponentsByHeight
 interface RawDelegatedSupplyRow {
@@ -81,13 +82,15 @@ export class SupplyService {
   }
 
   /**
-   * Fetches historical supply data for a time range using raw SQL for better performance.
+   * Fetches historical supply data for a time range grouped by duration window.
    * @param startDate The start date for the range
    * @param endDate The end date for the range
+   * @param window The duration window for grouping (e.g., '1d', '1w')
    */
   async getHistoricalSupplyData(
     startDate: Date,
-    endDate: Date
+    endDate: Date,
+    window: DurationWindow = '1d'
   ): Promise<
     Array<{
       height: number;
@@ -97,6 +100,8 @@ export class SupplyService {
     }>
   > {
     try {
+      // For SQLite compatibility, we'll use a different approach
+      // Group by date intervals and take the latest value from each group
       const results = await this.db
         .selectFrom(DATA_SOURCES.INSIGHTS_SUPPLY.name)
         .innerJoin(
@@ -105,10 +110,11 @@ export class SupplyService {
           `${DATA_SOURCES.INSIGHTS_SUPPLY.name}.${DATA_SOURCES.INSIGHTS_SUPPLY.fields.HEIGHT}`
         )
         .select([
-          `${DATA_SOURCES.INSIGHTS_SUPPLY.name}.${DATA_SOURCES.INSIGHTS_SUPPLY.fields.HEIGHT}`,
-          `${DATA_SOURCES.INSIGHTS_SUPPLY.name}.${DATA_SOURCES.INSIGHTS_SUPPLY.fields.TOTAL_SUPPLY}`,
-          `${DATA_SOURCES.INSIGHTS_SUPPLY.name}.${DATA_SOURCES.INSIGHTS_SUPPLY.fields.STAKED_SUPPLY}`,
-          `${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`,
+          sql<string>`MAX(${sql.ref(`${DATA_SOURCES.INSIGHTS_SUPPLY.name}.${DATA_SOURCES.INSIGHTS_SUPPLY.fields.HEIGHT}`)})`.as('height'),
+          sql<string>`MAX(${sql.ref(`${DATA_SOURCES.INSIGHTS_SUPPLY.name}.${DATA_SOURCES.INSIGHTS_SUPPLY.fields.TOTAL_SUPPLY}`)})`.as('total'),
+          sql<string>`MAX(${sql.ref(`${DATA_SOURCES.INSIGHTS_SUPPLY.name}.${DATA_SOURCES.INSIGHTS_SUPPLY.fields.STAKED_SUPPLY}`)})`.as('staked'),
+          sql<Date>`MAX(${sql.ref(`${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`)})`.as('timestamp'),
+          getDateGroupExpression(window, `${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`).as('date_group'),
         ])
         .where(
           `${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`,
@@ -120,10 +126,8 @@ export class SupplyService {
           "<=",
           endDate
         )
-        .orderBy(
-          `${DATA_SOURCES.INSIGHTS_SUPPLY.name}.${DATA_SOURCES.INSIGHTS_SUPPLY.fields.HEIGHT}`,
-          "asc"
-        )
+        .groupBy('date_group')
+        .orderBy('date_group', 'asc')
         .execute();
 
       return results.map((row) => ({

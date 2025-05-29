@@ -74,6 +74,14 @@ export interface PriceHistoryResult {
   allTimeLow: number;
 }
 
+export interface InflationTimeSeries {
+  timeSeries: Array<{
+    date: string;
+    inflationRate: number;
+    absoluteAmount: number;
+  }>;
+}
+
 export interface TokenDistribution {
   category: string;
   percentage: number;
@@ -138,6 +146,7 @@ export abstract class AbstractPindexerConnection {
     days?: number;
     window?: DurationWindow;
   }): Promise<PriceHistoryResult>;
+  abstract getInflationTimeSeries(days: number): Promise<InflationTimeSeries>;
   abstract getTokenDistribution(): Promise<TokenDistribution[]>;
   abstract getTokenMetrics(): Promise<TokenMetrics>;
 }

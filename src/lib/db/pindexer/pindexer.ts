@@ -10,6 +10,7 @@ import {
   calculateBurnRateTimeSeries,
   calculateCirculatingSupply,
   calculateInflationRate,
+  calculateInflationTimeSeries,
   calculateIssuanceMetrics,
   calculateIssuanceSinceLaunch,
   calculateTokenDistributionBreakdown,
@@ -17,6 +18,7 @@ import {
   calculateTotalUnstakedSupply,
   CalculationContext,
   getCurrentNetworkConfig,
+  SupplyData,
 } from "../../calculations";
 import { BlockService } from "./services/block_service";
 import { BurnService } from "./services/burn_service";
@@ -27,6 +29,7 @@ import {
   BurnMetrics,
   BurnSourcesData,
   HistoricalBurnEntryRaw,
+  InflationTimeSeries,
   IssuanceMetrics,
   LqtMetrics,
   PriceHistoryEntry,
@@ -119,6 +122,41 @@ export class Pindexer extends AbstractPindexerConnection {
       this.calculationContext
     );
     return { currentIssuance, annualIssuance: projectedAnnualIssuance };
+  }
+
+  async getInflationTimeSeries(days: number): Promise<InflationTimeSeries> {
+    // Calculate date range for historical data
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    // Map days to appropriate DurationWindow
+    let window: DurationWindow;
+    if (days <= 1) {
+      window = "1h"; // For very short periods, use hourly data
+    } else if (days <= 7) {
+      window = "1d"; // For week or less, daily data
+    } else if (days <= 30) {
+      window = "1d"; // For month or less, daily data
+    } else {
+      window = "1w"; // For longer periods, weekly data
+    }
+
+    // Get historical supply data with appropriate window
+    const historicalSupplyData = await this.supplyService.getHistoricalSupplyData(startDate, endDate, window);
+
+    // Convert to SupplyData format for calculations
+    const supplyDataPoints: SupplyData[] = historicalSupplyData.map(entry => ({
+      total: entry.total,
+      staked: entry.staked,
+      height: entry.height,
+      timestamp: entry.timestamp,
+    }));
+      
+    // Calculate inflation time series using centralized calculation
+    const timeSeries = calculateInflationTimeSeries(supplyDataPoints);
+
+    return { timeSeries };
   }
 
   async getSupplyMetrics(): Promise<SupplyMetrics> {

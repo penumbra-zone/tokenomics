@@ -1,5 +1,4 @@
 // Token Distribution Calculations
-// Based on the tokenomics calculation documentation
 
 import { DistributionMetrics, SupplyData, UnstakedSupplyComponents } from "./types";
 

@@ -65,6 +65,14 @@ export interface PriceHistory {
   allTimeLow: number;
 }
 
+export interface InflationTimeSeries {
+  timeSeries: Array<{
+    date: string;
+    inflationRate: number;
+    absoluteAmount: number;
+  }>;
+}
+
 export interface SocialMetrics {
   totalSupply: number;
   circulatingSupply: number;
@@ -102,6 +110,9 @@ export const tokenomicsApi = createApi({
     getPriceHistory: builder.query<PriceHistory, number>({
       query: (days) => `price-history?days=${days}`,
     }),
+    getInflationTimeSeries: builder.query<InflationTimeSeries, number>({
+      query: (days) => `inflation-time-series?days=${days}`,
+    }),
     getSummaryMetrics: builder.query<SummaryMetrics, void>({
       query: () => "summary-metrics",
       providesTags: ["TokenMetrics"],
@@ -116,5 +127,6 @@ export const {
   useGetLQTMetricsQuery,
   useGetTokenDistributionQuery,
   useGetPriceHistoryQuery,
+  useGetInflationTimeSeriesQuery,
   useGetSummaryMetricsQuery,
 } = tokenomicsApi;

@@ -3,6 +3,7 @@ import {
   AbstractPindexerConnection,
   BurnMetrics,
   DurationWindow,
+  InflationTimeSeries,
   IssuanceMetrics,
   LqtMetrics,
   PriceHistoryEntry,
@@ -205,6 +206,32 @@ export class MockPindexerConnection extends AbstractPindexerConnection {
       currentIssuance: 100000000,
       annualIssuance: 1000000000,
     };
+  }
+
+  async getInflationTimeSeries(days: number): Promise<InflationTimeSeries> {
+    // Generate mock inflation rate time series data
+    const timeSeries = [];
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - (days - 1));
+    
+    let baseInflationRate = 15.5; // Start at 15.5% annualized
+    
+    for (let i = 0; i < days; i++) {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
+      
+      // Add some variability but show general downward trend
+      const variation = (Math.random() - 0.5) * 0.8; // ±0.4% variation
+      const trendReduction = (i / days) * 2.5; // Reduce by 2.5% over the period
+      const inflationRate = Math.max(10, baseInflationRate - trendReduction + variation);
+      
+      timeSeries.push({
+        date: date.toISOString().slice(0, 10),
+        inflationRate: Number(inflationRate.toFixed(2)),
+      });
+    }
+
+    return { timeSeries };
   }
 
   async getPriceHistory(params: {

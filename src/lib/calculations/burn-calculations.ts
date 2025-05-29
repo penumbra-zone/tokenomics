@@ -1,5 +1,4 @@
 // Burn Metrics Calculations
-// Based on the tokenomics calculation documentation
 
 import { BurnData, BurnMetrics, CalculationContext } from "./types";
 

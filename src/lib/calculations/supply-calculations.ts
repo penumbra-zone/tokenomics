@@ -1,5 +1,4 @@
 // Supply Visualization Calculations
-// Based on the tokenomics calculation documentation
 
 import { CalculationContext, SupplyData, SupplyMetrics } from "./types";
 

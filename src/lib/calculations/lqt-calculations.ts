@@ -1,5 +1,4 @@
 // Liquidity Tournament (LQT) Calculations
-// Based on the tokenomics calculation documentation
 
 import { CalculationContext, LQTMetrics } from "./types";
 
