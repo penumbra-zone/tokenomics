@@ -65,16 +65,22 @@ export class Pindexer extends AbstractPindexerConnection {
   async getSummaryMetrics(): Promise<SummaryMetrics> {
     const { startBlock: startHeight, endBlock: endHeight } =
       await this.blockService.getBlockRangeForDays(30);
+    const endDateLastMonth = new Date();
+    endDateLastMonth.setDate(endDateLastMonth.getDate() - 30);
+    const { startBlock: startHeightLastMonth } =
+      await this.blockService.getBlockRangeForDays(30, endDateLastMonth);
 
     // Get insights
     const insightsPromise = this.supplyService.getInsightsSupply(endHeight.height);
     const insightsStartPromise = this.supplyService.getInsightsSupply(startHeight.height);
+    const insightsStartLastMonthPromise = this.supplyService.getInsightsSupply(startHeightLastMonth.height);
     // Get burn
     const burnsPromise = this.burnService.getTotalBurnsByHeight(endHeight.height);
 
-    const [insights, insightsStart, burns] = await Promise.all([
+    const [insights, insightsStart, insightsStartLastMonth, burns] = await Promise.all([
       insightsPromise,
       insightsStartPromise,
+      insightsStartLastMonthPromise,
       burnsPromise,
     ]);
 
@@ -86,6 +92,10 @@ export class Pindexer extends AbstractPindexerConnection {
       Number(insights.totalSupply),
       Number(insightsStart.totalSupply)
     );
+    const inflationRateLastMonth = calculateInflationRate(
+      Number(insightsStart.totalSupply),
+      Number(insightsStartLastMonth.totalSupply)
+    );
     const totalBurned = calculateTotalBurned(
       burns.totalArbitrageBurns,
       burns.totalFeeBurns
@@ -96,7 +106,10 @@ export class Pindexer extends AbstractPindexerConnection {
       stakedTokens,
       marketCap,
       price,
-      inflationRate,
+      inflation: {
+        current: inflationRate,
+        lastMonth: inflationRateLastMonth,
+      },
       totalBurned,
     };
   }

@@ -9,7 +9,10 @@ export interface SummaryMetrics {
   stakedTokens: number;
   marketCap: number;
   price: number;
-  inflationRate: number;
+  inflation: {
+    current: number;
+    lastMonth: number;
+  };
   totalBurned: number;
 }
 

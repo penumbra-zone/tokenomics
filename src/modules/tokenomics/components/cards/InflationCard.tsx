@@ -13,21 +13,31 @@ export function InflationCard({
   cardClassName = "h-full",
 }: InflationCardProps) {
   const { data: summaryMetrics, isLoading } = useGetSummaryMetricsQuery();
-  const value = summaryMetrics?.inflationRate;
 
-  // TODO: Add calculation for previous month comparison
-  const getPreviousMonthComparison = (): { change: number; isIncrease: boolean } | null => {
-    // This will be implemented with your calculation logic
-    // Should return something like: { change: 0.3, isIncrease: false }
-    return { change: 0.3, isIncrease: false };
+  const getPreviousMonthComparison = (
+    lastMonthInflation: number,
+    currentInflation: number
+  ): { change: number; isIncrease: boolean } | null => {
+    const change = lastMonthInflation - currentInflation;
+    return {
+      change,
+      isIncrease: change > 0,
+    };
   };
 
   const getInflationIndicator = () => {
-    if (value === null || value === undefined || isLoading) {
+    if (
+      summaryMetrics?.inflation.current === null ||
+      summaryMetrics?.inflation.current === undefined ||
+      isLoading
+    ) {
       return null;
     }
 
-    const comparison = getPreviousMonthComparison();
+    const comparison = getPreviousMonthComparison(
+      summaryMetrics?.inflation.lastMonth,
+      summaryMetrics?.inflation.current
+    );
     if (!comparison) {
       return null;
     }
@@ -51,7 +61,7 @@ export function InflationCard({
               : "brightness(0) saturate(100%) invert(69%) sepia(78%) saturate(1200%) hue-rotate(88deg) brightness(96%) contrast(86%)", // Green filter
           }}
         />
-        <span>{Math.abs(comparison.change).toFixed(1)}% vs. previous month</span>
+        <span>{Math.abs(comparison.change).toFixed(3)}% vs. previous month</span>
       </div>
     );
   };
@@ -65,7 +75,7 @@ export function InflationCard({
         </div>
       }
       isLoading={isLoading}
-      value={value ?? undefined}
+      value={summaryMetrics?.inflation.current ?? undefined}
       valueFormatter={(v: number) => `${v?.toFixed(2)}%`}
       description={<div className="text-xs text-neutral-500">{description}</div>}
       cardClassName={cardClassName}

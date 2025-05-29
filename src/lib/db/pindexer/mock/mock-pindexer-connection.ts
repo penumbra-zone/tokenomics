@@ -24,7 +24,10 @@ export class MockPindexerConnection extends AbstractPindexerConnection {
       stakedTokens: 900000000,
       marketCap: 500000000,
       price: 0.5,
-      inflationRate: 0.02,
+      inflation: {
+        current: 0.02,
+        lastMonth: 0.01,
+      },
       totalBurned: 100000000,
     };
   }

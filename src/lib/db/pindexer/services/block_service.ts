@@ -39,7 +39,7 @@ export class BlockService {
   /**
    * Fetches the start and end block heights for a given duration window.
    */
-  async getBlockRangeForDays(days: number): Promise<{
+  async getBlockRangeForDays(days: number, endDate: Date = new Date()): Promise<{
     startBlock: { height: string; timestamp: Date };
     endBlock: { height: string; timestamp: Date };
   }> {
@@ -48,8 +48,7 @@ export class BlockService {
         throw new Error(DB_ERROR_MESSAGES.INVALID_HEIGHT);
       }
 
-      const endDate = new Date();
-      const startDate = new Date();
+      const startDate = new Date(endDate.getTime());
       startDate.setDate(startDate.getDate() - days);
 
       // Get the closest block to the end date (most recent)
