@@ -8,9 +8,10 @@ const FOOTER_LINKS = {
     { label: "Blog", href: "https://penumbra.zone/blog" },
   ],
   explore: [
-    { label: "Prax", href: "https://prax.penumbra.zone/" },
-    { label: "Veil", href: "https://veil.penumbra.zone/" },
-    { label: "Minifront", href: "https://app.penumbra.zone/" },
+    { label: "Home Page", href: "https://penumbra.zone/" },
+    { label: "App", href: "https://app.penumbra.zone/" },
+    { label: "Prax Wallet", href: "https://praxwallet.com/" },
+    { label: "Veil DEX", href: "https://dex.penumbra.zone/" },
   ],
 };
 
@@ -100,15 +101,15 @@ export default function Footer() {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors duration-200"
+                  className="w-10 h-10 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors duration-200"
                   aria-label={social.name}
                 >
                   <Image
                     src={social.icon}
                     alt={`${social.name} icon`}
-                    width={16}
-                    height={16}
-                    className="opacity-70 hover:opacity-100 transition-opacity duration-200"
+                    width={20}
+                    height={20}
+                    className="opacity-70 hover:opacity-100 transition-opacity duration-200 filter brightness-0 invert"
                   />
                 </Link>
               ))}

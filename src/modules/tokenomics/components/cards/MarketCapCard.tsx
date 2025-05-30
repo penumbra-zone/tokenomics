@@ -1,9 +1,9 @@
 import InfoCard from "@/common/components/cards/InfoCard";
 import { formatNumber } from "@/lib/utils";
-import { useGetSocialMetricsQuery } from "@/store/api/tokenomicsApi";
+import { useGetSummaryMetricsQuery } from "@/store/api/tokenomicsApi";
 
 export function MarketCapCard() {
-  const { data: socialMetrics, isLoading } = useGetSocialMetricsQuery();
+  const { data: socialMetrics, isLoading } = useGetSummaryMetricsQuery();
 
   return (
     <InfoCard

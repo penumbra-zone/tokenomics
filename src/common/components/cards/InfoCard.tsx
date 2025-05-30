@@ -1,14 +1,14 @@
 import { LoadingSpinner } from "@/common/components/LoadingSpinner";
 import { cn } from "@/common/helpers/utils";
+import { defaultThemeColors, ThemeColors } from "@/common/styles/themeColors";
 import AnimatedNumber from "@/components/AnimatedNumber";
-import { CardDescription } from "@/components/ui/card";
 import React from "react";
 import SimpleCard from "./SimpleCard"; // Import the new SimpleCard
 
 export interface InfoCardProps {
-  title: string;
+  title: string | React.ReactNode;
   isLoading: boolean;
-  value?: number | string;
+  value?: number | string | React.ReactNode;
   children?: React.ReactNode;
   description?: string | React.ReactNode;
   valueFormatter?: (val: number) => string;
@@ -19,6 +19,7 @@ export interface InfoCardProps {
   valueClassName?: string;
   descriptionClassName?: string;
   icon?: React.ReactNode;
+  themeColors?: ThemeColors;
 }
 
 const InfoCard: React.FC<InfoCardProps> = ({
@@ -35,6 +36,7 @@ const InfoCard: React.FC<InfoCardProps> = ({
   valueClassName,
   descriptionClassName,
   icon,
+  themeColors = defaultThemeColors,
 }) => {
   const renderContent = () => {
     if (isLoading) {
@@ -62,22 +64,35 @@ const InfoCard: React.FC<InfoCardProps> = ({
 
   return (
     <SimpleCard
-      title={title}
+      title={typeof title === "string" ? title : ""}
       icon={icon}
       cardClassName={cardClassName}
       titleClassName={titleClassName}
     >
-      <div className={cn("text-4xl font-bold text-primary my-2", valueClassName)}>
+      {typeof title !== "string" && (
+        <div className={cn("text-lg font-semibold", titleClassName)}>{title}</div>
+      )}
+
+      <div
+        className={cn("text-4xl font-bold my-2", valueClassName)}
+        style={{ color: themeColors.primary.value.DEFAULT }}
+      >
         {renderContent()}
       </div>
 
       {description &&
         (typeof description === "string" ? (
-          <CardDescription className={cn("text-xs text-neutral-500 mt-1", descriptionClassName)}>
+          <div
+            className={cn("text-xs mt-1", descriptionClassName)}
+            style={{ color: themeColors.textSecondary.value }}
+          >
             {description}
-          </CardDescription>
+          </div>
         ) : (
-          <div className={cn("text-xs text-neutral-500 mt-1", descriptionClassName)}>
+          <div
+            className={cn("text-xs mt-1", descriptionClassName)}
+            style={{ color: themeColors.textSecondary.value }}
+          >
             {description}
           </div>
         ))}

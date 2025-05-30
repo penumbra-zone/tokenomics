@@ -102,7 +102,7 @@ export default function RoseChart({
                 type: "radial",
                 x: chart.getWidth() / 2,
                 y: chart.getHeight() / 2,
-                r: chart.getHeight() / 2,
+                r: chart.getHeight() / 2.5,
                 color: item.baseColorObj.DEFAULT,
                 colorStops: [
                   { offset: 0, color: item.baseColorObj.dark },

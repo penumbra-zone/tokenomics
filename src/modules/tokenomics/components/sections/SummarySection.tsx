@@ -1,30 +1,11 @@
-import InfoCard from "@/common/components/cards/InfoCard";
-import {
-  MarketCapCard,
-  PercentOfTotalStakedCard,
-  TotalBurnedCard,
-  TotalSupplyCard,
-} from "@/modules/tokenomics/components/cards";
-import { useGetSocialMetricsQuery } from "@/store/api/tokenomicsApi";
+import { InflationCard } from "../cards/InflationCard";
+import { MarketCapCard } from "../cards/MarketCapCard";
+import { PercentStakedOfTotalSupplyCard } from "../cards/PercentStakedOfTotalSupplyCard";
+import { TotalBurnedCard } from "../cards/TotalBurnedCard";
+import { TotalSupplyCard } from "../cards/TotalSupplyCard";
 
 interface SectionProps {
   handleShare: () => void;
-}
-
-// Custom inflation card without chart for summary
-function InflationSummaryCard() {
-  const { data: socialMetrics, isLoading } = useGetSocialMetricsQuery();
-
-  return (
-    <InfoCard
-      title="Inflation"
-      isLoading={isLoading}
-      value={socialMetrics?.inflationRate}
-      valueFormatter={(v) => `${v?.toFixed(1)}%`}
-      description="during last month"
-      cardClassName="h-full"
-    />
-  );
 }
 
 export default function SummarySection({ handleShare }: SectionProps) {
@@ -35,9 +16,9 @@ export default function SummarySection({ handleShare }: SectionProps) {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
         <TotalSupplyCard />
-        <PercentOfTotalStakedCard />
+        <PercentStakedOfTotalSupplyCard />
         <div className="lg:row-span-2">
-          <InflationSummaryCard />
+          <InflationCard />
         </div>
         <MarketCapCard />
         <TotalBurnedCard />

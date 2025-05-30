@@ -15,12 +15,12 @@ const BurnMetricsChart = dynamic(
 );
 
 export function BurnMetricsCard() {
-  const { data: burnMetrics, isLoading, isFetching } = useGetBurnMetricsQuery();
+  const { data: burnMetrics, isLoading, isFetching } = useGetBurnMetricsQuery(30);
 
   const showLoadingOverlay = isFetching && !burnMetrics;
 
   return (
-    <SimpleCard title="Token burn rate over time">
+    <SimpleCard title="Token burned by source">
       <CardContent className="relative">
         <div className="h-[400px]">
           {isLoading ? (

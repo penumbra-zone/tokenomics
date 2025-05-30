@@ -1,14 +1,15 @@
 import InfoCard from "@/common/components/cards/InfoCard";
+import { secondaryThemeColors } from "@/common/styles/themeColors";
 import { formatNumber } from "@/lib/utils";
 import { useGetSupplyMetricsQuery } from "@/store/api/tokenomicsApi";
+import { useMemo } from "react";
 
 export function CirculatingSupplyCard() {
   const { data: supply, isLoading } = useGetSupplyMetricsQuery();
 
-  const circulatingSupply =
-    supply?.totalSupply && supply?.unstakedSupply?.base
-      ? supply.totalSupply - supply.unstakedSupply.base
-      : 0;
+  const circulatingSupply = useMemo(() => {
+    return supply?.totalUnstaked;
+  }, [supply]);
 
   return (
     <InfoCard
@@ -17,6 +18,7 @@ export function CirculatingSupplyCard() {
       value={circulatingSupply}
       valueFormatter={(v) => formatNumber(v)}
       description="Token Currently Circulating"
+      themeColors={secondaryThemeColors}
     />
   );
 }

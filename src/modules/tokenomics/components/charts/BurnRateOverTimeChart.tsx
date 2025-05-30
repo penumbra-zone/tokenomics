@@ -1,5 +1,6 @@
 "use client";
 
+import { defaultThemeColors, ThemeColors } from "@/common/styles/themeColors";
 import { formatNumber } from "@/lib/utils";
 import BarLineChart from "./BarLineChart";
 import DaySelector from "./DaySelector";
@@ -13,12 +14,14 @@ interface BurnRateOverTimeChartProps {
   data: BurnRateDataPoint[];
   selectedDay: number;
   onDaysChange: (days: number) => void;
+  themeColors?: ThemeColors;
 }
 
 export function BurnRateOverTimeChart({
   data,
   selectedDay,
   onDaysChange,
+  themeColors = defaultThemeColors,
 }: BurnRateOverTimeChartProps) {
   const chartData = data.map((item) => ({
     x: item.date,
@@ -27,7 +30,12 @@ export function BurnRateOverTimeChart({
 
   return (
     <>
-      <DaySelector dayOptions={[7, 30, 90]} selectedDay={selectedDay} onDaysChange={onDaysChange} />
+      <DaySelector
+        dayOptions={[7, 30, 90]}
+        selectedDay={selectedDay}
+        onDaysChange={onDaysChange}
+        themeColors={themeColors}
+      />
       <BarLineChart
         data={chartData}
         selectedDay={selectedDay}
@@ -37,6 +45,7 @@ export function BurnRateOverTimeChart({
         showLine={true}
         showArea={true}
         minYZero={true}
+        themeColors={themeColors}
       />
     </>
   );

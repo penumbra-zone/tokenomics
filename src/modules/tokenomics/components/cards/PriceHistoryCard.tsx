@@ -1,8 +1,10 @@
 "use client";
 import dynamic from "next/dynamic";
+import { useState } from "react";
 
 import InfoCard from "@/common/components/cards/InfoCard";
-import { PriceHistory } from "@/store/api/tokenomicsApi";
+import { secondaryThemeColors } from "@/common/styles/themeColors";
+import { useGetPriceHistoryQuery } from "@/store/api/tokenomicsApi";
 
 // Import chart component with SSR disabled
 const PriceHistoryChart = dynamic(
@@ -10,53 +12,62 @@ const PriceHistoryChart = dynamic(
   { ssr: false }
 );
 
+const DAY_OPTIONS = [7, 30, 90];
+const DEFAULT_DAYS = 30;
+
 export interface PriceHistoryCardProps {
-  data: PriceHistory[];
-  onDaysChange: (days: number) => void;
+  // Remove external props since we're managing state internally now
   dayOptions?: number[];
-  currentSelectedDay: number;
 }
 
-export function PriceHistoryCard({
-  data,
-  onDaysChange,
-  currentSelectedDay,
-  dayOptions,
-}: PriceHistoryCardProps) {
+export function PriceHistoryCard({ dayOptions = DAY_OPTIONS }: PriceHistoryCardProps) {
+  // Internal state management for days selection
+  const [currentSelectedDay, setCurrentSelectedDay] = useState<number>(DEFAULT_DAYS);
+
+  const handleDaysChange = (days: number) => {
+    setCurrentSelectedDay(days);
+  };
+
+  const { data: priceHistoryData, isLoading } = useGetPriceHistoryQuery(currentSelectedDay);
+
   return (
-    <>
-      <PriceHistoryChart
-        data={data}
-        onDaysChange={onDaysChange}
-        currentSelectedDay={currentSelectedDay}
-        dayOptions={dayOptions}
-      />
-      {/* Metrics grid below chart */}
-      {data && data.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">
-          {/* Current Price */}
-          <InfoCard
-            title="Current Price"
-            isLoading={false}
-            value={data[data.length - 1].price}
-            valuePrefix="$"
-          />
-          {/* All-Time High */}
-          <InfoCard
-            title="All-Time High"
-            isLoading={false}
-            value={Math.max(...data.map((p) => p.price))}
-            valuePrefix="$"
-          />
-          {/* All-Time Low */}
-          <InfoCard
-            title="All-Time Low"
-            isLoading={false}
-            value={Math.min(...data.map((p) => p.price))}
-            valuePrefix="$"
-          />
-        </div>
-      )}
-    </>
+    <div className="h-full flex flex-col gap-6">
+      <div className="flex-1 min-h-[450px]">
+        <PriceHistoryChart
+          onDaysChange={handleDaysChange}
+          currentSelectedDay={currentSelectedDay}
+          dayOptions={dayOptions}
+          themeColors={secondaryThemeColors}
+        />
+      </div>
+
+      {/* Metrics grid at bottom */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        {/* Current Price */}
+        <InfoCard
+          title="Current Price"
+          isLoading={isLoading}
+          value={priceHistoryData?.priceHistory[priceHistoryData.priceHistory.length - 1].price}
+          valuePrefix="$"
+          themeColors={secondaryThemeColors}
+        />
+        {/* All-Time High */}
+        <InfoCard
+          title="All-Time High"
+          isLoading={isLoading}
+          value={priceHistoryData?.allTimeHigh}
+          valuePrefix="$"
+          themeColors={secondaryThemeColors}
+        />
+        {/* All-Time Low */}
+        <InfoCard
+          title="All-Time Low"
+          isLoading={isLoading}
+          value={priceHistoryData?.allTimeLow.toFixed(4)}
+          valuePrefix="$"
+          themeColors={secondaryThemeColors}
+        />
+      </div>
+    </div>
   );
 }

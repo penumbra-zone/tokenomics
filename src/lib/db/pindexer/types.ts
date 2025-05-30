@@ -1,14 +1,19 @@
 // --- Types ---
+import { AssetId } from "@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb";
+
 export const durationWindows = ["1m", "15m", "1h", "4h", "1d", "1w", "1mo"] as const;
 export type DurationWindow = (typeof durationWindows)[number];
 
-export interface SocialMetrics {
+export interface SummaryMetrics {
   totalSupply: number;
-  circulatingSupply: number;
+  stakedTokens: number;
   marketCap: number;
   price: number;
-  inflationRate: number;
-  burnRate: number;
+  inflation: {
+    current: number;
+    lastMonth: number;
+  };
+  totalBurned: number;
 }
 
 export interface LqtMetrics {
@@ -27,12 +32,7 @@ export interface LqtMetrics {
 
 export interface BurnMetrics {
   totalBurned: number;
-  bySource: {
-    transactionFees: number;
-    dexArbitrage: number;
-    auctionBurns: number;
-    dexBurns: number;
-  };
+  bySource: BurnDataBySource;
   burnRate: number;
   historicalBurnRate: Array<{
     timestamp: string;
@@ -42,6 +42,8 @@ export interface BurnMetrics {
 
 export interface SupplyMetrics {
   totalSupply: number;
+  totalStaked: number;
+  totalUnstaked: number;
   genesisAllocation: number;
   issuedSinceLaunch: number;
   unstakedSupply: {
@@ -51,28 +53,36 @@ export interface SupplyMetrics {
     arbitrage: number;
     fees: number;
   };
-  delegatedSupply: {
-    base: number;
-    delegated: number;
-    conversionRate: number;
-  };
+}
+
+export interface IssuanceMetrics {
+  currentIssuance: number;
+  annualIssuance: number;
 }
 
 export interface PriceHistoryEntry {
-  date: string;
+  date: Date;
   price: number;
-  marketCap: number;
+}
+
+export interface PriceHistoryResult {
+  priceHistory: PriceHistoryEntry[];
+  allTimeHigh: number;
+  allTimeLow: number;
+}
+
+export interface InflationTimeSeries {
+  timeSeries: Array<{
+    date: string;
+    inflationRate: number;
+    absoluteAmount: number;
+  }>;
 }
 
 export interface TokenDistribution {
   category: string;
   percentage: number;
   amount: number;
-  subcategories?: Array<{
-    name: string;
-    amount: number;
-    percentage: number;
-  }>;
 }
 
 export interface TokenMetrics {
@@ -103,26 +113,32 @@ export interface DelegatedSupplyComponent {
 }
 
 export interface BurnSourcesData {
-  fees: number;
-  dexArb: number;
-  auctionBurns: number;
-  dexBurns: number;
+  arbitrageBurns: number;
+  feeBurns: number;
+  totalBurned: number;
 }
 
-export interface HistoricalBurnEntryRaw {
-  height: number;
-  fees: number;
-  dexArb: number;
-  auctionBurns: number;
-  dexBurns: number;
+export interface BurnDataBySource {
+  arbitrageBurns: number; // Arbitrage burns
+  feeBurns: number; // Fee burns
+  dexLocked: number; // DEX locked
+  auctionLocked: number; // Auction locked
 }
 
 export abstract class AbstractPindexerConnection {
-  abstract getSocialMetrics(): Promise<SocialMetrics>;
+  abstract getSummaryMetrics(): Promise<SummaryMetrics>;
   abstract getLqtMetrics(): Promise<LqtMetrics>;
-  abstract getBurnMetrics(): Promise<BurnMetrics>;
+  abstract getBurnMetrics(days: number): Promise<BurnMetrics>;
   abstract getSupplyMetrics(): Promise<SupplyMetrics>;
-  abstract getPriceHistory(days: number, window: DurationWindow): Promise<PriceHistoryEntry[]>;
+  abstract getIssuanceMetrics(): Promise<IssuanceMetrics>;
+  abstract getPriceHistory(params: {
+    baseAsset: AssetId;
+    quoteAsset: AssetId;
+    chainId: string;
+    days?: number;
+    window?: DurationWindow;
+  }): Promise<PriceHistoryResult>;
+  abstract getInflationTimeSeries(days: number): Promise<InflationTimeSeries>;
   abstract getTokenDistribution(): Promise<TokenDistribution[]>;
   abstract getTokenMetrics(): Promise<TokenMetrics>;
 }

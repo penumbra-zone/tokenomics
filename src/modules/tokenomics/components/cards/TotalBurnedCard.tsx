@@ -1,25 +1,34 @@
 import InfoCard from "@/common/components/cards/InfoCard";
+import AnimatedNumber from "@/components/AnimatedNumber";
+import { calculatePercentageOfSupplyBurned } from "@/lib/calculations";
 import { formatNumber } from "@/lib/utils";
-import { useGetBurnMetricsQuery } from "@/store/api/tokenomicsApi";
+import { useGetSummaryMetricsQuery } from "@/store/api/tokenomicsApi";
+import { useMemo } from "react";
 
 export function TotalBurnedCard() {
-  const { data: burnMetrics, isLoading } = useGetBurnMetricsQuery();
+  const { data: summaryMetrics, isLoading } = useGetSummaryMetricsQuery();
 
-  const descriptionContent = burnMetrics ? (
-    <>
-      Tokens removed from supply <br />
-    </>
-  ) : (
-    "Tokens removed from supply"
-  );
+  const totalBurned = summaryMetrics?.totalBurned ?? 0;
+  const percentageOfTotalSupply = useMemo(() => {
+    if (!summaryMetrics) return 0;
+    return calculatePercentageOfSupplyBurned(
+      summaryMetrics.totalBurned,
+      summaryMetrics.totalSupply
+    );
+  }, [summaryMetrics]);
 
   return (
     <InfoCard
       title="Total Burned"
       isLoading={isLoading}
-      value={burnMetrics?.totalBurned}
+      value={totalBurned}
       valueFormatter={(v) => formatNumber(v)}
-      description={descriptionContent}
+      description={
+        <>
+          <AnimatedNumber value={percentageOfTotalSupply} format={(num) => `${num.toFixed(2)}%`} />
+          {" of total supply"}
+        </>
+      }
       cardClassName="h-full"
     />
   );

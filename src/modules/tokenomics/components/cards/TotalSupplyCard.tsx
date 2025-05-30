@@ -1,15 +1,15 @@
 import InfoCard from "@/common/components/cards/InfoCard";
 import { formatNumber } from "@/lib/utils";
-import { useGetSupplyMetricsQuery } from "@/store/api/tokenomicsApi";
+import { useGetSummaryMetricsQuery } from "@/store/api/tokenomicsApi";
 
 export function TotalSupplyCard() {
-  const { data: supply, isLoading } = useGetSupplyMetricsQuery();
+  const { data: summaryMetrics, isLoading } = useGetSummaryMetricsQuery();
 
   return (
     <InfoCard
       title="Total Supply"
       isLoading={isLoading}
-      value={supply?.totalSupply}
+      value={summaryMetrics?.totalSupply}
       valueFormatter={(v) => formatNumber(v, 1)}
       description="Maximum Token Supply"
     />

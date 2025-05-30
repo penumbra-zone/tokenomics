@@ -1,10 +1,14 @@
+import { AssetId } from "@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb";
 import {
   AbstractPindexerConnection,
   BurnMetrics,
   DurationWindow,
+  InflationTimeSeries,
+  IssuanceMetrics,
   LqtMetrics,
   PriceHistoryEntry,
-  SocialMetrics,
+  PriceHistoryResult,
+  SummaryMetrics,
   SupplyMetrics,
   TokenDistribution,
   TokenMetrics,
@@ -15,14 +19,17 @@ export class MockPindexerConnection extends AbstractPindexerConnection {
     super();
   }
 
-  async getSocialMetrics(): Promise<SocialMetrics> {
+  async getSummaryMetrics(): Promise<SummaryMetrics> {
     return {
       totalSupply: 1000000000,
-      circulatingSupply: 900000000,
+      stakedTokens: 900000000,
       marketCap: 500000000,
       price: 0.5,
-      inflationRate: 0.02,
-      burnRate: 0.0001,
+      inflation: {
+        current: 0.02,
+        lastMonth: 0.01,
+      },
+      totalBurned: 100000000,
     };
   }
 
@@ -42,14 +49,14 @@ export class MockPindexerConnection extends AbstractPindexerConnection {
     };
   }
 
-  async getBurnMetrics(): Promise<BurnMetrics> {
+  async getBurnMetrics(days: number): Promise<BurnMetrics> {
     return {
       totalBurned: 50000000,
       bySource: {
-        transactionFees: 12500000,
-        dexArbitrage: 12000000,
-        auctionBurns: 11500000,
-        dexBurns: 10000000,
+        arbitrageBurns: 12500000,
+        feeBurns: 12000000,
+        dexLocked: 10000000,
+        auctionLocked: 10000000,
       },
       burnRate: 0.0001,
       historicalBurnRate: [
@@ -175,13 +182,15 @@ export class MockPindexerConnection extends AbstractPindexerConnection {
         { timestamp: "2024-09-28", rate: 0.269 },
         { timestamp: "2024-09-29", rate: 0.273 },
         { timestamp: "2024-09-30", rate: 0.276 },
-      ],
+      ].slice(0, days),
     };
   }
 
   async getSupplyMetrics(): Promise<SupplyMetrics> {
     return {
       totalSupply: 1000000000,
+      totalStaked: 900000000,
+      totalUnstaked: 100000000,
       genesisAllocation: 800000000,
       issuedSinceLaunch: 200000000,
       unstakedSupply: {
@@ -191,18 +200,51 @@ export class MockPindexerConnection extends AbstractPindexerConnection {
         arbitrage: 25000000,
         fees: 10000000,
       },
-      delegatedSupply: {
-        base: 500000000,
-        delegated: 300000000,
-        conversionRate: 0.6,
-      },
     };
   }
 
-  async getPriceHistory(
-    days: number = 90,
-    window: DurationWindow = "1d"
-  ): Promise<PriceHistoryEntry[]> {
+  async getIssuanceMetrics(): Promise<IssuanceMetrics> {
+    return {
+      currentIssuance: 100000000,
+      annualIssuance: 1000000000,
+    };
+  }
+
+  async getInflationTimeSeries(days: number): Promise<InflationTimeSeries> {
+    // Generate mock inflation rate time series data
+    const timeSeries = [];
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - (days - 1));
+
+    let baseInflationRate = 15.5; // Start at 15.5% annualized
+
+    for (let i = 0; i < days; i++) {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
+
+      // Add some variability but show general downward trend
+      const variation = (Math.random() - 0.5) * 0.8; // ±0.4% variation
+      const trendReduction = (i / days) * 2.5; // Reduce by 2.5% over the period
+      const inflationRate = Math.max(10, baseInflationRate - trendReduction + variation);
+
+      timeSeries.push({
+        date: date.toISOString().slice(0, 10),
+        inflationRate: Number(inflationRate.toFixed(2)),
+        absoluteAmount: (1000000000 * inflationRate) / 100,
+      });
+    }
+
+    return { timeSeries };
+  }
+
+  async getPriceHistory(params: {
+    baseAsset: AssetId;
+    quoteAsset: AssetId;
+    chainId: string;
+    days?: number;
+    window?: DurationWindow;
+  }): Promise<PriceHistoryResult> {
+    const { days = 90, window = "1d" } = params;
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - (days - 1));
     let price = 2.0;
@@ -211,16 +253,22 @@ export class MockPindexerConnection extends AbstractPindexerConnection {
     for (let i = 0; i < days; i++) {
       const change = (Math.random() - 0.5) * 0.08;
       price = Math.max(0.5, price + change);
-      marketCap = Math.round(price * 100_000_000 + (Math.random() - 0.5) * 1_000_000);
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
       data.push({
-        date: date.toISOString().slice(0, 10),
+        date: date,
         price: Number(price.toFixed(2)),
-        marketCap,
       });
     }
-    return data;
+
+    const allTimeHigh = Math.max(...data.map((entry) => entry.price));
+    const allTimeLow = Math.min(...data.map((entry) => entry.price));
+
+    return {
+      priceHistory: data,
+      allTimeHigh,
+      allTimeLow,
+    };
   }
 
   async getTokenDistribution(): Promise<TokenDistribution[]> {
@@ -229,19 +277,11 @@ export class MockPindexerConnection extends AbstractPindexerConnection {
         category: "Staked",
         percentage: 40,
         amount: 400000000,
-        subcategories: [
-          { name: "Validators", amount: 300000000, percentage: 75 },
-          { name: "Delegators", amount: 100000000, percentage: 25 },
-        ],
       },
       {
         category: "DEX Liquidity",
         percentage: 25,
         amount: 250000000,
-        subcategories: [
-          { name: "PEN/USDC", amount: 150000000, percentage: 60 },
-          { name: "PEN/ETH", amount: 100000000, percentage: 40 },
-        ],
       },
       { category: "Community Pool", percentage: 15, amount: 150000000 },
       { category: "Circulating", percentage: 20, amount: 200000000 },
