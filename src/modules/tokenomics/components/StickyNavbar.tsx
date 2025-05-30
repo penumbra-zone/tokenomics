@@ -7,15 +7,19 @@ import Image from "next/image";
 import { cn } from "@/common/helpers/utils";
 import { NAV_ACTIVE_WITH_UNDERLINE } from "@/common/styles/activeStates";
 import { NAV_ITEM_BASE_STYLES, NAV_ITEM_INACTIVE_STYLES } from "@/common/styles/componentStyles";
-import { Button } from "@/components/ui/button";
+import { shouldShowLiquidityTournament } from "@/lib/env/client";
+import ShareButton from "./ShareButton";
 
 const NAV_ITEMS = [
   { id: "supply-visualization", label: "Supply" },
   { id: "issuance-metrics", label: "Issuance" },
   { id: "burn-metrics", label: "Tokens Burned" },
   { id: "token-distribution", label: "Token Distribution" },
-  { id: "lqt", label: "Liquidity Tournament" },
 ];
+
+if (shouldShowLiquidityTournament()) {
+  NAV_ITEMS.push({ id: "lqt", label: "Liquidity Tournament" });
+}
 
 export default function StickyNavbar() {
   const [activeSection, setActiveSection] = useState(NAV_ITEMS[0].id);
@@ -82,6 +86,10 @@ export default function StickyNavbar() {
     };
   }, []);
 
+  const handleShare = () => {
+    console.log("share");
+  };
+
   return (
     <header
       className={`sticky top-0 z-50 bg-black/80 backdrop-blur-lg transition-transform duration-300 will-change-transform ${
@@ -107,20 +115,7 @@ export default function StickyNavbar() {
           ))}
         </nav>
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-full bg-neutral-800 hover:bg-neutral-700 w-8 h-8"
-          >
-            <Image src="/extensions_ico.svg" alt="Other Apps" width={16} height={16} />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-full bg-neutral-800 hover:bg-neutral-700 w-8 h-8"
-          >
-            <Image src="/prax_ico.svg" alt="Prax Logo" width={16} height={16} />
-          </Button>
+          <ShareButton text="Share Overview" onClick={handleShare} />
         </div>
       </div>
     </header>
