@@ -1,4 +1,5 @@
 import SimpleCard from "@/common/components/cards/SimpleCard";
+import { secondaryThemeColors } from "@/common/styles/themeColors";
 import ShareButton from "@/modules/tokenomics/components/ShareButton";
 import {
   AnnualIssuanceCard,
@@ -27,7 +28,7 @@ export default function IssuanceMetricsSection({ handleShare }: SectionProps) {
           <AnnualIssuanceCard />
         </div>
         <div className="min-h-[100px]">
-          <InflationCard />
+          <InflationCard themeColors={secondaryThemeColors} />
         </div>
       </div>
       <div className="grid grid-cols-1 gap-8">

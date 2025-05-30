@@ -1,17 +1,19 @@
 import InfoCard from "@/common/components/cards/InfoCard";
 import { COLORS } from "@/common/helpers/colors";
-import { secondaryThemeColors } from "@/common/styles/themeColors";
+import { defaultThemeColors, ThemeColors } from "@/common/styles/themeColors";
 import { useGetSummaryMetricsQuery } from "@/store/api/tokenomicsApi";
 import Image from "next/image";
 
 interface InflationCardProps {
   description?: string;
   cardClassName?: string;
+  themeColors?: ThemeColors;
 }
 
 export function InflationCard({
   description = "During last month",
   cardClassName = "h-full",
+  themeColors = defaultThemeColors,
 }: InflationCardProps) {
   const { data: summaryMetrics, isLoading } = useGetSummaryMetricsQuery();
 
@@ -80,7 +82,7 @@ export function InflationCard({
       valueFormatter={(v: number) => `${v?.toFixed(2)}%`}
       description={<div className="text-xs text-neutral-500">{description}</div>}
       cardClassName={cardClassName}
-      themeColors={secondaryThemeColors}
+      themeColors={themeColors}
     />
   );
 }
