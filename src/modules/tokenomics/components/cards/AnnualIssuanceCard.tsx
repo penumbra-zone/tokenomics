@@ -1,4 +1,5 @@
 import InfoCard from "@/common/components/cards/InfoCard";
+import { secondaryThemeColors } from "@/common/styles/themeColors";
 import { formatNumber } from "@/lib/utils";
 import { useGetIssuanceMetricsQuery } from "@/store/api/tokenomicsApi";
 
@@ -13,6 +14,7 @@ export function AnnualIssuanceCard() {
       value={annualIssuance}
       valueFormatter={(v) => "~" + formatNumber(v, 2)}
       description="$UM/year"
+      themeColors={secondaryThemeColors}
     />
   );
 }

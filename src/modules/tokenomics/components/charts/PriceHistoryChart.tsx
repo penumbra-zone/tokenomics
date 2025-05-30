@@ -3,6 +3,7 @@
 import CardWrapper from "@/common/components/cards/CardWrapper";
 import { LoadingOverlay } from "@/common/components/LoadingOverlay";
 import { LoadingSpinner } from "@/common/components/LoadingSpinner";
+import { defaultThemeColors, ThemeColors } from "@/common/styles/themeColors";
 import { formatDateForChart } from "@/lib/utils";
 import { useGetPriceHistoryQuery } from "@/store/api/tokenomicsApi";
 import { useEffect, useState } from "react";
@@ -13,12 +14,14 @@ interface PriceHistoryChartProps {
   onDaysChange: (days: number) => void;
   dayOptions?: number[];
   currentSelectedDay: number;
+  themeColors?: ThemeColors;
 }
 
 export default function PriceHistoryChart({
   onDaysChange,
   dayOptions = [7, 30, 90],
   currentSelectedDay,
+  themeColors = defaultThemeColors,
 }: PriceHistoryChartProps) {
   const [chartData, setChartData] = useState<BarLineChartData[]>([]);
 
@@ -48,6 +51,7 @@ export default function PriceHistoryChart({
         dayOptions={dayOptions}
         selectedDay={currentSelectedDay}
         onDaysChange={onDaysChange}
+        themeColors={themeColors}
       />
       <div className="h-[450px]">
         {isLoading ? (
@@ -63,6 +67,7 @@ export default function PriceHistoryChart({
             showBars={false}
             areaLabel="Price"
             minYZero={true}
+            themeColors={themeColors}
           />
         )}
       </div>

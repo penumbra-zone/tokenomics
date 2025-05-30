@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 
 import { HintCard } from "@/common/components/cards/HintCard";
+import { secondaryThemeColors } from "@/common/styles/themeColors";
 
 // Import chart component with SSR disabled
 const InflationRateChart = dynamic(
@@ -32,6 +33,7 @@ export function InflationRateCard({ dayOptions = DAY_OPTIONS }: InflationRateCar
           onDaysChange={handleDaysChange}
           currentSelectedDay={currentSelectedDay}
           dayOptions={dayOptions}
+          themeColors={secondaryThemeColors}
         />
       </div>
 

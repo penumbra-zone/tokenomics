@@ -1,3 +1,4 @@
+import { secondaryThemeColors } from "@/common/styles/themeColors";
 import ShareButton from "@/modules/tokenomics/components/ShareButton";
 import {
   CirculatingSupplyCard,
@@ -21,7 +22,7 @@ export default function TokenDistributionSection({ handleShare }: SectionProps) 
         <div className="lg:col-span-1 space-y-1">
           <div className="flex flex-col gap-4">
             <CirculatingSupplyCard />
-            <PercentStakedOfTotalSupplyCard />
+            <PercentStakedOfTotalSupplyCard themeColors={secondaryThemeColors} />
           </div>
         </div>
         {/* Right column with token distribution chart */}

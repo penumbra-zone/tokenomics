@@ -1,4 +1,5 @@
 import InfoCard from "@/common/components/cards/InfoCard";
+import { secondaryThemeColors } from "@/common/styles/themeColors";
 import { formatNumber } from "@/lib/utils";
 import { useGetSupplyMetricsQuery } from "@/store/api/tokenomicsApi";
 import { useEffect, useState } from "react";
@@ -20,6 +21,7 @@ export function CirculatingSupplyCard() {
       value={circulatingSupply}
       valueFormatter={(v) => formatNumber(v)}
       description="Token Currently Circulating"
+      themeColors={secondaryThemeColors}
     />
   );
 }

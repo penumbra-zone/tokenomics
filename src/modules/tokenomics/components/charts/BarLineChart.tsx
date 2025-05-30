@@ -4,8 +4,9 @@ import type { EChartsOption, SeriesOption } from "echarts";
 import ReactECharts from "echarts-for-react";
 import { useMemo } from "react";
 
-import { CHART_PALETTES, COLORS } from "@/common/helpers/colors";
+import { COLORS } from "@/common/helpers/colors";
 import { getCustomTooltipConfig } from "@/common/helpers/customTooltip";
+import { defaultThemeColors, ThemeColors } from "@/common/styles/themeColors";
 
 export interface BarLineChartData {
   x: string;
@@ -18,12 +19,11 @@ interface BarLineChartProps {
   tooltipFormatter?: (value: number) => string;
   selectedDay: number;
   areaLabel?: string;
-  barGradientColors?: [string, string];
-  lineColor?: string;
   minYZero?: boolean;
   showLine?: boolean;
   showBars?: boolean;
   showArea?: boolean;
+  themeColors?: ThemeColors;
 }
 
 export default function BarLineChart({
@@ -32,19 +32,19 @@ export default function BarLineChart({
   tooltipFormatter,
   selectedDay,
   areaLabel = "Value",
-  barGradientColors,
-  lineColor,
   showLine = false,
   showBars = true,
   showArea = false,
   minYZero = true,
+  themeColors = defaultThemeColors,
 }: BarLineChartProps) {
-  const themeColors = useMemo(
+  const chartThemeColors = useMemo(
     () => ({
-      primaryColor: COLORS.primary.DEFAULT,
-      barGradient: [CHART_PALETTES.sequential[1], CHART_PALETTES.sequential[0]],
+      primaryColor: themeColors.primary.value.DEFAULT,
+      barGradient: [themeColors.primary.value.dark, themeColors.primary.value.DEFAULT],
+      lineColor: themeColors.primary.value.DEFAULT,
     }),
-    []
+    [themeColors]
   );
 
   // Memoize filtered data based on data and selectedDay
@@ -107,18 +107,18 @@ export default function BarLineChart({
             colorStops: [
               {
                 offset: 0,
-                color: barGradientColors?.[0] || themeColors.barGradient[0],
+                color: chartThemeColors.barGradient[0],
               },
               {
                 offset: 1,
-                color: barGradientColors?.[1] || themeColors.barGradient[1],
+                color: chartThemeColors.barGradient[1],
               },
             ],
           },
         },
         emphasis: {
           itemStyle: {
-            color: lineColor || themeColors.primaryColor,
+            color: chartThemeColors.primaryColor,
           },
         },
         z: 1,
@@ -133,7 +133,7 @@ export default function BarLineChart({
         smooth: false,
         lineStyle: {
           width: 5,
-          color: lineColor || themeColors.primaryColor,
+          color: chartThemeColors.lineColor,
         },
         areaStyle: showArea
           ? {
@@ -146,7 +146,7 @@ export default function BarLineChart({
                 colorStops: [
                   {
                     offset: 0.6,
-                    color: lineColor || themeColors.primaryColor,
+                    color: chartThemeColors.lineColor,
                   },
                   {
                     offset: 1,
@@ -159,13 +159,13 @@ export default function BarLineChart({
         emphasis: {
           scale: 4,
           itemStyle: {
-            borderColor: lineColor,
+            borderColor: chartThemeColors.lineColor,
             borderWidth: 5,
-            color: themeColors.barGradient[0],
+            color: chartThemeColors.barGradient[0],
           },
         },
         itemStyle: {
-          color: lineColor || themeColors.primaryColor,
+          color: chartThemeColors.lineColor,
           borderWidth: 0,
         },
         z: 2,
@@ -173,16 +173,7 @@ export default function BarLineChart({
     }
 
     return seriesArray;
-  }, [
-    showBars,
-    showLine,
-    showArea,
-    filteredData,
-    areaLabel,
-    barGradientColors,
-    lineColor,
-    themeColors,
-  ]);
+  }, [showBars, showLine, showArea, filteredData, areaLabel, chartThemeColors]);
 
   // Memoize the complete chart option
   const option = useMemo((): EChartsOption => {
@@ -192,7 +183,7 @@ export default function BarLineChart({
         [], // Empty data array for time-series charts
         areaLabel, // Title
         "axis", // Trigger type
-        lineColor || themeColors.primaryColor, // Line color
+        chartThemeColors.lineColor, // Line color
         tooltipFormatter
       ) as any,
       grid: {
@@ -206,7 +197,7 @@ export default function BarLineChart({
         type: "category",
         data: filteredData.map((item) => item.x),
         axisLabel: {
-          color: COLORS.neutral[50], // Using neutral color from our palette
+          color: themeColors.textPrimary.value,
           fontSize: 12,
           formatter: (value: string) => {
             const idx = axisConfig.xAxisLabels.indexOf(value);
@@ -225,7 +216,7 @@ export default function BarLineChart({
         max: axisConfig.yMax,
         interval: axisConfig.interval,
         axisLabel: {
-          color: COLORS.neutral[50], // Using neutral color from our palette
+          color: themeColors.textPrimary.value,
           fontSize: 12,
           formatter: yLabelFormatter,
           margin: 12,
@@ -243,7 +234,7 @@ export default function BarLineChart({
   }, [
     tooltipFormatter,
     areaLabel,
-    lineColor,
+    chartThemeColors,
     themeColors,
     yLabelFormatter,
     filteredData,
@@ -253,7 +244,6 @@ export default function BarLineChart({
 
   return (
     <div style={{ height: "100%", width: "100%" }}>
-      {/* @ts-ignore */}
       <ReactECharts
         option={option}
         style={{ height: "100%", width: "100%" }}

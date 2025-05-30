@@ -1,5 +1,6 @@
 import InfoCard from "@/common/components/cards/InfoCard";
 import { COLORS } from "@/common/helpers/colors";
+import { secondaryThemeColors } from "@/common/styles/themeColors";
 import { useGetSummaryMetricsQuery } from "@/store/api/tokenomicsApi";
 import Image from "next/image";
 
@@ -79,6 +80,7 @@ export function InflationCard({
       valueFormatter={(v: number) => `${v?.toFixed(2)}%`}
       description={<div className="text-xs text-neutral-500">{description}</div>}
       cardClassName={cardClassName}
+      themeColors={secondaryThemeColors}
     />
   );
 }

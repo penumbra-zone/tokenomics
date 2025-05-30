@@ -1,5 +1,6 @@
 "use client";
 
+import { defaultThemeColors, ThemeColors } from "@/common/styles/themeColors";
 import { formatDateForChart, formatNumber } from "@/lib/utils";
 import { useGetInflationTimeSeriesQuery } from "@/store/api/tokenomicsApi";
 import { useState } from "react";
@@ -15,12 +16,14 @@ interface InflationRateChartProps {
   onDaysChange: (days: number) => void;
   dayOptions?: number[];
   currentSelectedDay: number;
+  themeColors?: ThemeColors;
 }
 
 export default function InflationRateChart({
   onDaysChange,
   dayOptions = [7, 30, 90],
   currentSelectedDay,
+  themeColors = defaultThemeColors,
 }: InflationRateChartProps) {
   const [mode, setMode] = useState<"relative" | "absolute">("relative");
 
@@ -58,6 +61,7 @@ export default function InflationRateChart({
               dayOptions={dayOptions}
               selectedDay={currentSelectedDay}
               onDaysChange={onDaysChange}
+              themeColors={themeColors}
             />
             <TogglePill
               options={[
@@ -66,6 +70,7 @@ export default function InflationRateChart({
               ]}
               value={mode}
               onChange={(val) => setMode(val as "relative" | "absolute")}
+              themeColors={themeColors}
             />
           </div>
           <BarLineChart
@@ -75,6 +80,7 @@ export default function InflationRateChart({
             tooltipFormatter={valueFormatter}
             areaLabel={mode === "relative" ? "Inflation Rate (%)" : "Net Issuance (UM)"}
             minYZero={false}
+            themeColors={themeColors}
           />
           {showLoadingOverlay && <LoadingOverlay />}
         </div>

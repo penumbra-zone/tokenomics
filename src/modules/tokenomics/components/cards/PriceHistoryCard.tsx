@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 
 import InfoCard from "@/common/components/cards/InfoCard";
+import { secondaryThemeColors } from "@/common/styles/themeColors";
 import { useGetPriceHistoryQuery } from "@/store/api/tokenomicsApi";
 
 // Import chart component with SSR disabled
@@ -36,6 +37,7 @@ export function PriceHistoryCard({ dayOptions = DAY_OPTIONS }: PriceHistoryCardP
           onDaysChange={handleDaysChange}
           currentSelectedDay={currentSelectedDay}
           dayOptions={dayOptions}
+          themeColors={secondaryThemeColors}
         />
       </div>
 
@@ -47,6 +49,7 @@ export function PriceHistoryCard({ dayOptions = DAY_OPTIONS }: PriceHistoryCardP
           isLoading={isLoading}
           value={priceHistoryData?.priceHistory[priceHistoryData.priceHistory.length - 1].price}
           valuePrefix="$"
+          themeColors={secondaryThemeColors}
         />
         {/* All-Time High */}
         <InfoCard
@@ -54,6 +57,7 @@ export function PriceHistoryCard({ dayOptions = DAY_OPTIONS }: PriceHistoryCardP
           isLoading={isLoading}
           value={priceHistoryData?.allTimeHigh}
           valuePrefix="$"
+          themeColors={secondaryThemeColors}
         />
         {/* All-Time Low */}
         <InfoCard
@@ -61,6 +65,7 @@ export function PriceHistoryCard({ dayOptions = DAY_OPTIONS }: PriceHistoryCardP
           isLoading={isLoading}
           value={priceHistoryData?.allTimeLow.toFixed(4)}
           valuePrefix="$"
+          themeColors={secondaryThemeColors}
         />
       </div>
     </div>
