@@ -21,7 +21,17 @@ if (shouldShowLiquidityTournament()) {
   NAV_ITEMS.push({ id: "lqt", label: "Liquidity Tournament" });
 }
 
-export default function StickyNavbar() {
+interface StickyNavbarProps {
+  onShare: () => void;
+  isGeneratingImage: boolean;
+  isSubmitting: boolean;
+}
+
+export default function StickyNavbar({
+  onShare,
+  isGeneratingImage,
+  isSubmitting,
+}: StickyNavbarProps) {
   const [activeSection, setActiveSection] = useState(NAV_ITEMS[0].id);
   const [showNavbar, setShowNavbar] = useState(true);
   const lastScrollY = useRef(typeof window !== "undefined" ? window.scrollY : 0);
@@ -86,10 +96,6 @@ export default function StickyNavbar() {
     };
   }, []);
 
-  const handleShare = () => {
-    console.log("share");
-  };
-
   return (
     <header
       className={`sticky top-0 z-50 bg-black/80 backdrop-blur-lg transition-transform duration-300 will-change-transform ${
@@ -115,7 +121,13 @@ export default function StickyNavbar() {
           ))}
         </nav>
         <div className="flex items-center space-x-2">
-          <ShareButton text="Share Overview" onClick={handleShare} />
+          <ShareButton
+            text={
+              isGeneratingImage ? "Generating..." : isSubmitting ? "Sharing..." : "Share Overview"
+            }
+            onClick={onShare}
+            disabled={isGeneratingImage || isSubmitting}
+          />
         </div>
       </div>
     </header>

@@ -1,7 +1,11 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+
 import Footer from "@/common/components/Footer";
 import { shouldShowLiquidityTournament } from "@/lib/env/client";
+import { useShare } from "@/lib/hooks/useShare";
+import { shareConfigs } from "@/lib/utils/shareUtils";
 import StickyNavbar from "@/modules/tokenomics/components/StickyNavbar";
 import BurnMetricsSection from "@/modules/tokenomics/components/sections/BurnMetricsSection";
 import IssuanceMetricsSection from "@/modules/tokenomics/components/sections/IssuanceMetricsSection";
@@ -9,11 +13,28 @@ import LiquidityTournamentSection from "@/modules/tokenomics/components/sections
 import SummarySection from "@/modules/tokenomics/components/sections/SummarySection";
 import SupplyVisualizationSection from "@/modules/tokenomics/components/sections/SupplyVisualizationSection";
 import TokenDistributionSection from "@/modules/tokenomics/components/sections/TokenDistributionSection";
-import { useEffect, useState } from "react";
+import SharePreview from "@/modules/tokenomics/components/share/SharePreview";
+import SharePreviewModal from "@/modules/tokenomics/components/share/SharePreviewModal";
 
 export default function Dashboard() {
-  const handleShare = () => {};
   const [showLQTSection, setShowLQTSection] = useState(false);
+  const summaryShareRef = useRef<HTMLDivElement>(null);
+
+  const {
+    isGeneratingImage,
+    handleShare,
+    isSubmitting,
+    isPreviewOpen,
+    previewData,
+    handleClosePreview,
+    handleConfirmShare,
+  } = useShare({
+    elementRef: summaryShareRef,
+    fileName: shareConfigs.summary.fileName,
+    twitterText: shareConfigs.summary.twitterText,
+    sectionName: shareConfigs.summary.sectionName,
+    sectionId: shareConfigs.summary.id,
+  });
 
   useEffect(() => {
     // Check environment variable on client-side only to prevent hydration mismatch
@@ -22,7 +43,11 @@ export default function Dashboard() {
 
   return (
     <>
-      <StickyNavbar />
+      <StickyNavbar
+        onShare={handleShare}
+        isGeneratingImage={isGeneratingImage}
+        isSubmitting={isSubmitting}
+      />
       <div className="relative min-h-screen bg-background overflow-hidden">
         {/* Background effect - simplified */}
         <div className="absolute inset-0 z-0 opacity-5">
@@ -42,6 +67,20 @@ export default function Dashboard() {
         </div>
       </div>
       <Footer />
+
+      {/* Hidden SharePreview for image capture */}
+      <div className="absolute -top-[9999px] left-0 pointer-events-none">
+        <SharePreview ref={summaryShareRef} />
+      </div>
+
+      {/* Share Preview Modal */}
+      <SharePreviewModal
+        isOpen={isPreviewOpen}
+        previewData={previewData}
+        onClose={handleClosePreview}
+        onShareToX={handleConfirmShare}
+        isSubmitting={isSubmitting}
+      />
     </>
   );
 }
