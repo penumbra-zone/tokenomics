@@ -1,7 +1,7 @@
 import { Kysely, PostgresDialect } from "kysely";
 import { Pool } from "pg";
 
-import { env } from "../../env";
+import { env } from "@/lib/env/server";
 import type { DB } from "./schema";
 
 const connectionString = env.DATABASE_URL;
@@ -27,8 +27,8 @@ const createDbClient = () => {
   const dialect = new PostgresDialect({
     pool,
   });
-
   return new Kysely<DB>({ dialect });
 };
 
 export const dbClient = createDbClient();
+

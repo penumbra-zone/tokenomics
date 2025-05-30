@@ -2,7 +2,7 @@ import InfoCard from "@/common/components/cards/InfoCard";
 import { defaultThemeColors, ThemeColors } from "@/common/styles/themeColors";
 import { calculatePercentageStaked } from "@/lib/calculations";
 import { useGetSummaryMetricsQuery } from "@/store/api/tokenomicsApi";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 interface PercentStakedOfTotalSupplyCardProps {
   themeColors?: ThemeColors;
@@ -12,15 +12,12 @@ export function PercentStakedOfTotalSupplyCard({
   themeColors = defaultThemeColors,
 }: PercentStakedOfTotalSupplyCardProps) {
   const { data: summaryMetrics, isLoading } = useGetSummaryMetricsQuery();
-  const [percentage, setPercentage] = useState(0);
 
-  useEffect(() => {
-    if (summaryMetrics) {
-      const totalSupply = summaryMetrics.totalSupply;
-      const stakedTokens = summaryMetrics.stakedTokens;
-      const percentage = calculatePercentageStaked(stakedTokens, totalSupply);
-      setPercentage(percentage);
-    }
+  const percentage = useMemo(() => {
+    return calculatePercentageStaked(
+      summaryMetrics?.stakedTokens || 0,
+      summaryMetrics?.totalSupply || 0
+    );
   }, [summaryMetrics]);
 
   return (

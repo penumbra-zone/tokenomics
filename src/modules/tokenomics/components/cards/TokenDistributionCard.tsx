@@ -1,7 +1,6 @@
 import dynamic from "next/dynamic";
 
 import CardWrapper from "@/common/components/cards/CardWrapper";
-import { LoadingOverlay } from "@/common/components/LoadingOverlay";
 import { LoadingSpinner } from "@/common/components/LoadingSpinner";
 import { useGetTokenDistributionQuery } from "@/store/api/tokenomicsApi";
 
@@ -12,9 +11,7 @@ const TokenDistributionChart = dynamic(
 );
 
 export function TokenDistributionCard() {
-  const { data: distribution, isLoading, isFetching } = useGetTokenDistributionQuery();
-
-  const showLoadingOverlay = isFetching && !distribution;
+  const { data: distribution, isLoading } = useGetTokenDistributionQuery();
 
   return (
     <CardWrapper className="p-6">
@@ -25,7 +22,6 @@ export function TokenDistributionCard() {
           distribution && (
             <>
               <TokenDistributionChart data={distribution} />
-              {showLoadingOverlay && <LoadingOverlay />}
             </>
           )
         )}

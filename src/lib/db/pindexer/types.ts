@@ -83,11 +83,6 @@ export interface TokenDistribution {
   category: string;
   percentage: number;
   amount: number;
-  subcategories?: Array<{
-    name: string;
-    amount: number;
-    percentage: number;
-  }>;
 }
 
 export interface TokenMetrics {

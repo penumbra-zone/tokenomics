@@ -2,16 +2,13 @@ import InfoCard from "@/common/components/cards/InfoCard";
 import { secondaryThemeColors } from "@/common/styles/themeColors";
 import { formatNumber } from "@/lib/utils";
 import { useGetSupplyMetricsQuery } from "@/store/api/tokenomicsApi";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 export function CirculatingSupplyCard() {
   const { data: supply, isLoading } = useGetSupplyMetricsQuery();
-  const [circulatingSupply, setCirculatingSupply] = useState(0);
 
-  useEffect(() => {
-    if (supply) {
-      setCirculatingSupply(supply.totalUnstaked);
-    }
+  const circulatingSupply = useMemo(() => {
+    return supply?.totalUnstaked;
   }, [supply]);
 
   return (

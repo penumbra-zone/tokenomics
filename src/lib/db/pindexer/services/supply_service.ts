@@ -44,7 +44,7 @@ export class SupplyService {
       return {
         um: FIELD_TRANSFORMERS.toTokenAmount(result.um),
         auction: FIELD_TRANSFORMERS.toTokenAmount(result.auction),
-        dex: FIELD_TRANSFORMERS.toTokenAmount(result.dex),
+        dex: Math.abs(FIELD_TRANSFORMERS.toTokenAmount(result.dex)),
         arb: FIELD_TRANSFORMERS.toTokenAmount(result.arb),
         fees: FIELD_TRANSFORMERS.toTokenAmount(result.fees),
       };

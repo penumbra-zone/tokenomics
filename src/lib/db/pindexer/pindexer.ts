@@ -245,18 +245,6 @@ export class Pindexer extends AbstractPindexerConnection {
         category: "DEX Liquidity",
         percentage: distributionBreakdown.dexLiquidity.percentage,
         amount: distributionBreakdown.dexLiquidity.amount,
-        subcategories: [
-          {
-            name: "PEN/USDC",
-            amount: distributionBreakdown.dexLiquidity.amount * 0.6,
-            percentage: 60,
-          },
-          {
-            name: "PEN/ETH",
-            amount: distributionBreakdown.dexLiquidity.amount * 0.4,
-            percentage: 40,
-          },
-        ],
       },
       {
         category: "Community Pool",

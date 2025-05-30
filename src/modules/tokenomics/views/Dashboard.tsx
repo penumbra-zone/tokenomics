@@ -1,7 +1,7 @@
 "use client";
 
 import Footer from "@/common/components/Footer";
-import { formatNumber } from "@/lib/utils";
+import { shouldShowLiquidityTournament } from "@/lib/env/client";
 import StickyNavbar from "@/modules/tokenomics/components/StickyNavbar";
 import BurnMetricsSection from "@/modules/tokenomics/components/sections/BurnMetricsSection";
 import IssuanceMetricsSection from "@/modules/tokenomics/components/sections/IssuanceMetricsSection";
@@ -9,22 +9,16 @@ import LiquidityTournamentSection from "@/modules/tokenomics/components/sections
 import SummarySection from "@/modules/tokenomics/components/sections/SummarySection";
 import SupplyVisualizationSection from "@/modules/tokenomics/components/sections/SupplyVisualizationSection";
 import TokenDistributionSection from "@/modules/tokenomics/components/sections/TokenDistributionSection";
-import { useGetSummaryMetricsQuery } from "@/store/api/tokenomicsApi";
+import { useEffect, useState } from "react";
 
 export default function Dashboard() {
-  const { data: socialMetrics } = useGetSummaryMetricsQuery();
+  const handleShare = () => {};
+  const [showLQTSection, setShowLQTSection] = useState(false);
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: "Penumbra Tokenomics Dashboard",
-        text: `Check out Penumbra's tokenomics! Total Supply: ${formatNumber(
-          socialMetrics?.totalSupply || 0
-        )}, Market Cap: $${formatNumber(socialMetrics?.marketCap || 0)}`,
-        url: window.location.href,
-      });
-    }
-  };
+  useEffect(() => {
+    // Check environment variable on client-side only to prevent hydration mismatch
+    setShowLQTSection(shouldShowLiquidityTournament());
+  }, []);
 
   return (
     <>
@@ -43,7 +37,7 @@ export default function Dashboard() {
             <IssuanceMetricsSection handleShare={handleShare} />
             <BurnMetricsSection handleShare={handleShare} />
             <TokenDistributionSection handleShare={handleShare} />
-            <LiquidityTournamentSection handleShare={handleShare} />
+            {showLQTSection && <LiquidityTournamentSection handleShare={handleShare} />}
           </main>
         </div>
       </div>

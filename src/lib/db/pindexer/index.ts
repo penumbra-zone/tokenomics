@@ -1,6 +1,6 @@
 import { Kysely } from "kysely";
 
-import { Env, env } from "@/lib/env";
+import { Env, env } from "@/lib/env/server";
 import { MockPindexerConnection } from "./mock/mock-pindexer-connection";
 import { Pindexer as PostgresPindexerConnection } from "./pindexer";
 import { DB } from "./schema";
