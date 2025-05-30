@@ -14,7 +14,6 @@ import {
   calculateIssuanceMetrics,
   calculateIssuanceSinceLaunch,
   calculateTokenDistributionBreakdown,
-  calculateTotalBurned,
   calculateTotalUnstakedSupply,
   CalculationContext,
   getCurrentNetworkConfig,
@@ -22,17 +21,16 @@ import {
 } from "../../calculations";
 import { BlockService } from "./services/block_service";
 import { BurnService } from "./services/burn_service";
+import { CommunityPoolService } from "./services/community_pool_service";
 import { MarketService } from "./services/market_service";
 import { SupplyService } from "./services/supply_service";
 import {
   AbstractPindexerConnection,
   BurnMetrics,
-  BurnSourcesData,
   BurnDataBySource,
   InflationTimeSeries,
   IssuanceMetrics,
   LqtMetrics,
-  PriceHistoryEntry,
   SummaryMetrics,
   SupplyMetrics,
   TokenDistribution,
@@ -45,12 +43,15 @@ import {
   getDateRangeForDays, 
   getDurationWindowForDays, 
 } from "../utils";
+import { MockPindexerConnection } from './mock/mock-pindexer-connection';
+import { registryClient } from '@/lib/registry';
 
 export class Pindexer extends AbstractPindexerConnection {
   private readonly blockService: BlockService;
   private readonly marketService: MarketService;
   private readonly supplyService: SupplyService;
   private readonly burnService: BurnService;
+  private readonly communityPoolService: CommunityPoolService;
   private readonly calculationContext: CalculationContext;
 
   constructor(protected dbInstance: Kysely<DB> = defaultDb) {
@@ -59,12 +60,13 @@ export class Pindexer extends AbstractPindexerConnection {
     this.marketService = new MarketService(dbInstance);
     this.supplyService = new SupplyService(dbInstance);
     this.burnService = new BurnService(dbInstance);
+    this.communityPoolService = new CommunityPoolService();
 
     // Initialize calculation context with current network config
     const config = getCurrentNetworkConfig();
     this.calculationContext = {
       config,
-      currentHeight: 0, // Will be updated dynamically TODO: set height and timestamp and set ttls
+      currentHeight: 0, // Will be updated dynamically
       currentTimestamp: new Date(),
     };
   }
@@ -222,7 +224,7 @@ export class Pindexer extends AbstractPindexerConnection {
     const totalSupply = supplyMetrics.totalSupply;
     const stakedSupply = supplyMetrics.totalStaked;
     const dexLiquiditySupply = supplyMetrics.unstakedSupply.dex;
-    const communityPoolSupply = 0; // TODO: Get actual community pool supply
+    const communityPoolSupply = await this.getCommunityPoolSupply();
 
     // Use centralized calculation for token distribution breakdown
     const distributionBreakdown = calculateTokenDistributionBreakdown(
@@ -274,7 +276,7 @@ export class Pindexer extends AbstractPindexerConnection {
     const { totalSupply, totalStaked, unstakedSupply } = await this.getSupplyMetrics();
     const { totalBurned: burnedTokens } = await this.getBurnMetrics(0);
     const { marketCap, price } = await this.getSummaryMetrics();
-    const communityPoolSupply = 0; // TODO: Get actual community pool supply from https://buf.build/penumbra-zone/penumbra/docs/main:penumbra.core.component.community_pool.v1#penumbra.core.component.community_pool.v1.QueryService.CommunityPoolAssetBalances
+    const communityPoolSupply = await this.getCommunityPoolSupply(); 
     const circulatingSupply = calculateCirculatingSupply(
       totalSupply,
       totalStaked,
@@ -291,20 +293,13 @@ export class Pindexer extends AbstractPindexerConnection {
     };
   }
 
+  async getCommunityPoolSupply(): Promise<number> {
+    const { stakingAssetId } = registryClient.bundled.globals();
+    return await this.communityPoolService.getCommunityPoolSupply([stakingAssetId]);
+  }
+
   async getLqtMetrics(): Promise<LqtMetrics> {
     // TODO: Implement with Kysely if LQT tables are in the schema, or keep as mock
-    return {
-      availableRewards: 10000000,
-      delegatorRewards: 5000000,
-      lpRewards: 3000000,
-      votingPower: {
-        total: 800000000,
-        byAsset: [
-          { asset: "PEN", votes: 500000000, share: 0.625 },
-          { asset: "USDC", votes: 200000000, share: 0.25 },
-          { asset: "ETH", votes: 100000000, share: 0.125 },
-        ],
-      },
-    };
+    return new MockPindexerConnection().getLqtMetrics();
   }
 }
