@@ -1,6 +1,7 @@
 import type { Selectable } from "kysely";
 import { Kysely } from "kysely";
 
+import { CalculationContext } from "@/lib/calculations/types";
 import {
   DATA_SOURCES,
   DB_CONFIG,
@@ -9,7 +10,6 @@ import {
 } from "../database-mappings";
 import type { BlockDetails } from "../schema";
 import { DB } from "../schema";
-import { CalculationContext } from '@/lib/calculations/types';
 
 const TABLE = DATA_SOURCES.BLOCK_DETAILS;
 
@@ -47,7 +47,10 @@ export class BlockService {
   /**
    * Fetches the start and end block heights for a given duration window.
    */
-  async getBlockRangeForDays(days: number, endDate: Date = new Date()): Promise<{
+  async getBlockRangeForDays(
+    days: number,
+    endDate: Date = new Date()
+  ): Promise<{
     startBlock: { height: string; timestamp: Date };
     endBlock: { height: string; timestamp: Date };
   }> {

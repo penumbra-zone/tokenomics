@@ -1,4 +1,4 @@
-import { AssetId } from '@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb';
+import { AssetId } from "@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb";
 import {
   AbstractPindexerConnection,
   BurnMetrics,
@@ -215,22 +215,22 @@ export class MockPindexerConnection extends AbstractPindexerConnection {
     const timeSeries = [];
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - (days - 1));
-    
+
     let baseInflationRate = 15.5; // Start at 15.5% annualized
-    
+
     for (let i = 0; i < days; i++) {
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
-      
+
       // Add some variability but show general downward trend
       const variation = (Math.random() - 0.5) * 0.8; // ±0.4% variation
       const trendReduction = (i / days) * 2.5; // Reduce by 2.5% over the period
       const inflationRate = Math.max(10, baseInflationRate - trendReduction + variation);
-      
+
       timeSeries.push({
         date: date.toISOString().slice(0, 10),
         inflationRate: Number(inflationRate.toFixed(2)),
-        absoluteAmount: 1000000000 * inflationRate / 100,
+        absoluteAmount: (1000000000 * inflationRate) / 100,
       });
     }
 

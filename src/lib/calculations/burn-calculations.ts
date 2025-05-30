@@ -1,7 +1,7 @@
 // Burn Metrics Calculations
 
-import { BurnDataBySource, BurnSourcesData } from '../db/pindexer/types';
-import { formatDateForChart } from '../utils';
+import { BurnDataBySource } from "../db/pindexer/types";
+import { formatDateForChart } from "../utils";
 import { BurnData, BurnMetrics, CalculationContext } from "./types";
 
 /**
@@ -10,10 +10,7 @@ import { BurnData, BurnMetrics, CalculationContext } from "./types";
  * Excludes: auction and dex burns (locked but recoverable)
  * Formula: TotalBurned = ArbitrageBurns + FeeBurns
  */
-export function calculateTotalBurned(
-  totalArbitrageBurns: number,
-  totalFeeBurns: number
-): number {
+export function calculateTotalBurned(totalArbitrageBurns: number, totalFeeBurns: number): number {
   return totalArbitrageBurns + totalFeeBurns;
 }
 
@@ -98,10 +95,7 @@ export function calculateBurnMetrics(
   const { blocksPerDay } = context.config;
 
   // Calculate total burned across all data (only permanent burns)
-  const totalBurned = calculateTotalBurned(
-    burnsBySource.arbitrageBurns,
-    burnsBySource.feeBurns
-  );
+  const totalBurned = calculateTotalBurned(burnsBySource.arbitrageBurns, burnsBySource.feeBurns);
 
   // Calculate percentage of supply burned
   const percentageOfSupplyBurned = calculatePercentageOfSupplyBurned(

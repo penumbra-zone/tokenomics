@@ -25,14 +25,13 @@ export function formatNumber(num: number, decimals: number = 1): string {
   }
 }
 
-
 /**
  * Helper function to safely convert date to string format for charts
  * Handles both Date objects and string dates from API responses
  */
 export const formatDateForChart = (date: Date | string): string => {
-  if (typeof date === 'string') {
-    return date.split('T')[0]; // Handle ISO string format
+  if (typeof date === "string") {
+    return date.split("T")[0]; // Handle ISO string format
   }
-  return date.toISOString().split('T')[0]; // Handle Date object
-}; 
+  return date.toISOString().split("T")[0]; // Handle Date object
+};

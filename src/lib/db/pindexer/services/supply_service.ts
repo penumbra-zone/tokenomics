@@ -1,9 +1,9 @@
 import { Kysely, sql } from "kysely";
 
+import { getDateGroupExpression } from "../../utils";
 import { DATA_SOURCES, DB_ERROR_MESSAGES, FIELD_TRANSFORMERS } from "../database-mappings";
 import { DB } from "../schema";
-import type { DelegatedSupplyComponent, UnstakedSupplyComponents, DurationWindow } from "../types";
-import { getDateGroupExpression } from "../../utils";
+import type { DurationWindow, UnstakedSupplyComponents } from "../types";
 
 // Define an interface for the raw row structure from getDelegatedSupplyComponentsByHeight
 interface RawDelegatedSupplyRow {
@@ -90,7 +90,7 @@ export class SupplyService {
   async getHistoricalSupplyData(
     startDate: Date,
     endDate: Date,
-    window: DurationWindow = '1d'
+    window: DurationWindow = "1d"
   ): Promise<
     Array<{
       height: number;
@@ -110,11 +110,22 @@ export class SupplyService {
           `${DATA_SOURCES.INSIGHTS_SUPPLY.name}.${DATA_SOURCES.INSIGHTS_SUPPLY.fields.HEIGHT}`
         )
         .select([
-          sql<string>`MAX(${sql.ref(`${DATA_SOURCES.INSIGHTS_SUPPLY.name}.${DATA_SOURCES.INSIGHTS_SUPPLY.fields.HEIGHT}`)})`.as('height'),
-          sql<string>`MAX(${sql.ref(`${DATA_SOURCES.INSIGHTS_SUPPLY.name}.${DATA_SOURCES.INSIGHTS_SUPPLY.fields.TOTAL_SUPPLY}`)})`.as('total'),
-          sql<string>`MAX(${sql.ref(`${DATA_SOURCES.INSIGHTS_SUPPLY.name}.${DATA_SOURCES.INSIGHTS_SUPPLY.fields.STAKED_SUPPLY}`)})`.as('staked'),
-          sql<Date>`MAX(${sql.ref(`${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`)})`.as('timestamp'),
-          getDateGroupExpression(window, `${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`).as('date_group'),
+          sql<string>`MAX(${sql.ref(`${DATA_SOURCES.INSIGHTS_SUPPLY.name}.${DATA_SOURCES.INSIGHTS_SUPPLY.fields.HEIGHT}`)})`.as(
+            "height"
+          ),
+          sql<string>`MAX(${sql.ref(`${DATA_SOURCES.INSIGHTS_SUPPLY.name}.${DATA_SOURCES.INSIGHTS_SUPPLY.fields.TOTAL_SUPPLY}`)})`.as(
+            "total"
+          ),
+          sql<string>`MAX(${sql.ref(`${DATA_SOURCES.INSIGHTS_SUPPLY.name}.${DATA_SOURCES.INSIGHTS_SUPPLY.fields.STAKED_SUPPLY}`)})`.as(
+            "staked"
+          ),
+          sql<Date>`MAX(${sql.ref(`${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`)})`.as(
+            "timestamp"
+          ),
+          getDateGroupExpression(
+            window,
+            `${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`
+          ).as("date_group"),
         ])
         .where(
           `${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`,
@@ -126,8 +137,8 @@ export class SupplyService {
           "<=",
           endDate
         )
-        .groupBy('date_group')
-        .orderBy('date_group', 'asc')
+        .groupBy("date_group")
+        .orderBy("date_group", "asc")
         .execute();
 
       return results.map((row) => ({

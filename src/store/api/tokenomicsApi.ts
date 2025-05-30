@@ -1,4 +1,9 @@
-import { BurnDataBySource, IssuanceMetrics, PriceHistoryEntry, SummaryMetrics } from "@/lib/db/pindexer";
+import {
+  BurnDataBySource,
+  IssuanceMetrics,
+  PriceHistoryEntry,
+  SummaryMetrics,
+} from "@/lib/db/pindexer";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export interface SupplyMetrics {

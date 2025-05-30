@@ -1,4 +1,4 @@
-import { formatNumber } from '@/lib/utils';
+import { formatNumber } from "@/lib/utils";
 import { CHART_PALETTES, COLORS } from "./colors";
 import { TEXT_COLORS } from "./typography";
 

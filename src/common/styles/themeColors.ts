@@ -1,4 +1,4 @@
-import { COLORS } from '../helpers/colors';
+import { COLORS } from "../helpers/colors";
 
 export interface Color {
   DEFAULT: string;
@@ -6,7 +6,7 @@ export interface Color {
   dark: string;
 }
 
-export type TextColor = string; 
+export type TextColor = string;
 
 export interface ColorValues {
   value: Color;

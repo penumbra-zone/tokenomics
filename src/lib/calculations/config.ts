@@ -1,8 +1,8 @@
 // Calculation Configuration
 // Centralized configuration for all tokenomics calculations
 
-import mainnetGenesis from "../genesis/mainnet.json";
 import { parseGenesisConfig } from "../genesis/genesisFileParser";
+import mainnetGenesis from "../genesis/mainnet.json";
 import testnetGenesis from "../genesis/testnet.json";
 import { CalculationConfig } from "./types";
 

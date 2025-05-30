@@ -32,11 +32,11 @@ export async function GET(request: Request) {
 
     // Get staking asset ID from registry
     const { stakingAssetId } = registryClient.bundled.globals();
-    
+
     // Get USDC asset using centralized utility
     let quoteAsset = await findUSDCAssetId();
     if (!quoteAsset) {
-      throw new Error('USDC asset ID not found');
+      throw new Error("USDC asset ID not found");
     }
 
     const data = await pindexer.getPriceHistory({
@@ -50,9 +50,6 @@ export async function GET(request: Request) {
     return NextResponse.json(data);
   } catch (error) {
     console.error("Error fetching price history:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch price history" }, 
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch price history" }, { status: 500 });
   }
 }

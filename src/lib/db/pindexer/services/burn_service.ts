@@ -1,15 +1,10 @@
 import { Kysely, sql } from "kysely";
 
-import {
-  DATA_SOURCES,
-  DB_CONFIG,
-  DB_ERROR_MESSAGES,
-  FIELD_TRANSFORMERS,
-} from "../database-mappings";
-import { DB } from "../schema";
-import type { BurnSourcesData, BurnDataBySource, DurationWindow } from "../types";
-import { calculateTotalBurned } from '@/lib/calculations';
+import { calculateTotalBurned } from "@/lib/calculations";
 import { getDateGroupExpression } from "../../utils";
+import { DATA_SOURCES, DB_ERROR_MESSAGES, FIELD_TRANSFORMERS } from "../database-mappings";
+import { DB } from "../schema";
+import type { BurnDataBySource, DurationWindow } from "../types";
 
 interface RawBurnEntryRow {
   height: number | string | null;
@@ -43,8 +38,12 @@ export class BurnService {
         .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name)
         .select([
           // Sum only the permanently burned mechanisms up to the specified height
-          sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS)})`.as("total_arbitrage_burns"),
-          sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS)})`.as("total_fee_burns"),
+          sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS)})`.as(
+            "total_arbitrage_burns"
+          ),
+          sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS)})`.as(
+            "total_fee_burns"
+          ),
         ])
         .where(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT, "<=", height)
         .executeTakeFirstOrThrow();
@@ -52,7 +51,7 @@ export class BurnService {
       // Return raw aggregated values for burned categories only
       const totalArbitrageBurns = FIELD_TRANSFORMERS.toTokenAmount(result.total_arbitrage_burns);
       const totalFeeBurns = FIELD_TRANSFORMERS.toTokenAmount(result.total_fee_burns);
-      
+
       return {
         totalArbitrageBurns,
         totalFeeBurns,
@@ -87,8 +86,8 @@ export class BurnService {
       const arbitrageBurns = FIELD_TRANSFORMERS.toTokenAmount(results.arbitrage_burns);
       const feeBurns = FIELD_TRANSFORMERS.toTokenAmount(results.fee_burns);
       const dexLocked = FIELD_TRANSFORMERS.toTokenAmount(Math.abs(results.dex_locked));
-      const auctionLocked = FIELD_TRANSFORMERS.toTokenAmount(results.auction_locked); 
-        
+      const auctionLocked = FIELD_TRANSFORMERS.toTokenAmount(results.auction_locked);
+
       return {
         arbitrageBurns,
         feeBurns,
@@ -110,7 +109,7 @@ export class BurnService {
   async getBurnMetricsTimeSeries(
     startDate: Date,
     endDate: Date,
-    window: DurationWindow = '1d'
+    window: DurationWindow = "1d"
   ): Promise<
     Array<{
       arbitrageBurns: number;
@@ -127,11 +126,22 @@ export class BurnService {
           `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name}.${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT}`
         )
         .select([
-          sql<string>`MAX(${sql.ref(`${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name}.${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT}`)})`.as('height'),
-          sql<string>`MAX(${sql.ref(`${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name}.${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS}`)})`.as('arbitrage_burns'),
-          sql<string>`MAX(${sql.ref(`${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name}.${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS}`)})`.as('fee_burns'),
-          sql<Date>`MAX(${sql.ref(`${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`)})`.as('timestamp'),
-          getDateGroupExpression(window, `${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`).as('date_group'),
+          sql<string>`MAX(${sql.ref(`${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name}.${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT}`)})`.as(
+            "height"
+          ),
+          sql<string>`MAX(${sql.ref(`${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name}.${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS}`)})`.as(
+            "arbitrage_burns"
+          ),
+          sql<string>`MAX(${sql.ref(`${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name}.${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS}`)})`.as(
+            "fee_burns"
+          ),
+          sql<Date>`MAX(${sql.ref(`${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`)})`.as(
+            "timestamp"
+          ),
+          getDateGroupExpression(
+            window,
+            `${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`
+          ).as("date_group"),
         ])
         .where(
           `${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`,
@@ -143,8 +153,8 @@ export class BurnService {
           "<=",
           endDate
         )
-        .groupBy('date_group')
-        .orderBy('date_group', 'asc')
+        .groupBy("date_group")
+        .orderBy("date_group", "asc")
         .execute();
 
       return results.map((row) => ({

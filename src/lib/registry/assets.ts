@@ -1,6 +1,6 @@
-import { AssetId, Metadata } from '@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb';
-import { registryClient } from './index';
-import { getChainId } from './chain-id';
+import { AssetId, Metadata } from "@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb";
+import { getChainId } from "./chain-id";
+import { registryClient } from "./index";
 
 /**
  * Placeholder for asset metadata functionality
@@ -23,24 +23,24 @@ export const getAssetMetadataById = async (assetId: AssetId): Promise<Metadata |
   try {
     const chainId = await getChainId();
     if (!chainId) {
-      console.warn('No chain ID available');
+      console.warn("No chain ID available");
       return undefined;
     }
 
     const registry = await registryClient.remote.get(chainId);
     const assets = registry.getAllAssets();
-    
+
     // Find the asset by matching the asset ID
-    const asset = assets.find(registryAsset => {
+    const asset = assets.find((registryAsset) => {
       if (!registryAsset.penumbraAssetId) return false;
-      const registryIdHex = Buffer.from(registryAsset.penumbraAssetId.inner).toString('hex');
-      const searchIdHex = Buffer.from(assetId.inner).toString('hex');
+      const registryIdHex = Buffer.from(registryAsset.penumbraAssetId.inner).toString("hex");
+      const searchIdHex = Buffer.from(assetId.inner).toString("hex");
       return registryIdHex === searchIdHex;
     });
 
     return asset;
   } catch (error) {
-    console.error('Failed to get asset metadata:', error);
+    console.error("Failed to get asset metadata:", error);
     return undefined;
   }
-}; 
+};

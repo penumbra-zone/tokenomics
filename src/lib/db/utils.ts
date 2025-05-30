@@ -27,7 +27,7 @@ export function getDateGroupExpression(window: DurationWindow, timestampField: s
     default:
       return sql`date_trunc('day', ${sql.ref(timestampField)})`;
   }
-} 
+}
 
 /**
  * Calculate date range for historical data based on days parameter
@@ -38,7 +38,7 @@ export function getDateRangeForDays(days: number): { startDate: Date; endDate: D
   const endDate = new Date();
   const startDate = new Date();
   startDate.setDate(endDate.getDate() - days);
-  
+
   return { startDate, endDate };
 }
 

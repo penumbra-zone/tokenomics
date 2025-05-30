@@ -107,7 +107,7 @@ export function calculateIssuanceMetrics(context: CalculationContext): IssuanceM
  * Calculate inflation rate time series for charts
  */
 export function calculateInflationTimeSeries(
-  supplyDataPoints: SupplyData[],
+  supplyDataPoints: SupplyData[]
 ): Array<{ date: string; inflationRate: number; absoluteAmount: number }> {
   const subPeriodRates = calculateSubPeriodInflationRates(supplyDataPoints);
 

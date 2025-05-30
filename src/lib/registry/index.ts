@@ -1,11 +1,11 @@
-import { ChainRegistryClient, Registry } from '@penumbra-labs/registry';
-import { AssetId } from '@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb';
-import { getChainId } from './chain-id';
-import { getAssetMetadataById } from './assets';
+import { ChainRegistryClient } from "@penumbra-labs/registry";
+import { AssetId } from "@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb";
+import { getAssetMetadataById } from "./assets";
+import { getChainId } from "./chain-id";
 
 /**
  * Registry Client Instance
- * 
+ *
  * This is the main registry client that provides access to Penumbra's
  * chain registry data including assets, staking information, and IBC connections.
  */
@@ -22,14 +22,14 @@ export const registryClient = new ChainRegistryClient();
 export const getStakingTokenMetadata = async () => {
   const chainId = await getChainId();
   if (!chainId) {
-    throw new Error('Could not fetch chain id');
+    throw new Error("Could not fetch chain id");
   }
 
   const { stakingAssetId } = registryClient.bundled.globals();
   const stakingAssetsMetadata = await getAssetMetadataById(stakingAssetId);
 
   if (!stakingAssetsMetadata) {
-    throw new Error('Could not fetch staking asset metadata');
+    throw new Error("Could not fetch staking asset metadata");
   }
   return stakingAssetsMetadata;
 };
@@ -42,13 +42,13 @@ export const getStakingTokenMetadata = async () => {
 export const getAssetTokenMetadata = async (assetId: AssetId) => {
   const chainId = await getChainId();
   if (!chainId) {
-    throw new Error('Could not fetch chain id');
+    throw new Error("Could not fetch chain id");
   }
 
   const assetTokenMetadata = await getAssetMetadataById(assetId);
 
   if (!assetTokenMetadata) {
-    throw new Error('Could not fetch asset token metadata');
+    throw new Error("Could not fetch asset token metadata");
   }
   return assetTokenMetadata;
 };
@@ -64,7 +64,7 @@ export const getAssetTokenMetadata = async (assetId: AssetId) => {
 export const getChains = async () => {
   const chainId = await getChainId();
   if (!chainId) {
-    throw new Error('Could not fetch chain id');
+    throw new Error("Could not fetch chain id");
   }
 
   const { ibcConnections } = await registryClient.remote.get(chainId);
@@ -78,7 +78,7 @@ export const getChains = async () => {
 export const getAllAssets = async () => {
   const chainId = await getChainId();
   if (!chainId) {
-    throw new Error('Could not fetch chain id');
+    throw new Error("Could not fetch chain id");
   }
 
   const registry = await registryClient.remote.get(chainId);
@@ -99,6 +99,6 @@ export const getStakingAssetId = () => {
 // =============================================================================
 
 // Re-export utilities
-export { getChainId, getChainIdSync } from './chain-id';
-export { getAssetMetadataById, type AssetMetadata } from './assets';
-export { findUSDCAssetId, getUSDCAssetMetadata } from './utils'; 
+export { getAssetMetadataById, type AssetMetadata } from "./assets";
+export { getChainId, getChainIdSync } from "./chain-id";
+export { findUSDCAssetId, getUSDCAssetMetadata } from "./utils";

@@ -15,7 +15,9 @@ function getOptionalClientEnvVar(key: keyof ClientEnvVars): string | undefined {
 
 export const env: ClientEnvVars = {
   NEXT_PUBLIC_NETWORK: getOptionalClientEnvVar("NEXT_PUBLIC_NETWORK") as Network | undefined,
-  NEXT_PUBLIC_SHOW_LIQUIDITY_TOURNAMENT: getOptionalClientEnvVar("NEXT_PUBLIC_SHOW_LIQUIDITY_TOURNAMENT"),
+  NEXT_PUBLIC_SHOW_LIQUIDITY_TOURNAMENT: getOptionalClientEnvVar(
+    "NEXT_PUBLIC_SHOW_LIQUIDITY_TOURNAMENT"
+  ),
 };
 
 /**
@@ -23,5 +25,5 @@ export const env: ClientEnvVars = {
  * Defaults to false if not set
  */
 export const shouldShowLiquidityTournament = (): boolean => {
-  return env.NEXT_PUBLIC_SHOW_LIQUIDITY_TOURNAMENT === 'true';
-}; 
+  return env.NEXT_PUBLIC_SHOW_LIQUIDITY_TOURNAMENT === "true";
+};

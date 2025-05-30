@@ -1,5 +1,5 @@
 // --- Types ---
-import { AssetId } from '@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb';
+import { AssetId } from "@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb";
 
 export const durationWindows = ["1m", "15m", "1h", "4h", "1d", "1w", "1mo"] as const;
 export type DurationWindow = (typeof durationWindows)[number];

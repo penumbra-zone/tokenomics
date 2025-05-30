@@ -38,4 +38,4 @@ export const env: ServerEnvVars = {
   NODE_ENV: getEnvVar("NODE_ENV") as Env,
   NEXT_PUBLIC_NETWORK: getOptionalEnvVar("NEXT_PUBLIC_NETWORK") as Network | undefined,
   NEXT_PUBLIC_SHOW_LIQUIDITY_TOURNAMENT: getOptionalEnvVar("NEXT_PUBLIC_SHOW_LIQUIDITY_TOURNAMENT"),
-}; 
+};

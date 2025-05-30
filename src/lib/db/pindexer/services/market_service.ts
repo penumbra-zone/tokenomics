@@ -1,5 +1,5 @@
+import { AssetId } from "@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb";
 import { Kysely, sql } from "kysely";
-import { AssetId } from '@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb';
 
 import {
   DATA_SOURCES,
@@ -8,7 +8,7 @@ import {
   FIELD_TRANSFORMERS,
 } from "../database-mappings";
 import { DB } from "../schema";
-import type { CurrentMarketData, PriceHistoryEntry, PriceHistoryResult, DurationWindow } from "../types";
+import type { CurrentMarketData, DurationWindow, PriceHistoryResult } from "../types";
 
 // Constants
 const MAINNET_CHAIN_ID = "penumbra-1";
@@ -105,13 +105,25 @@ export class MarketService {
           DATA_SOURCES.DEX_EX_PRICE_CHARTS.fields.DIRECT_VOLUME,
         ])
         .where(DATA_SOURCES.DEX_EX_PRICE_CHARTS.fields.THE_WINDOW, "=", window)
-        .where(DATA_SOURCES.DEX_EX_PRICE_CHARTS.fields.ASSET_START, "=", Buffer.from(baseAsset.inner))
-        .where(DATA_SOURCES.DEX_EX_PRICE_CHARTS.fields.ASSET_END, "=", Buffer.from(quoteAsset.inner))
+        .where(
+          DATA_SOURCES.DEX_EX_PRICE_CHARTS.fields.ASSET_START,
+          "=",
+          Buffer.from(baseAsset.inner)
+        )
+        .where(
+          DATA_SOURCES.DEX_EX_PRICE_CHARTS.fields.ASSET_END,
+          "=",
+          Buffer.from(quoteAsset.inner)
+        )
         .orderBy(DATA_SOURCES.DEX_EX_PRICE_CHARTS.fields.START_TIME, "asc");
 
       // Due to a lot of price volatility at the launch of the chain, manually setting start date a few days later
       if (chainId === MAINNET_CHAIN_ID) {
-        query = query.where(DATA_SOURCES.DEX_EX_PRICE_CHARTS.fields.START_TIME, ">=", new Date('2024-08-06'));
+        query = query.where(
+          DATA_SOURCES.DEX_EX_PRICE_CHARTS.fields.START_TIME,
+          ">=",
+          new Date("2024-08-06")
+        );
       }
 
       // If days is provided, filter to only show the last N days
@@ -136,8 +148,8 @@ export class MarketService {
       const priceStats = await this.db
         .selectFrom(DATA_SOURCES.INSIGHTS_SUPPLY.name)
         .select([
-          sql<number>`MAX(price)`.as('allTimeHigh'),
-          sql<number>`MIN(price)`.as('allTimeLow'),
+          sql<number>`MAX(price)`.as("allTimeHigh"),
+          sql<number>`MIN(price)`.as("allTimeLow"),
         ])
         .where(DATA_SOURCES.INSIGHTS_SUPPLY.fields.PRICE, "is not", null)
         .executeTakeFirst();

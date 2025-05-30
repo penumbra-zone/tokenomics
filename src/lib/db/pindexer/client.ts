@@ -31,4 +31,3 @@ const createDbClient = () => {
 };
 
 export const dbClient = createDbClient();
-

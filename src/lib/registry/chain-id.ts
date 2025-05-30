@@ -1,4 +1,4 @@
-import { getCurrentNetworkConfig } from '../calculations/config';
+import { getCurrentNetworkConfig } from "../calculations/config";
 
 /**
  * Get the chain ID for the current network asynchronously
@@ -9,18 +9,18 @@ export const getChainId = async (): Promise<string | null> => {
   try {
     const config = getCurrentNetworkConfig();
     if (!config) {
-      console.warn('No network configuration available');
+      console.warn("No network configuration available");
       return null;
     }
-    
+
     if (!config.chainId) {
-      console.warn('Chain ID not found in network configuration');
+      console.warn("Chain ID not found in network configuration");
       return null;
     }
-    
+
     return config.chainId;
   } catch (error) {
-    console.error('Failed to get chain ID:', error);
+    console.error("Failed to get chain ID:", error);
     return null;
   }
 };
@@ -33,18 +33,18 @@ export const getChainIdSync = (): string | null => {
   try {
     const config = getCurrentNetworkConfig();
     if (!config) {
-      console.warn('No network configuration available');
+      console.warn("No network configuration available");
       return null;
     }
-    
+
     if (!config.chainId) {
-      console.warn('Chain ID not found in network configuration');
+      console.warn("Chain ID not found in network configuration");
       return null;
     }
-    
+
     return config.chainId;
   } catch (error) {
-    console.error('Failed to get chain ID synchronously:', error);
+    console.error("Failed to get chain ID synchronously:", error);
     return null;
   }
-}; 
+};

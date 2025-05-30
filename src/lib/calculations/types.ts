@@ -1,6 +1,6 @@
 // Types for calculation inputs and outputs
 
-import { durationWindows } from '../db/pindexer';
+import { durationWindows } from "../db/pindexer";
 
 // Base data types from database
 export interface SupplyData {

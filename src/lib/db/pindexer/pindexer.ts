@@ -1,11 +1,11 @@
+import { AssetId } from "@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb";
 import { Kysely } from "kysely";
-import { AssetId } from '@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb';
 
 import { dbClient as defaultDb } from "./client";
 import { DB } from "./schema";
 // Import service classes
+import { registryClient } from "@/lib/registry";
 import {
-  BurnData,
   calculateBurnMetrics,
   calculateBurnRateTimeSeries,
   calculateCirculatingSupply,
@@ -19,6 +19,8 @@ import {
   getCurrentNetworkConfig,
   SupplyData,
 } from "../../calculations";
+import { getDateRangeForDays, getDurationWindowForDays } from "../utils";
+import { MockPindexerConnection } from "./mock/mock-pindexer-connection";
 import { BlockService } from "./services/block_service";
 import { BurnService } from "./services/burn_service";
 import { CommunityPoolService } from "./services/community_pool_service";
@@ -26,25 +28,19 @@ import { MarketService } from "./services/market_service";
 import { SupplyService } from "./services/supply_service";
 import {
   AbstractPindexerConnection,
-  BurnMetrics,
   BurnDataBySource,
+  BurnMetrics,
+  DurationWindow,
   InflationTimeSeries,
   IssuanceMetrics,
   LqtMetrics,
+  PriceHistoryResult,
   SummaryMetrics,
   SupplyMetrics,
   TokenDistribution,
   TokenMetrics,
   UnstakedSupplyComponents,
-  DurationWindow,
-  PriceHistoryResult,
 } from "./types";
-import { 
-  getDateRangeForDays, 
-  getDurationWindowForDays, 
-} from "../utils";
-import { MockPindexerConnection } from './mock/mock-pindexer-connection';
-import { registryClient } from '@/lib/registry';
 
 export class Pindexer extends AbstractPindexerConnection {
   private readonly blockService: BlockService;
@@ -76,13 +72,17 @@ export class Pindexer extends AbstractPindexerConnection {
       await this.blockService.getBlockRangeForDays(30);
     const endDateLastMonth = new Date();
     endDateLastMonth.setDate(endDateLastMonth.getDate() - 30);
-    const { startBlock: startHeightLastMonth } =
-      await this.blockService.getBlockRangeForDays(30, endDateLastMonth);
+    const { startBlock: startHeightLastMonth } = await this.blockService.getBlockRangeForDays(
+      30,
+      endDateLastMonth
+    );
 
     // Get insights
     const insightsPromise = this.supplyService.getInsightsSupply(endHeight.height);
     const insightsStartPromise = this.supplyService.getInsightsSupply(startHeight.height);
-    const insightsStartLastMonthPromise = this.supplyService.getInsightsSupply(startHeightLastMonth.height);
+    const insightsStartLastMonthPromise = this.supplyService.getInsightsSupply(
+      startHeightLastMonth.height
+    );
     // Get burn
     const burnsPromise = this.burnService.getTotalBurnsByHeight(endHeight.height);
 
@@ -131,16 +131,20 @@ export class Pindexer extends AbstractPindexerConnection {
     const window = getDurationWindowForDays(days);
 
     // Get historical supply data with appropriate window
-    const historicalSupplyData = await this.supplyService.getHistoricalSupplyData(startDate, endDate, window);
+    const historicalSupplyData = await this.supplyService.getHistoricalSupplyData(
+      startDate,
+      endDate,
+      window
+    );
 
     // Convert to SupplyData format for calculations
-    const supplyDataPoints: SupplyData[] = historicalSupplyData.map(entry => ({
+    const supplyDataPoints: SupplyData[] = historicalSupplyData.map((entry) => ({
       total: entry.total,
       staked: entry.staked,
       height: entry.height,
       timestamp: entry.timestamp,
     }));
-      
+
     // Calculate inflation time series using centralized calculation
     const timeSeries = calculateInflationTimeSeries(supplyDataPoints);
 
@@ -154,7 +158,9 @@ export class Pindexer extends AbstractPindexerConnection {
       throw new Error("No unstaked components found");
     }
 
-    const latestStakedHeight = await this.blockService.getLatestBlockDetails(this.calculationContext);
+    const latestStakedHeight = await this.blockService.getLatestBlockDetails(
+      this.calculationContext
+    );
 
     const { totalSupply, stakedSupply } = await this.supplyService.getInsightsSupply(
       latestStakedHeight.height
@@ -184,20 +190,31 @@ export class Pindexer extends AbstractPindexerConnection {
   }
 
   async getBurnMetrics(days: number): Promise<BurnMetrics> {
-    const { height: blockHeight } = await this.blockService.getLatestBlockDetails(this.calculationContext);
+    const { height: blockHeight } = await this.blockService.getLatestBlockDetails(
+      this.calculationContext
+    );
 
     // Get historical burn data
-    const burnDataBySource: BurnDataBySource =
-      await this.burnService.getBurnDataBySource();
+    const burnDataBySource: BurnDataBySource = await this.burnService.getBurnDataBySource();
 
-    const totalSupply = Number((await this.supplyService.getInsightsSupply(blockHeight)).totalSupply);
-    const burnMetrics = calculateBurnMetrics(burnDataBySource, totalSupply, this.calculationContext);
+    const totalSupply = Number(
+      (await this.supplyService.getInsightsSupply(blockHeight)).totalSupply
+    );
+    const burnMetrics = calculateBurnMetrics(
+      burnDataBySource,
+      totalSupply,
+      this.calculationContext
+    );
 
     // Calculate date range and window for burn metrics time series
     const { startDate, endDate } = getDateRangeForDays(days);
     const window = getDurationWindowForDays(days);
 
-    const burnDataByDay = await this.burnService.getBurnMetricsTimeSeries(startDate, endDate, window);
+    const burnDataByDay = await this.burnService.getBurnMetricsTimeSeries(
+      startDate,
+      endDate,
+      window
+    );
     const historicalBurnRate = calculateBurnRateTimeSeries(burnDataByDay);
 
     return {
@@ -264,7 +281,7 @@ export class Pindexer extends AbstractPindexerConnection {
     const { totalSupply, totalStaked, unstakedSupply } = await this.getSupplyMetrics();
     const { totalBurned: burnedTokens } = await this.getBurnMetrics(0);
     const { marketCap, price } = await this.getSummaryMetrics();
-    const communityPoolSupply = await this.getCommunityPoolSupply(); 
+    const communityPoolSupply = await this.getCommunityPoolSupply();
     const circulatingSupply = calculateCirculatingSupply(
       totalSupply,
       totalStaked,

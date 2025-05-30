@@ -1,6 +1,6 @@
-import { AssetId, Metadata } from '@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb';
-import { getAssetMetadataById, registryClient } from './index';
-import { getChainId } from './chain-id';
+import { AssetId, Metadata } from "@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb";
+import { getChainId } from "./chain-id";
+import { getAssetMetadataById, registryClient } from "./index";
 
 /**
  * Find USDC asset ID from the Penumbra registry
@@ -12,23 +12,23 @@ export async function findUSDCAssetId(): Promise<AssetId | null> {
     if (!chainId) {
       return null;
     }
-    
+
     const registry = await registryClient.remote.get(chainId);
     const assets = registry.getAllAssets();
-    
+
     // Find USDC asset by looking for USDC in symbol
-    const usdcAsset = assets.find(asset => {
-      const symbol = asset.symbol?.toLowerCase() || '';
-      return symbol === 'usdc';
+    const usdcAsset = assets.find((asset) => {
+      const symbol = asset.symbol?.toLowerCase() || "";
+      return symbol === "usdc";
     });
-    
+
     if (usdcAsset?.penumbraAssetId) {
       return usdcAsset.penumbraAssetId;
     }
-    
+
     return null;
   } catch (error) {
-    console.error('Error finding USDC asset:', error);
+    console.error("Error finding USDC asset:", error);
     return null;
   }
 }
@@ -43,7 +43,7 @@ export async function getUSDCAssetMetadata(): Promise<Metadata | undefined> {
     if (!chainId) {
       return undefined;
     }
-    
+
     const usdcAssetId = await findUSDCAssetId();
     if (!usdcAssetId) {
       return undefined;
@@ -51,7 +51,7 @@ export async function getUSDCAssetMetadata(): Promise<Metadata | undefined> {
 
     return getAssetMetadataById(usdcAssetId);
   } catch (error) {
-    console.error('Error getting USDC asset metadata:', error);
+    console.error("Error getting USDC asset metadata:", error);
     return undefined;
   }
 }
