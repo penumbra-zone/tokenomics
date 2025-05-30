@@ -91,8 +91,6 @@ export function calculateSubPeriodInflationRates(
       absoluteAmount,
     });
   }
-  console.log("First supply and last supply", supplyDataPoints[0].total, supplyDataPoints[supplyDataPoints.length - 1].total);
-  console.log("Difference", supplyDataPoints[supplyDataPoints.length - 1].total - supplyDataPoints[0].total);
   return results;
 }
 

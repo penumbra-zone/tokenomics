@@ -1,28 +1,28 @@
 import InfoCard from "@/common/components/cards/InfoCard";
+import { calculatePercentageOfSupplyBurned } from "@/lib/calculations";
+import { formatNumber } from "@/lib/utils";
 import { useGetSummaryMetricsQuery } from "@/store/api/tokenomicsApi";
 import { useEffect, useState } from "react";
 
-export function PercentOfTotalStakedCard() {
+export function PercentBurnedOfTotalSupplyCard() {
   const { data: summaryMetrics, isLoading } = useGetSummaryMetricsQuery();
   const [percentage, setPercentage] = useState(0);
 
   useEffect(() => {
     if (summaryMetrics) {
-      const totalSupply = summaryMetrics.totalSupply;
-      const stakedTokens = summaryMetrics.stakedTokens;
-      const percentage = (stakedTokens / totalSupply) * 100;
-      setPercentage(percentage);
+      setPercentage(
+        calculatePercentageOfSupplyBurned(summaryMetrics.totalBurned, summaryMetrics.totalSupply)
+      );
     }
   }, [summaryMetrics]);
 
   return (
     <InfoCard
-      title="% Staked"
+      title="% of Total Supply"
       isLoading={isLoading}
       value={percentage}
-      valueFormatter={(v) => `${v.toFixed(0)}%`}
-      description="Percentage of total supply staked"
-      cardClassName="h-full"
+      valueFormatter={(v) => `${formatNumber(v, 2)}%`}
+      description="Effective percentage of total supply burned"
     />
   );
 }

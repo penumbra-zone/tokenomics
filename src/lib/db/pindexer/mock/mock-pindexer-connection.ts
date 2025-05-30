@@ -49,12 +49,14 @@ export class MockPindexerConnection extends AbstractPindexerConnection {
     };
   }
 
-  async getBurnMetrics(): Promise<BurnMetrics> {
+  async getBurnMetrics(days: number): Promise<BurnMetrics> {
     return {
       totalBurned: 50000000,
       bySource: {
         arbitrageBurns: 12500000,
         feeBurns: 12000000,
+        dexLocked: 10000000,
+        auctionLocked: 10000000,
       },
       burnRate: 0.0001,
       historicalBurnRate: [
@@ -180,7 +182,7 @@ export class MockPindexerConnection extends AbstractPindexerConnection {
         { timestamp: "2024-09-28", rate: 0.269 },
         { timestamp: "2024-09-29", rate: 0.273 },
         { timestamp: "2024-09-30", rate: 0.276 },
-      ],
+      ].slice(0, days),
     };
   }
 
@@ -228,6 +230,7 @@ export class MockPindexerConnection extends AbstractPindexerConnection {
       timeSeries.push({
         date: date.toISOString().slice(0, 10),
         inflationRate: Number(inflationRate.toFixed(2)),
+        absoluteAmount: 1000000000 * inflationRate / 100,
       });
     }
 

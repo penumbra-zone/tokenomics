@@ -7,14 +7,10 @@ import {
   FIELD_TRANSFORMERS,
 } from "../database-mappings";
 import { DB } from "../schema";
-import type { BurnSourcesData, HistoricalBurnEntryRaw } from "../types";
+import type { BurnSourcesData, BurnDataBySource, DurationWindow } from "../types";
 import { calculateTotalBurned } from '@/lib/calculations';
+import { getDateGroupExpression } from "../../utils";
 
-// Assuming these types are in types.ts
-// blockService will be used by the caller (e.g., PindexerConnection or a higher-level orchestrator)
-// to get timestamps if needed, to keep this service focused on burn data.
-
-// Define an interface for the raw row structure from getHistoricalBurnEntriesRaw
 interface RawBurnEntryRow {
   height: number | string | null;
   arb: number | string | null; // arbitrage burns
@@ -60,7 +56,7 @@ export class BurnService {
       return {
         totalArbitrageBurns,
         totalFeeBurns,
-        totalBurned: totalArbitrageBurns + totalFeeBurns, // Only actual burns
+        totalBurned: calculateTotalBurned(totalArbitrageBurns, totalFeeBurns),
       };
     } catch (error) {
       console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
@@ -69,72 +65,36 @@ export class BurnService {
   }
 
   /**
-   * Fetches the latest burn source components from supply_total_unstaked.
-   * Only returns permanently burned tokens: arbitrage burns and fee burns.
+   * Fetches historical burn entries from supply_total_unstaked.
    */
-  async getLatestBurnSources(): Promise<BurnSourcesData | null> {
+  async getBurnDataBySource(): Promise<BurnDataBySource> {
     try {
-      const result = await this.db
-        .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name)
-        .select([
-          DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS,
-          DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS,
-          DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT,
-        ])
-        .orderBy(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT, "desc")
-        .limit(1)
-        .executeTakeFirst();
-
-      if (!result) return null;
-
-      const arbitrageBurns = FIELD_TRANSFORMERS.toTokenAmount(result.arb);
-      const feeBurns = FIELD_TRANSFORMERS.toTokenAmount(result.fees);
-
-      return {
-        arbitrageBurns,
-        feeBurns,
-        totalBurned: calculateTotalBurned(arbitrageBurns, feeBurns),
-      };
-    } catch (error) {
-      console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
-      throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
-    }
-  }
-
-  /**
-   * Fetches the last N historical burn entries (raw data) from supply_total_unstaked.
-   * Only returns permanently burned tokens: arbitrage burns and fee burns.
-   * @param limit The number of historical entries to fetch.
-   */
-  async getHistoricalBurnEntriesRaw(
-    limit: number = DB_CONFIG.DEFAULT_HISTORY_LIMIT
-  ): Promise<HistoricalBurnEntryRaw[]> {
-    try {
-      // Validate limit
-      const validLimit = Math.min(Math.max(1, limit), DB_CONFIG.MAX_HISTORY_LIMIT);
+      const arbitrageSumSQL = sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS)})`;
+      const feeSumSQL = sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS)})`;
+      const dexSumSQL = sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.DEX_LIQUIDITY)})`;
+      const auctionSumSQL = sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.AUCTION_LOCKED)})`;
 
       const results = await this.db
         .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name)
         .select([
-          DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT,
-          DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS,
-          DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS,
+          arbitrageSumSQL.as("arbitrage_burns"),
+          feeSumSQL.as("fee_burns"),
+          dexSumSQL.as("dex_locked"),
+          auctionSumSQL.as("auction_locked"),
         ])
-        .orderBy(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT, "desc")
-        .limit(validLimit)
-        .execute();
+        .executeTakeFirstOrThrow();
 
-      return results.map((row: RawBurnEntryRow) => {
-        const arbitrageBurns = FIELD_TRANSFORMERS.toTokenAmount(row.arb);
-        const feeBurns = FIELD_TRANSFORMERS.toTokenAmount(row.fees);
+      const arbitrageBurns = FIELD_TRANSFORMERS.toTokenAmount(results.arbitrage_burns);
+      const feeBurns = FIELD_TRANSFORMERS.toTokenAmount(results.fee_burns);
+      const dexLocked = FIELD_TRANSFORMERS.toTokenAmount(Math.abs(results.dex_locked));
+      const auctionLocked = FIELD_TRANSFORMERS.toTokenAmount(results.auction_locked); 
         
-        return {
-          height: row.height ? String(row.height) : '',
-          arbitrageBurns,
-          feeBurns,
-          totalBurned: arbitrageBurns + feeBurns,
-        };
-      });
+      return {
+        arbitrageBurns,
+        feeBurns,
+        dexLocked,
+        auctionLocked,
+      };
     } catch (error) {
       console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
       throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
@@ -142,25 +102,23 @@ export class BurnService {
   }
 
   /**
-   * Fetches burn metrics over time with timestamps for time series analysis.
+   * Fetches burn metrics over time with timestamps for time series analysis, grouped by duration window.
    * @param startDate The start date for the range
-   * @param limit Maximum number of entries to return
+   * @param endDate The end date for the range
+   * @param window The duration window for grouping (e.g., '1d', '1w')
    */
   async getBurnMetricsTimeSeries(
     startDate: Date,
-    limit: number = DB_CONFIG.DEFAULT_HISTORY_LIMIT
+    endDate: Date,
+    window: DurationWindow = '1d'
   ): Promise<
     Array<{
-      height: number;
       arbitrageBurns: number;
       feeBurns: number;
-      totalBurns: number;
       timestamp: Date;
     }>
   > {
     try {
-      const validLimit = Math.min(Math.max(1, limit), DB_CONFIG.MAX_HISTORY_LIMIT);
-
       const results = await this.db
         .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name)
         .innerJoin(
@@ -169,29 +127,29 @@ export class BurnService {
           `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name}.${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT}`
         )
         .select([
-          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name}.${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT}`,
-          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name}.${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS}`,
-          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name}.${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS}`,
-          `${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`,
+          sql<string>`MAX(${sql.ref(`${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name}.${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT}`)})`.as('height'),
+          sql<string>`MAX(${sql.ref(`${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name}.${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS}`)})`.as('arbitrage_burns'),
+          sql<string>`MAX(${sql.ref(`${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name}.${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS}`)})`.as('fee_burns'),
+          sql<Date>`MAX(${sql.ref(`${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`)})`.as('timestamp'),
+          getDateGroupExpression(window, `${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`).as('date_group'),
         ])
         .where(
           `${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`,
           ">=",
           startDate
         )
-        .orderBy(
-          `${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name}.${DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.HEIGHT}`,
-          "asc"
+        .where(
+          `${DATA_SOURCES.BLOCK_DETAILS.name}.${DATA_SOURCES.BLOCK_DETAILS.fields.TIMESTAMP}`,
+          "<=",
+          endDate
         )
-        .limit(validLimit)
+        .groupBy('date_group')
+        .orderBy('date_group', 'asc')
         .execute();
 
       return results.map((row) => ({
-        height: FIELD_TRANSFORMERS.toTokenAmount(row.height),
-        arbitrageBurns: FIELD_TRANSFORMERS.toTokenAmount(row.arb),
-        feeBurns: FIELD_TRANSFORMERS.toTokenAmount(row.fees),
-        totalBurns:
-          FIELD_TRANSFORMERS.toTokenAmount(row.arb) + FIELD_TRANSFORMERS.toTokenAmount(row.fees),
+        arbitrageBurns: FIELD_TRANSFORMERS.toTokenAmount(row.arbitrage_burns),
+        feeBurns: FIELD_TRANSFORMERS.toTokenAmount(row.fee_burns),
         timestamp: FIELD_TRANSFORMERS.toTimestamp(row.timestamp) || new Date(),
       }));
     } catch (error) {

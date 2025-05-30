@@ -1,8 +1,10 @@
-import { IssuanceMetrics, PriceHistoryEntry, SummaryMetrics } from "@/lib/db/pindexer";
+import { BurnDataBySource, IssuanceMetrics, PriceHistoryEntry, SummaryMetrics } from "@/lib/db/pindexer";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export interface SupplyMetrics {
   totalSupply: number;
+  totalStaked: number;
+  totalUnstaked: number;
   genesisAllocation: number;
   issuedSinceLaunch: number;
   unstakedSupply: {
@@ -12,21 +14,11 @@ export interface SupplyMetrics {
     arbitrage: number;
     fees: number;
   };
-  delegatedSupply: {
-    base: number;
-    delegated: number;
-    conversionRate: number;
-  };
 }
 
 export interface BurnMetrics {
   totalBurned: number;
-  bySource: {
-    transactionFees: number;
-    dexArbitrage: number;
-    auctionBurns: number;
-    dexBurns: number;
-  };
+  bySource: BurnDataBySource;
   burnRate: number;
   historicalBurnRate: Array<{
     timestamp: string;
@@ -85,7 +77,15 @@ export interface SocialMetrics {
 export const tokenomicsApi = createApi({
   reducerPath: "tokenomicsApi",
   baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
-  tagTypes: ["TokenMetrics", "TokenDistribution", "BurnMetrics", "LQTMetrics", "IssuanceMetrics"],
+  tagTypes: [
+    "TokenMetrics",
+    "TokenDistribution",
+    "BurnMetrics",
+    "LQTMetrics",
+    "IssuanceMetrics",
+    "InflationTimeSeries",
+    "PriceHistory",
+  ],
   endpoints: (builder) => ({
     getSupplyMetrics: builder.query<SupplyMetrics, void>({
       query: () => "supply-metrics",
@@ -95,8 +95,8 @@ export const tokenomicsApi = createApi({
       query: () => "issuance-metrics",
       providesTags: ["IssuanceMetrics"],
     }),
-    getBurnMetrics: builder.query<BurnMetrics, void>({
-      query: () => "burn-metrics",
+    getBurnMetrics: builder.query<BurnMetrics, number>({
+      query: (days) => `burn-metrics?days=${days}`,
       providesTags: ["BurnMetrics"],
     }),
     getLQTMetrics: builder.query<LQTMetrics, void>({
@@ -109,9 +109,11 @@ export const tokenomicsApi = createApi({
     }),
     getPriceHistory: builder.query<PriceHistory, number>({
       query: (days) => `price-history?days=${days}`,
+      providesTags: ["PriceHistory"],
     }),
     getInflationTimeSeries: builder.query<InflationTimeSeries, number>({
       query: (days) => `inflation-time-series?days=${days}`,
+      providesTags: ["InflationTimeSeries"],
     }),
     getSummaryMetrics: builder.query<SummaryMetrics, void>({
       query: () => "summary-metrics",

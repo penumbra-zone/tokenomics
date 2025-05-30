@@ -10,10 +10,10 @@ export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
   if (!data || !data.bySource) return null;
 
   const chartData: RoseChartDataItem[] = [
-    { name: "Auctions Burns", value: data.bySource.auctionBurns },
-    { name: "DEX Burns", value: data.bySource.dexBurns },
-    { name: "Transaction Fees", value: data.bySource.transactionFees },
-    { name: "DEX Arbitrage", value: data.bySource.dexArbitrage },
+    { name: "Auctions Locks", value: data.bySource.auctionLocked },
+    { name: "DEX Locks", value: data.bySource.dexLocked },
+    { name: "Transaction Fees", value: data.bySource.feeBurns },
+    { name: "Arbitrage Burns", value: data.bySource.arbitrageBurns },
   ];
 
   const labelFormatter = (params: any) => {

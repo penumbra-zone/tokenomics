@@ -2,7 +2,7 @@ import ShareButton from "@/modules/tokenomics/components/ShareButton";
 import {
   BurnMetricsCard,
   BurnRateOverTimeCard,
-  PercentOfTotalSupplyCard,
+  PercentBurnedOfTotalSupplyCard,
   TotalBurnedCard,
   WhyBurningIsImportantCard,
 } from "@/modules/tokenomics/components/cards";
@@ -19,18 +19,16 @@ export default function BurnMetricsSection({ handleShare }: SectionProps) {
         <ShareButton onClick={handleShare} />
       </div>
 
-      {/* Top Row: Token Burned by Source (Pie Chart) */}
       <div className="grid grid-cols-1 gap-6 mb-8">
-        <BurnMetricsCard /> {/* This card already contains the pie chart */}
+        <BurnMetricsCard />
       </div>
 
-      {/* Middle Row: Stats Cards - Better mobile layout */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="col-span-1">
           <TotalBurnedCard />
         </div>
         <div className="col-span-1">
-          <PercentOfTotalSupplyCard />
+          <PercentBurnedOfTotalSupplyCard />
         </div>
         <div className="col-span-1 sm:col-span-2 lg:col-span-2">
           <WhyBurningIsImportantCard />

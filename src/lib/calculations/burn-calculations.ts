@@ -1,5 +1,7 @@
 // Burn Metrics Calculations
 
+import { BurnDataBySource, BurnSourcesData } from '../db/pindexer/types';
+import { formatDateForChart } from '../utils';
 import { BurnData, BurnMetrics, CalculationContext } from "./types";
 
 /**
@@ -13,13 +15,6 @@ export function calculateTotalBurned(
   totalFeeBurns: number
 ): number {
   return totalArbitrageBurns + totalFeeBurns;
-}
-
-/**
- * Calculate total burned for a single entry
- */
-export function calculateTotalBurnedForEntry(burnData: BurnData): number {
-  return burnData.arbitrageBurns + burnData.feeBurns;
 }
 
 /**
@@ -39,9 +34,9 @@ export function calculatePercentageOfSupplyBurned(
  * Calculate burn rate per block
  * Formula: BurnRate = TotalBurned / BlockHeight
  */
-export function calculateBurnRatePerBlock(totalBurned: number, blockHeight: string): number {
-  if (Number(blockHeight) === 0) return 0;
-  return totalBurned / Number(blockHeight);
+export function calculateBurnRatePerBlock(totalBurned: number, blockHeight: number): number {
+  if (blockHeight === 0) return 0;
+  return totalBurned / blockHeight;
 }
 
 /**
@@ -75,30 +70,28 @@ export function calculateBurnsBySource(burnData: BurnData[]): {
  * Calculate burn rate time series for charts
  */
 export function calculateBurnRateTimeSeries(
-  burnData: BurnData[]
-): Array<{ date: string; burnRate: number }> {
+  burnData: { arbitrageBurns: number; feeBurns: number; timestamp: Date }[]
+): Array<{ timestamp: string; rate: number }> {
   // Calculate burn rate for each period
-  const results: Array<{ date: string; burnRate: number }> = [];
+  const results: Array<{ timestamp: string; rate: number }> = [];
 
   for (const data of burnData) {
-    const totalBurnedForDay = calculateTotalBurnedForEntry(data);
-    // Convert to daily rate (assuming the data represents the total for that day)
-    const burnRate = totalBurnedForDay;
+    const totalBurnedForDay = calculateTotalBurned(data.arbitrageBurns, data.feeBurns);
 
     results.push({
-      date: data.timestamp.toISOString().slice(0, 10),
-      burnRate,
+      timestamp: formatDateForChart(data.timestamp),
+      rate: totalBurnedForDay,
     });
   }
 
-  return results.sort((a, b) => a.date.localeCompare(b.date));
+  return results.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
 }
 
 /**
  * Calculate comprehensive burn metrics
  */
 export function calculateBurnMetrics(
-  burnData: BurnData[],
+  burnsBySource: BurnDataBySource,
   currentTotalSupply: number,
   context: CalculationContext
 ): BurnMetrics {
@@ -106,8 +99,8 @@ export function calculateBurnMetrics(
 
   // Calculate total burned across all data (only permanent burns)
   const totalBurned = calculateTotalBurned(
-    burnData[burnData.length - 1].arbitrageBurns,
-    burnData[burnData.length - 1].feeBurns
+    burnsBySource.arbitrageBurns,
+    burnsBySource.feeBurns
   );
 
   // Calculate percentage of supply burned
@@ -117,14 +110,8 @@ export function calculateBurnMetrics(
   );
 
   // Calculate burn rate per day (using latest data point for rate calculation)
-  const latestBurnData = burnData[burnData.length - 1];
-  const burnRatePerBlock = latestBurnData
-    ? calculateBurnRatePerBlock(calculateTotalBurnedForEntry(latestBurnData), latestBurnData.height)
-    : 0;
+  const burnRatePerBlock = calculateBurnRatePerBlock(totalBurned, context.currentHeight);
   const burnRatePerDay = calculateBurnRatePerDay(burnRatePerBlock, blocksPerDay);
-
-  // Calculate burns by source
-  const burnsBySource = calculateBurnsBySource(burnData);
 
   return {
     totalBurned,

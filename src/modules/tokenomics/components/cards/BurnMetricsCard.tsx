@@ -15,7 +15,7 @@ const BurnMetricsChart = dynamic(
 );
 
 export function BurnMetricsCard() {
-  const { data: burnMetrics, isLoading, isFetching } = useGetBurnMetricsQuery();
+  const { data: burnMetrics, isLoading, isFetching } = useGetBurnMetricsQuery(30);
 
   const showLoadingOverlay = isFetching && !burnMetrics;
 

@@ -1,6 +1,6 @@
 import { InflationCard } from "../cards/InflationCard";
 import { MarketCapCard } from "../cards/MarketCapCard";
-import { PercentOfTotalStakedCard } from "../cards/PercentOfTotalStakedCard";
+import { PercentStakedOfTotalSupplyCard } from "../cards/PercentStakedOfTotalSupplyCard";
 import { TotalBurnedCard } from "../cards/TotalBurnedCard";
 import { TotalSupplyCard } from "../cards/TotalSupplyCard";
 
@@ -16,7 +16,7 @@ export default function SummarySection({ handleShare }: SectionProps) {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
         <TotalSupplyCard />
-        <PercentOfTotalStakedCard />
+        <PercentStakedOfTotalSupplyCard />
         <div className="lg:row-span-2">
           <InflationCard />
         </div>

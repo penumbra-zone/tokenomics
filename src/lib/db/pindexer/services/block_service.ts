@@ -9,6 +9,7 @@ import {
 } from "../database-mappings";
 import type { BlockDetails } from "../schema";
 import { DB } from "../schema";
+import { CalculationContext } from '@/lib/calculations/types';
 
 const TABLE = DATA_SOURCES.BLOCK_DETAILS;
 
@@ -22,14 +23,21 @@ export class BlockService {
   /**
    * Fetches the latest block details from the block_details table.
    */
-  async getLatestBlockDetails(): Promise<Selectable<BlockDetails>> {
+  async getLatestBlockDetails(context: CalculationContext): Promise<Selectable<BlockDetails>> {
     try {
-      return this.db
+      // Get the latest block details
+      const result = await this.db
         .selectFrom(TABLE.name)
         .selectAll()
         .orderBy(TABLE.fields.HEIGHT, "desc")
         .limit(1)
         .executeTakeFirstOrThrow();
+
+      // Mechanism to update the calculation context with the latest block details
+      context.currentHeight = FIELD_TRANSFORMERS.toTokenAmount(result.height);
+      context.currentTimestamp = FIELD_TRANSFORMERS.toTimestamp(result.timestamp) || new Date();
+
+      return result;
     } catch (error) {
       console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
       throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);

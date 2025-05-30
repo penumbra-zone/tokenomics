@@ -6,7 +6,7 @@ import { LoadingSpinner } from "@/common/components/LoadingSpinner";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BurnRateOverTimeChart } from "@/modules/tokenomics/components/charts/BurnRateOverTimeChart";
 import { useGetBurnMetricsQuery } from "@/store/api/tokenomicsApi";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 interface BurnRateDataPoint {
   date: string;
@@ -15,20 +15,19 @@ interface BurnRateDataPoint {
 
 export function BurnRateOverTimeCard() {
   const [selectedDays, setSelectedDays] = useState(30);
-  const { data: burnMetrics, isLoading, isFetching } = useGetBurnMetricsQuery();
+  const { data: burnMetrics, isLoading, isFetching } = useGetBurnMetricsQuery(selectedDays);
 
   // Transform burn metrics data to chart format
-  const transformBurnMetricsToChartData = (): BurnRateDataPoint[] => {
+  const chartData = useMemo((): BurnRateDataPoint[] => {
     if (!burnMetrics?.historicalBurnRate) return [];
 
     return burnMetrics.historicalBurnRate.map((item) => ({
       date: item.timestamp,
       value: item.rate,
     }));
-  };
+  }, [burnMetrics?.historicalBurnRate]);
 
-  const data = transformBurnMetricsToChartData();
-  const showLoadingOverlay = isFetching && (!data || data.length < selectedDays);
+  const showLoadingOverlay = isFetching && (!chartData || chartData.length < selectedDays);
 
   const handleDaysChange = (days: number) => {
     setSelectedDays(days);
@@ -44,18 +43,14 @@ export function BurnRateOverTimeCard() {
           <div className="flex items-center justify-center h-[400px]">
             <LoadingSpinner size="lg" />
           </div>
-        ) : data && data.length > 0 ? (
+        ) : (
           <div className="relative h-[400px]">
             <BurnRateOverTimeChart
-              data={data}
+              data={chartData}
               selectedDay={selectedDays}
               onDaysChange={handleDaysChange}
             />
             {showLoadingOverlay && <LoadingOverlay />}
-          </div>
-        ) : (
-          <div className="flex items-center justify-center h-[400px] text-neutral-400">
-            <p>No burn rate data available</p>
           </div>
         )}
       </CardContent>

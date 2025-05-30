@@ -9,7 +9,7 @@ interface InflationCardProps {
 }
 
 export function InflationCard({
-  description = "during last month",
+  description = "During last month",
   cardClassName = "h-full",
 }: InflationCardProps) {
   const { data: summaryMetrics, isLoading } = useGetSummaryMetricsQuery();

@@ -32,10 +32,7 @@ export interface LqtMetrics {
 
 export interface BurnMetrics {
   totalBurned: number;
-  bySource: {
-    arbitrageBurns: number;
-    feeBurns: number;
-  };
+  bySource: BurnDataBySource;
   burnRate: number;
   historicalBurnRate: Array<{
     timestamp: string;
@@ -126,17 +123,17 @@ export interface BurnSourcesData {
   totalBurned: number;
 }
 
-export interface HistoricalBurnEntryRaw {
-  height: string;
-  arbitrageBurns: number;
-  feeBurns: number;
-  totalBurned: number;
+export interface BurnDataBySource {
+  arbitrageBurns: number; // Arbitrage burns
+  feeBurns: number; // Fee burns
+  dexLocked: number; // DEX locked
+  auctionLocked: number; // Auction locked
 }
 
 export abstract class AbstractPindexerConnection {
   abstract getSummaryMetrics(): Promise<SummaryMetrics>;
   abstract getLqtMetrics(): Promise<LqtMetrics>;
-  abstract getBurnMetrics(): Promise<BurnMetrics>;
+  abstract getBurnMetrics(days: number): Promise<BurnMetrics>;
   abstract getSupplyMetrics(): Promise<SupplyMetrics>;
   abstract getIssuanceMetrics(): Promise<IssuanceMetrics>;
   abstract getPriceHistory(params: {

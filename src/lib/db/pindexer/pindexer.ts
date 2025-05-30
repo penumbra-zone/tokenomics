@@ -28,7 +28,7 @@ import {
   AbstractPindexerConnection,
   BurnMetrics,
   BurnSourcesData,
-  HistoricalBurnEntryRaw,
+  BurnDataBySource,
   InflationTimeSeries,
   IssuanceMetrics,
   LqtMetrics,
@@ -41,6 +41,10 @@ import {
   DurationWindow,
   PriceHistoryResult,
 } from "./types";
+import { 
+  getDateRangeForDays, 
+  getDurationWindowForDays, 
+} from "../utils";
 
 export class Pindexer extends AbstractPindexerConnection {
   private readonly blockService: BlockService;
@@ -99,10 +103,6 @@ export class Pindexer extends AbstractPindexerConnection {
       Number(insightsStart.totalSupply),
       Number(insightsStartLastMonth.totalSupply)
     );
-    const totalBurned = calculateTotalBurned(
-      burns.totalArbitrageBurns,
-      burns.totalFeeBurns
-    );
 
     return {
       totalSupply,
@@ -113,7 +113,7 @@ export class Pindexer extends AbstractPindexerConnection {
         current: inflationRate,
         lastMonth: inflationRateLastMonth,
       },
-      totalBurned,
+      totalBurned: burns.totalBurned,
     };
   }
 
@@ -125,22 +125,8 @@ export class Pindexer extends AbstractPindexerConnection {
   }
 
   async getInflationTimeSeries(days: number): Promise<InflationTimeSeries> {
-    // Calculate date range for historical data
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - days);
-
-    // Map days to appropriate DurationWindow
-    let window: DurationWindow;
-    if (days <= 1) {
-      window = "1h"; // For very short periods, use hourly data
-    } else if (days <= 7) {
-      window = "1d"; // For week or less, daily data
-    } else if (days <= 30) {
-      window = "1d"; // For month or less, daily data
-    } else {
-      window = "1w"; // For longer periods, weekly data
-    }
+    const { startDate, endDate } = getDateRangeForDays(days);
+    const window = getDurationWindowForDays(days);
 
     // Get historical supply data with appropriate window
     const historicalSupplyData = await this.supplyService.getHistoricalSupplyData(startDate, endDate, window);
@@ -166,7 +152,7 @@ export class Pindexer extends AbstractPindexerConnection {
       throw new Error("No unstaked components found");
     }
 
-    const latestStakedHeight = await this.blockService.getLatestBlockDetails();
+    const latestStakedHeight = await this.blockService.getLatestBlockDetails(this.calculationContext);
 
     const { totalSupply, stakedSupply } = await this.supplyService.getInsightsSupply(
       latestStakedHeight.height
@@ -195,60 +181,26 @@ export class Pindexer extends AbstractPindexerConnection {
     };
   }
 
-  async getBurnMetrics(): Promise<BurnMetrics> {
-    const latestBurnSources: BurnSourcesData | null = await this.burnService.getLatestBurnSources();
-    const { height: blockHeight } = await this.blockService.getLatestBlockDetails();
-
-    if (!latestBurnSources || blockHeight === null) {
-      return {
-        totalBurned: 0,
-        bySource: { arbitrageBurns: 0, feeBurns: 0 },
-        burnRate: 0,
-        historicalBurnRate: [],
-      };
-    }
-
-    // Prepare burn data for centralized calculations - only permanent burns
-    const currentBurnData: BurnData = {
-      arbitrageBurns: latestBurnSources.arbitrageBurns,
-      feeBurns: latestBurnSources.feeBurns,
-      height: blockHeight,
-      timestamp: new Date(),
-    };
+  async getBurnMetrics(days: number): Promise<BurnMetrics> {
+    const { height: blockHeight } = await this.blockService.getLatestBlockDetails(this.calculationContext);
 
     // Get historical burn data
-    const rawHistoricalBurns: HistoricalBurnEntryRaw[] =
-      await this.burnService.getHistoricalBurnEntriesRaw(12);
-
-    const historicalBurnData: BurnData[] = await Promise.all(
-      rawHistoricalBurns.map(async (entry) => {
-        const entryHeight = entry.height || "1";
-        const timestamp = await this.blockService.getBlockTimestampByHeight(entryHeight);
-        return {
-          arbitrageBurns: entry.arbitrageBurns,
-          feeBurns: entry.feeBurns,
-          height: entryHeight,
-          timestamp: timestamp || new Date(),
-        };
-      })
-    );
-
-    const allBurnData = [...historicalBurnData, currentBurnData];
+    const burnDataBySource: BurnDataBySource =
+      await this.burnService.getBurnDataBySource();
 
     const totalSupply = Number((await this.supplyService.getInsightsSupply(blockHeight)).totalSupply);
-    const burnMetrics = calculateBurnMetrics(allBurnData, totalSupply, this.calculationContext);
+    const burnMetrics = calculateBurnMetrics(burnDataBySource, totalSupply, this.calculationContext);
 
-    const burnRateTimeSeries = calculateBurnRateTimeSeries(historicalBurnData);
+    // Calculate date range and window for burn metrics time series
+    const { startDate, endDate } = getDateRangeForDays(days);
+    const window = getDurationWindowForDays(days);
 
-    // Convert to the expected format for backward compatibility
-    const historicalBurnRate = burnRateTimeSeries.map((entry) => ({
-      timestamp: entry.date,
-      rate: entry.burnRate,
-    }));
+    const burnDataByDay = await this.burnService.getBurnMetricsTimeSeries(startDate, endDate, window);
+    const historicalBurnRate = calculateBurnRateTimeSeries(burnDataByDay);
 
     return {
       totalBurned: burnMetrics.totalBurned,
-      bySource: burnMetrics.burnsBySource,
+      bySource: burnDataBySource,
       burnRate: burnMetrics.burnRatePerDay,
       historicalBurnRate,
     };
@@ -320,7 +272,7 @@ export class Pindexer extends AbstractPindexerConnection {
   async getTokenMetrics(): Promise<TokenMetrics> {
     // Get actual metrics from centralized calculations
     const { totalSupply, totalStaked, unstakedSupply } = await this.getSupplyMetrics();
-    const { totalBurned: burnedTokens } = await this.getBurnMetrics();
+    const { totalBurned: burnedTokens } = await this.getBurnMetrics(0);
     const { marketCap, price } = await this.getSummaryMetrics();
     const communityPoolSupply = 0; // TODO: Get actual community pool supply from https://buf.build/penumbra-zone/penumbra/docs/main:penumbra.core.component.community_pool.v1#penumbra.core.component.community_pool.v1.QueryService.CommunityPoolAssetBalances
     const circulatingSupply = calculateCirculatingSupply(
