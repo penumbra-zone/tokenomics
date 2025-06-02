@@ -6,16 +6,7 @@ export const generateMetadata = async ({ params }: { params: { section: SectionI
   const section = params.section ?? SECTION_IDS.SUMMARY;
   const imageUrl = `/api/share/${section}`;
 
-  let siteUrl;
-  if (process.env.VERCEL_URL) {
-    // Prepend https and remove trailing slash if VERCEL_URL has one (it usually doesn't)
-    siteUrl = `https://${process.env.VERCEL_URL.replace(/\/$/, "")}`;
-  } else if (serverEnv.NEXT_PUBLIC_SITE_URL) {
-    siteUrl = serverEnv.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
-  } else {
-    siteUrl = "http://localhost:3000";
-  }
-
+  const siteUrl = serverEnv.BASE_URL;
   const ogImageUrl = new URL(imageUrl, siteUrl);
 
   return {
@@ -32,8 +23,7 @@ export const generateMetadata = async ({ params }: { params: { section: SectionI
       "twitter:title": "Penumbra Tokenomics",
       "twitter:description": "Penumbra Tokenomics",
       "twitter:card": "summary_large_image",
-      "twitter:image":
-        "https://moshi.cam/api/og/template?imageUrl=https%3A%2F%2Fstorage.googleapis.com%2Fmoshi-images%2Fborders%2F2w6UD8OTM93E2WlprGWJ6fQoins%2F2w6UDBUUUTr6EJGS5xGyIDHPoR8.png",
+      "twitter:image": `${ogImageUrl.pathname}`,
       "twitter:image:height": 1200,
       "twitter:image:width": 630,
     },

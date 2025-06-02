@@ -19,11 +19,7 @@ export async function GET(req: NextRequest, { params }: { params: { sectionId: s
   const { sectionId } = params;
   const imageFile = IMAGE_MAP[sectionId as SectionId] || DEFAULT_IMAGE_FILE;
 
-  let baseUrl = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-
-  baseUrl = baseUrl.replace(/\/$/, "");
+  const baseUrl = req.nextUrl.origin;
 
   const imageUrlToFetch = `${baseUrl}/og-images/${imageFile}`;
 
