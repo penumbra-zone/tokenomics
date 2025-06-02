@@ -1,12 +1,8 @@
-'use client'
+"use client";
 
-import { useState, useCallback } from 'react';
-import { 
-  prepareSharePreview, 
-  shareToTwitter, 
-  SharePreviewData 
-} from '@/lib/utils/shareUtils';
 import type { SectionId } from "@/lib/types/sections";
+import { prepareSharePreview, SharePreviewData, shareToTwitter } from "@/lib/utils/shareUtils";
+import { useCallback, useState } from "react";
 
 interface UseShareOptions {
   elementRef: React.RefObject<HTMLElement>;
@@ -34,7 +30,7 @@ export function useShare(options: UseShareOptions): UseShareReturn {
 
   const handleShare = useCallback(async () => {
     setIsGeneratingImage(true);
-    
+
     try {
       const success = await prepareSharePreview({
         ...options,
@@ -43,12 +39,12 @@ export function useShare(options: UseShareOptions): UseShareReturn {
           setIsPreviewOpen(true);
         },
       });
-      
+
       if (!success) {
-        alert('Failed to prepare share preview');
+        alert("Failed to prepare share preview");
       }
     } catch (error) {
-      alert('An unexpected error occurred while trying to share to X. Please try again.');
+      alert("An unexpected error occurred while trying to share to X. Please try again.");
     } finally {
       setIsGeneratingImage(false);
     }
@@ -61,7 +57,7 @@ export function useShare(options: UseShareOptions): UseShareReturn {
 
   const handleConfirmShare = useCallback(async () => {
     if (!previewData) return;
-    
+
     setIsSubmitting(true);
     try {
       const success = await shareToTwitter(previewData);
@@ -69,7 +65,7 @@ export function useShare(options: UseShareOptions): UseShareReturn {
         handleClosePreview();
       }
     } catch (error) {
-      console.error('Share error:', error);
+      console.error("Share error:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -84,4 +80,4 @@ export function useShare(options: UseShareOptions): UseShareReturn {
     handleConfirmShare,
     isSubmitting,
   };
-} 
+}

@@ -7,5 +7,4 @@ export const SECTION_IDS = {
   LQT: "lqt",
 } as const;
 
-export type SectionId = typeof SECTION_IDS[keyof typeof SECTION_IDS];
-
+export type SectionId = (typeof SECTION_IDS)[keyof typeof SECTION_IDS];

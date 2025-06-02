@@ -28,4 +28,6 @@ yarn-error.log*
 coverage
 
 # Turbo
-.turbo 
+.turbo
+
+pnpm-lock.yaml 

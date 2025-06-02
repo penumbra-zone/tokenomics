@@ -1,7 +1,7 @@
-import { COLORS } from '@/common/helpers/colors';
-import { toPng } from "html-to-image";
+import { COLORS } from "@/common/helpers/colors";
 import type { SectionId } from "@/lib/types/sections";
 import { SECTION_IDS } from "@/lib/types/sections";
+import { toPng } from "html-to-image";
 
 export interface ShareOptions {
   elementRef: React.RefObject<HTMLElement>;
@@ -23,10 +23,10 @@ export interface SharePreviewData {
 
 // Helper to convert dataURL to File object
 async function dataURLtoFile(dataurl: string, filename: string): Promise<File> {
-  const arr = dataurl.split(',');
+  const arr = dataurl.split(",");
   const mimeMatch = arr[0].match(/:(.*?);/);
   if (!mimeMatch) {
-    throw new Error('Invalid dataURL: MIME type not found');
+    throw new Error("Invalid dataURL: MIME type not found");
   }
   const mime = mimeMatch[1];
   const bstr = atob(arr[arr.length - 1]);
@@ -42,7 +42,7 @@ export const prepareSharePreview = async (options: ShareOptions): Promise<boolea
   const { elementRef, fileName, twitterText, sectionName, sectionId, onShowPreview } = options;
 
   if (!elementRef.current) {
-    alert('An unexpected error occurred: Element to capture not found.');
+    alert("An unexpected error occurred: Element to capture not found.");
     console.error(`${sectionName} ref is not available`);
     return false;
   }
@@ -70,29 +70,29 @@ export const prepareSharePreview = async (options: ShareOptions): Promise<boolea
 
     // Prepare FormData for upload
     const formData = new FormData();
-    formData.append('image', imageFile);
+    formData.append("image", imageFile);
 
     // Get the upload token (ensure this is securely managed and available client-side)
     const uploadToken = process.env.NEXT_PUBLIC_UPLOAD_SECRET_TOKEN;
     if (!uploadToken) {
-      console.error('Upload secret token is not configured. Set NEXT_PUBLIC_UPLOAD_SECRET_TOKEN.');
-      alert('Share feature is not configured correctly (missing upload token).');
+      console.error("Upload secret token is not configured. Set NEXT_PUBLIC_UPLOAD_SECRET_TOKEN.");
+      alert("Share feature is not configured correctly (missing upload token).");
       return false;
     }
 
     // Upload the image
     const uploadResponse = await fetch(`/api/upload-og-image/${sectionId}`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'X-Upload-Token': uploadToken,
+        "X-Upload-Token": uploadToken,
       },
       body: formData,
     });
 
     if (!uploadResponse.ok) {
       const errorResult = await uploadResponse.json();
-      console.error('Failed to upload share image:', errorResult);
-      alert(`Failed to upload share image: ${errorResult.error || 'Server error'}`);
+      console.error("Failed to upload share image:", errorResult);
+      alert(`Failed to upload share image: ${errorResult.error || "Server error"}`);
       return false;
     }
 
@@ -110,19 +110,19 @@ export const prepareSharePreview = async (options: ShareOptions): Promise<boolea
 
     onShowPreview(previewData);
     return true;
-
   } catch (err) {
-    alert('An unexpected error occurred while preparing the share preview. Please try again.');
-    console.error('Error in prepareSharePreview:', err);
+    alert("An unexpected error occurred while preparing the share preview. Please try again.");
+    console.error("Error in prepareSharePreview:", err);
     return false;
   }
 };
 
 export const shareToTwitter = async (previewData: SharePreviewData): Promise<boolean> => {
   const { description, sectionId } = previewData;
-  const appBaseUrl = typeof window !== "undefined" 
-    ? window.location.origin + window.location.pathname 
-    : "https://penumbra.zone";
+  const appBaseUrl =
+    typeof window !== "undefined"
+      ? window.location.origin + window.location.pathname
+      : "https://penumbra.zone";
 
   let shareUrl = appBaseUrl;
   if (sectionId && sectionId !== SECTION_IDS.SUMMARY) {
@@ -131,13 +131,12 @@ export const shareToTwitter = async (previewData: SharePreviewData): Promise<boo
 
   try {
     const twitterIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(description)}&url=${encodeURIComponent(shareUrl)}`;
-    
-    window.open(twitterIntentUrl, '_blank', 'width=550,height=600,resizable=yes,scrollbars=yes');
+
+    window.open(twitterIntentUrl, "_blank", "width=550,height=600,resizable=yes,scrollbars=yes");
 
     return true;
-
   } catch (err) {
-    alert('An unexpected error occurred while trying to share to X. Please try again.');
+    alert("An unexpected error occurred while trying to share to X. Please try again.");
     return false;
   }
 };
@@ -147,7 +146,7 @@ interface ShareConfigEntry {
   id: SectionId; // The unique ID of the section
   fileName: string;
   twitterText: string;
-  sectionName: string; 
+  sectionName: string;
   sectionId: SectionId; // This is what gets passed to ShareOptions
 }
 
