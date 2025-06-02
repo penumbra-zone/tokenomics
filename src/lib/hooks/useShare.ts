@@ -1,15 +1,12 @@
 "use client";
 
-import type { SectionId } from "@/lib/types/sections";
-import { prepareSharePreview, SharePreviewData, shareToTwitter } from "@/lib/utils/shareUtils";
+import { prepareSharePreview, shareToTwitter } from "@/lib/utils/shareUtils";
+import { ShareConfigEntry, SharePreviewData } from "@/lib/utils/types";
 import { useCallback, useState } from "react";
 
 interface UseShareOptions {
   elementRef: React.RefObject<HTMLElement>;
-  fileName: string;
-  twitterText: string;
-  sectionName: string;
-  sectionId: SectionId;
+  shareConfig: ShareConfigEntry;
 }
 
 interface UseShareReturn {
@@ -32,8 +29,11 @@ export function useShare(options: UseShareOptions): UseShareReturn {
     setIsGeneratingImage(true);
 
     try {
+      const { shareConfig } = options;
+
       const success = await prepareSharePreview({
         ...options,
+        shareConfig,
         onShowPreview: (data) => {
           setPreviewData(data);
           setIsPreviewOpen(true);

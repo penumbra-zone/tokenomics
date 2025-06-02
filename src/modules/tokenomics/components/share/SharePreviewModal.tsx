@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { SharePreviewData } from "@/lib/utils/shareUtils";
+import { SharePreviewData } from "@/lib/utils/types";
 import { X } from "lucide-react";
 import CustomXIcon from "./CustomXIcon";
 

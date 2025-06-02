@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import Footer from "@/common/components/Footer";
 import { shouldShowLiquidityTournament } from "@/lib/env/client";
 import { useShare } from "@/lib/hooks/useShare";
-import { shareConfigs } from "@/lib/utils/shareUtils";
+import { shareConfigs } from "@/lib/utils/types";
 import StickyNavbar from "@/modules/tokenomics/components/StickyNavbar";
 import BurnMetricsSection from "@/modules/tokenomics/components/sections/BurnMetricsSection";
 import IssuanceMetricsSection from "@/modules/tokenomics/components/sections/IssuanceMetricsSection";
@@ -30,10 +30,7 @@ export default function Dashboard() {
     handleConfirmShare,
   } = useShare({
     elementRef: summaryShareRef,
-    fileName: shareConfigs.summary.fileName,
-    twitterText: shareConfigs.summary.twitterText,
-    sectionName: shareConfigs.summary.sectionName,
-    sectionId: shareConfigs.summary.id,
+    shareConfig: shareConfigs.summary,
   });
 
   useEffect(() => {

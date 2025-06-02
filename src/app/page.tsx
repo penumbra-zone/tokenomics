@@ -1,5 +1,6 @@
 import { env as serverEnv } from "@/lib/env/server";
 import { SECTION_IDS, SectionId } from "@/lib/types/sections";
+import { shareConfigs } from "@/lib/utils/types";
 import Dashboard from "@/modules/tokenomics/views/Dashboard";
 
 export const generateMetadata = async ({ params }: { params: { section: SectionId } }) => {
@@ -9,19 +10,20 @@ export const generateMetadata = async ({ params }: { params: { section: SectionI
   const siteUrl = serverEnv.BASE_URL;
   const ogImageUrl = new URL(imageUrl, siteUrl);
 
+  const { title, description } = shareConfigs[section as SectionId];
+
   return {
-    // To make it easier to see which URL is being used in <head>
     metadataBase: new URL(siteUrl),
-    title: "Penumbra Tokenomics Dashboard",
-    description: "A comprehensive dashboard for token metrics and distribution",
+    title,
+    description,
     other: {
-      "og:title": "Penumbra Tokenomics",
-      "og:description": "Penumbra Tokenomics",
+      "og:title": title,
+      "og:description": description,
       "og:image": `${ogImageUrl.pathname}`,
       "og:image:height": 1200,
       "og:image:width": 630,
-      "twitter:title": "Penumbra Tokenomics",
-      "twitter:description": "Penumbra Tokenomics",
+      "twitter:title": title,
+      "twitter:description": description,
       "twitter:card": "summary_large_image",
       "twitter:image": `${ogImageUrl.pathname}`,
       "twitter:image:height": 1200,
