@@ -29,6 +29,8 @@ export const generateMetadata = async ({ params }: { params: { section: SectionI
       "og:image": `${ogImageUrl.pathname}`,
       "og:image:height": 1200,
       "og:image:width": 630,
+      "twitter:title": "Penumbra Tokenomics",
+      "twitter:description": "Penumbra Tokenomics",
       "twitter:card": "summary_large_image",
       "twitter:image": `${ogImageUrl.pathname}`,
       "twitter:image:height": 1200,
