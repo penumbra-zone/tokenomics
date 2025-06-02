@@ -1,12 +1,14 @@
 import { COLORS } from '@/common/helpers/colors';
 import { toPng } from "html-to-image";
+import type { SectionId } from "@/lib/types/sections";
+import { SECTION_IDS } from "@/lib/types/sections";
 
 export interface ShareOptions {
   elementRef: React.RefObject<HTMLElement>;
   fileName: string;
   twitterText: string;
   sectionName: string;
-  sectionId: string;
+  sectionId: SectionId;
   onShowPreview: (previewData: SharePreviewData) => void;
 }
 
@@ -15,15 +17,32 @@ export interface SharePreviewData {
   title: string;
   description: string;
   sectionName: string;
-  sectionId: string;
+  sectionId: SectionId;
   fileName: string;
-  dataUrl: string; // Keep original for sharing
+}
+
+// Helper to convert dataURL to File object
+async function dataURLtoFile(dataurl: string, filename: string): Promise<File> {
+  const arr = dataurl.split(',');
+  const mimeMatch = arr[0].match(/:(.*?);/);
+  if (!mimeMatch) {
+    throw new Error('Invalid dataURL: MIME type not found');
+  }
+  const mime = mimeMatch[1];
+  const bstr = atob(arr[arr.length - 1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new File([u8arr], filename, { type: mime });
 }
 
 export const prepareSharePreview = async (options: ShareOptions): Promise<boolean> => {
   const { elementRef, fileName, twitterText, sectionName, sectionId, onShowPreview } = options;
 
   if (!elementRef.current) {
+    alert('An unexpected error occurred: Element to capture not found.');
     console.error(`${sectionName} ref is not available`);
     return false;
   }
@@ -46,36 +65,68 @@ export const prepareSharePreview = async (options: ShareOptions): Promise<boolea
       },
     });
 
+    // Convert dataURL to File
+    const imageFile = await dataURLtoFile(dataUrl, `${sectionId}.png`);
+
+    // Prepare FormData for upload
+    const formData = new FormData();
+    formData.append('image', imageFile);
+
+    // Get the upload token (ensure this is securely managed and available client-side)
+    const uploadToken = process.env.NEXT_PUBLIC_UPLOAD_SECRET_TOKEN;
+    if (!uploadToken) {
+      console.error('Upload secret token is not configured. Set NEXT_PUBLIC_UPLOAD_SECRET_TOKEN.');
+      alert('Share feature is not configured correctly (missing upload token).');
+      return false;
+    }
+
+    // Upload the image
+    const uploadResponse = await fetch(`/api/upload-og-image/${sectionId}`, {
+      method: 'POST',
+      headers: {
+        'X-Upload-Token': uploadToken,
+      },
+      body: formData,
+    });
+
+    if (!uploadResponse.ok) {
+      const errorResult = await uploadResponse.json();
+      console.error('Failed to upload share image:', errorResult);
+      alert(`Failed to upload share image: ${errorResult.error || 'Server error'}`);
+      return false;
+    }
+
+    const uploadResult = await uploadResponse.json();
+    const serverImageUrl = `${window.location.origin}${uploadResult.path}`;
+
     const previewData: SharePreviewData = {
-      imageUrl: dataUrl,
+      imageUrl: serverImageUrl,
       title: `Penumbra ${sectionName}`,
       description: twitterText,
       sectionName,
       sectionId,
       fileName,
-      dataUrl,
     };
 
     onShowPreview(previewData);
     return true;
 
   } catch (err) {
-    alert('An unexpected error occurred while trying to share to X. Please try again.');
-    console.error(err);
+    alert('An unexpected error occurred while preparing the share preview. Please try again.');
+    console.error('Error in prepareSharePreview:', err);
     return false;
   }
 };
 
 export const shareToTwitter = async (previewData: SharePreviewData): Promise<boolean> => {
   const { description, sectionId } = previewData;
-  // Dynamically get the current page's base URL
   const appBaseUrl = typeof window !== "undefined" 
     ? window.location.origin + window.location.pathname 
-    : "https://penumbra.zone"; // Fallback for non-browser environments (though unlikely for this function)
+    : "https://penumbra.zone";
 
   let shareUrl = appBaseUrl;
-  if (sectionId && sectionId !== "summary") {
-    shareUrl = `${appBaseUrl}#${sectionId}`; // Note: No slash before # for fragments
+  if (sectionId && sectionId !== SECTION_IDS.SUMMARY) {
+    shareUrl = `${appBaseUrl}#${sectionId}`;
   }
 
   try {
@@ -91,36 +142,57 @@ export const shareToTwitter = async (previewData: SharePreviewData): Promise<boo
   }
 };
 
+// Type for each config entry in shareConfigs
+interface ShareConfigEntry {
+  id: SectionId; // The unique ID of the section
+  fileName: string;
+  twitterText: string;
+  sectionName: string; 
+  sectionId: SectionId; // This is what gets passed to ShareOptions
+}
+
 // Predefined share configurations for different sections
-export const shareConfigs = {
-  summary: {
-    id: "summary",
+export const shareConfigs: Record<SectionId, ShareConfigEntry> = {
+  [SECTION_IDS.SUMMARY]: {
+    id: SECTION_IDS.SUMMARY,
     fileName: "penumbra-summary",
     twitterText: "Check out the latest Penumbra tokenomics summary! 🌙📊 Key metrics at a glance",
     sectionName: "Summary",
+    sectionId: SECTION_IDS.SUMMARY,
   },
-  supply: {
-    id: "supply-visualization",
+  [SECTION_IDS.SUPPLY_VISUALIZATION]: {
+    id: SECTION_IDS.SUPPLY_VISUALIZATION,
     fileName: "penumbra-supply",
     twitterText: "Penumbra token supply visualization 📈🔍 See how tokens are distributed",
     sectionName: "Supply Visualization",
+    sectionId: SECTION_IDS.SUPPLY_VISUALIZATION,
   },
-  burn: {
-    id: "burn-metrics",
+  [SECTION_IDS.BURN_METRICS]: {
+    id: SECTION_IDS.BURN_METRICS,
     fileName: "penumbra-burn-metrics",
     twitterText: "Penumbra token burn metrics 🔥♻️ Deflationary mechanics in action",
     sectionName: "Burn Metrics",
+    sectionId: SECTION_IDS.BURN_METRICS,
   },
-  issuance: {
-    id: "issuance-metrics",
+  [SECTION_IDS.ISSUANCE_METRICS]: {
+    id: SECTION_IDS.ISSUANCE_METRICS,
     fileName: "penumbra-issuance",
     twitterText: "Penumbra token issuance metrics 📊💎 New token creation insights",
     sectionName: "Issuance Metrics",
+    sectionId: SECTION_IDS.ISSUANCE_METRICS,
   },
-  lqt: {
-    id: "lqt",
+  [SECTION_IDS.TOKEN_DISTRIBUTION]: {
+    id: SECTION_IDS.TOKEN_DISTRIBUTION,
+    fileName: "penumbra-token-distribution",
+    twitterText: "Understanding Penumbra\'s token distribution. 🥧",
+    sectionName: "Token Distribution",
+    sectionId: SECTION_IDS.TOKEN_DISTRIBUTION,
+  },
+  [SECTION_IDS.LQT]: {
+    id: SECTION_IDS.LQT,
     fileName: "penumbra-lqt",
     twitterText: "Penumbra Liquidity Tournament stats 🏆🌊 Providing liquidity rewards",
     sectionName: "Liquidity Tournament",
+    sectionId: SECTION_IDS.LQT,
   },
-}; 
+};

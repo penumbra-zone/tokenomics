@@ -6,13 +6,14 @@ import {
   shareToTwitter, 
   SharePreviewData 
 } from '@/lib/utils/shareUtils';
+import type { SectionId } from "@/lib/types/sections";
 
 interface UseShareOptions {
   elementRef: React.RefObject<HTMLElement>;
   fileName: string;
   twitterText: string;
   sectionName: string;
-  sectionId: string;
+  sectionId: SectionId;
 }
 
 interface UseShareReturn {

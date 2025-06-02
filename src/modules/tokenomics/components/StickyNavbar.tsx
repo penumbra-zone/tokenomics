@@ -8,17 +8,24 @@ import { cn } from "@/common/helpers/utils";
 import { NAV_ACTIVE_WITH_UNDERLINE } from "@/common/styles/activeStates";
 import { NAV_ITEM_BASE_STYLES, NAV_ITEM_INACTIVE_STYLES } from "@/common/styles/componentStyles";
 import { shouldShowLiquidityTournament } from "@/lib/env/client";
+import type { SectionId } from "@/lib/types/sections";
+import { SECTION_IDS } from "@/lib/types/sections";
 import ShareButton from "./ShareButton";
 
-const NAV_ITEMS = [
-  { id: "supply-visualization", label: "Supply" },
-  { id: "issuance-metrics", label: "Issuance" },
-  { id: "burn-metrics", label: "Tokens Burned" },
-  { id: "token-distribution", label: "Token Distribution" },
+interface NavItem {
+  id: SectionId;
+  label: string;
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { id: SECTION_IDS.SUPPLY_VISUALIZATION, label: "Supply" },
+  { id: SECTION_IDS.ISSUANCE_METRICS, label: "Issuance" },
+  { id: SECTION_IDS.BURN_METRICS, label: "Tokens Burned" },
+  { id: SECTION_IDS.TOKEN_DISTRIBUTION, label: "Token Distribution" },
 ];
 
 if (shouldShowLiquidityTournament()) {
-  NAV_ITEMS.push({ id: "lqt", label: "Liquidity Tournament" });
+  NAV_ITEMS.push({ id: SECTION_IDS.LQT, label: "Liquidity Tournament" });
 }
 
 interface StickyNavbarProps {
@@ -32,7 +39,7 @@ export default function StickyNavbar({
   isGeneratingImage,
   isSubmitting,
 }: StickyNavbarProps) {
-  const [activeSection, setActiveSection] = useState(NAV_ITEMS[0].id);
+  const [activeSection, setActiveSection] = useState<SectionId>(NAV_ITEMS[0].id);
   const [showNavbar, setShowNavbar] = useState(true);
   const lastScrollY = useRef(typeof window !== "undefined" ? window.scrollY : 0);
   const navigationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -42,12 +49,10 @@ export default function StickyNavbar({
     isNavigatingRef.current = true;
     setShowNavbar(true);
 
-    // Clear any existing timeout
     if (navigationTimeoutRef.current) {
       clearTimeout(navigationTimeoutRef.current);
     }
 
-    // Reset navigation state after smooth scroll completes (typically ~1000ms)
     navigationTimeoutRef.current = setTimeout(() => {
       isNavigatingRef.current = false;
     }, 1200);
@@ -56,7 +61,7 @@ export default function StickyNavbar({
   useEffect(() => {
     const handleScroll = () => {
       const offset = 100;
-      let current = NAV_ITEMS[0].id;
+      let current: SectionId = NAV_ITEMS[0].id;
       for (const { id } of NAV_ITEMS) {
         const el = document.getElementById(id);
         if (el) {
@@ -68,7 +73,6 @@ export default function StickyNavbar({
       }
       setActiveSection(current);
 
-      // Don't hide navbar if we're currently navigating
       if (isNavigatingRef.current) {
         return;
       }
@@ -89,7 +93,6 @@ export default function StickyNavbar({
     handleScroll();
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      // Clean up timeout on unmount
       if (navigationTimeoutRef.current) {
         clearTimeout(navigationTimeoutRef.current);
       }
@@ -121,13 +124,7 @@ export default function StickyNavbar({
           ))}
         </nav>
         <div className="flex items-center space-x-2">
-          <ShareButton
-            text={
-              isGeneratingImage ? "Generating..." : isSubmitting ? "Sharing..." : "Share Overview"
-            }
-            onClick={onShare}
-            disabled={isGeneratingImage || isSubmitting}
-          />
+          <ShareButton onClick={onShare} />
         </div>
       </div>
     </header>
