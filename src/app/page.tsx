@@ -32,7 +32,8 @@ export const generateMetadata = async ({ params }: { params: { section: SectionI
       "twitter:title": "Penumbra Tokenomics",
       "twitter:description": "Penumbra Tokenomics",
       "twitter:card": "summary_large_image",
-      "twitter:image": `${ogImageUrl.pathname}`,
+      "twitter:image":
+        "https://moshi.cam/api/og/template?imageUrl=https%3A%2F%2Fstorage.googleapis.com%2Fmoshi-images%2Fborders%2F2w6UD8OTM93E2WlprGWJ6fQoins%2F2w6UDBUUUTr6EJGS5xGyIDHPoR8.png",
       "twitter:image:height": 1200,
       "twitter:image:width": 630,
     },
