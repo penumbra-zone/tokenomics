@@ -19,6 +19,7 @@ interface ServerEnvVars {
   NODE_ENV: Env;
   NEXT_PUBLIC_NETWORK?: Network;
   NEXT_PUBLIC_SHOW_LIQUIDITY_TOURNAMENT?: string;
+  NEXT_PUBLIC_SITE_URL?: string;
 }
 
 function getEnvVar(key: keyof ServerEnvVars): string {
@@ -38,4 +39,5 @@ export const env: ServerEnvVars = {
   NODE_ENV: getEnvVar("NODE_ENV") as Env,
   NEXT_PUBLIC_NETWORK: getOptionalEnvVar("NEXT_PUBLIC_NETWORK") as Network | undefined,
   NEXT_PUBLIC_SHOW_LIQUIDITY_TOURNAMENT: getOptionalEnvVar("NEXT_PUBLIC_SHOW_LIQUIDITY_TOURNAMENT"),
+  NEXT_PUBLIC_SITE_URL: getOptionalEnvVar("NEXT_PUBLIC_SITE_URL"),
 };
