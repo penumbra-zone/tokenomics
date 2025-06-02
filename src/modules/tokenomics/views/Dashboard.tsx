@@ -19,11 +19,11 @@ import SharePreviewModal from "@/modules/tokenomics/components/share/SharePrevie
 export default function Dashboard() {
   const [showLQTSection, setShowLQTSection] = useState(false);
   const summaryShareRef = useRef<HTMLDivElement>(null);
+  const [isContentLoading, setIsContentLoading] = useState(false);
 
   const {
-    isGeneratingImage,
-    handleShare,
     isSubmitting,
+    handleShare,
     isPreviewOpen,
     previewData,
     handleClosePreview,
@@ -40,11 +40,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <StickyNavbar
-        onShare={handleShare}
-        isGeneratingImage={isGeneratingImage}
-        isSubmitting={isSubmitting}
-      />
+      <StickyNavbar onShare={handleShare} isContentLoading={isContentLoading} />
       <div className="relative min-h-screen bg-background overflow-hidden">
         {/* Background effect - simplified */}
         <div className="absolute inset-0 z-0 opacity-5">
@@ -67,7 +63,7 @@ export default function Dashboard() {
 
       {/* Hidden SharePreview for image capture */}
       <div className="absolute -top-[9999px] left-0 pointer-events-none">
-        <SharePreview ref={summaryShareRef} />
+        <SharePreview ref={summaryShareRef} onAggregateLoadingChange={setIsContentLoading} />
       </div>
 
       {/* Share Preview Modal */}

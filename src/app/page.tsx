@@ -13,19 +13,16 @@ export const generateMetadata = async ({ params }: { params: { section: SectionI
   const { title, description } = shareConfigs[section as SectionId];
 
   return {
-    metadataBase: new URL(siteUrl),
-    title,
-    description,
     other: {
       "og:title": title,
       "og:description": description,
-      "og:image": `${ogImageUrl.pathname}`,
+      "og:image": `${ogImageUrl.href}`,
       "og:image:height": 1200,
       "og:image:width": 630,
       "twitter:title": title,
       "twitter:description": description,
       "twitter:card": "summary_large_image",
-      "twitter:image": `${ogImageUrl.pathname}`,
+      "twitter:image": `${ogImageUrl.href}`,
       "twitter:image:height": 1200,
       "twitter:image:width": 630,
     },

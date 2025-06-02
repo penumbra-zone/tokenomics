@@ -30,15 +30,10 @@ if (shouldShowLiquidityTournament()) {
 
 interface StickyNavbarProps {
   onShare: () => void;
-  isGeneratingImage: boolean;
-  isSubmitting: boolean;
+  isContentLoading: boolean;
 }
 
-export default function StickyNavbar({
-  onShare,
-  isGeneratingImage,
-  isSubmitting,
-}: StickyNavbarProps) {
+export default function StickyNavbar({ onShare, isContentLoading }: StickyNavbarProps) {
   const [activeSection, setActiveSection] = useState<SectionId>(NAV_ITEMS[0].id);
   const [showNavbar, setShowNavbar] = useState(true);
   const lastScrollY = useRef(typeof window !== "undefined" ? window.scrollY : 0);
@@ -124,7 +119,11 @@ export default function StickyNavbar({
           ))}
         </nav>
         <div className="flex items-center space-x-2">
-          <ShareButton onClick={onShare} />
+          <ShareButton
+            onClick={onShare}
+            text="Share Overview"
+            isContentLoading={isContentLoading}
+          />
         </div>
       </div>
     </header>

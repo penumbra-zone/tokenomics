@@ -3,19 +3,26 @@ import { COLORS } from "@/common/helpers/colors";
 import { defaultThemeColors, ThemeColors } from "@/common/styles/themeColors";
 import { useGetSummaryMetricsQuery } from "@/store/api/tokenomicsApi";
 import Image from "next/image";
+import { useEffect } from "react";
 
 interface InflationCardProps {
   description?: string;
   cardClassName?: string;
   themeColors?: ThemeColors;
+  onLoadingChange?: (isLoading: boolean) => void;
 }
 
 export function InflationCard({
   description = "During last month",
   cardClassName = "h-full",
   themeColors = defaultThemeColors,
+  onLoadingChange,
 }: InflationCardProps) {
   const { data: summaryMetrics, isLoading } = useGetSummaryMetricsQuery();
+
+  useEffect(() => {
+    onLoadingChange?.(isLoading);
+  }, [isLoading, onLoadingChange]);
 
   const getPreviousMonthComparison = (
     lastMonthInflation: number,
