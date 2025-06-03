@@ -13,20 +13,14 @@ const IssuanceMetricsSharePreview = React.forwardRef<
   IssuanceMetricsSharePreviewProps
 >(({ onAggregateLoadingChange }, ref) => {
   const [loadingStates, setLoadingStates] = useState({
-    currentIssuance: true, // Handles own loading
-    annualIssuance: true, // Handles own loading
+    currentIssuance: true,
+    annualIssuance: true,
     inflation: true,
   });
 
   const handleLoadingChange = (cardName: keyof typeof loadingStates) => (isLoading: boolean) => {
     setLoadingStates((prev) => ({ ...prev, [cardName]: isLoading }));
   };
-
-  // Simulate loading completion for cards that don't have onLoadingChange prop
-  useEffect(() => {
-    handleLoadingChange("currentIssuance")(false);
-    handleLoadingChange("annualIssuance")(false);
-  }, []);
 
   useEffect(() => {
     const anyLoading = Object.values(loadingStates).some((status) => status);
@@ -36,8 +30,8 @@ const IssuanceMetricsSharePreview = React.forwardRef<
   return (
     <SharePreviewWrapper ref={ref}>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <CurrentIssuanceCard />
-        <AnnualIssuanceCard />
+        <CurrentIssuanceCard onLoadingChange={handleLoadingChange("currentIssuance")} />
+        <AnnualIssuanceCard onLoadingChange={handleLoadingChange("annualIssuance")} />
         <InflationCard
           onLoadingChange={handleLoadingChange("inflation")}
           themeColors={secondaryThemeColors} // As used in IssuanceMetricsSection

@@ -12,18 +12,13 @@ const TokenDistributionSharePreview = React.forwardRef<
   TokenDistributionSharePreviewProps
 >(({ onAggregateLoadingChange }, ref) => {
   const [loadingStates, setLoadingStates] = useState({
-    circulatingSupply: true, // Handles own loading
+    circulatingSupply: true,
     percentStaked: true,
   });
 
   const handleLoadingChange = (cardName: keyof typeof loadingStates) => (isLoading: boolean) => {
     setLoadingStates((prev) => ({ ...prev, [cardName]: isLoading }));
   };
-
-  // Simulate loading completion for cards that don't have onLoadingChange prop
-  useEffect(() => {
-    handleLoadingChange("circulatingSupply")(false);
-  }, []);
 
   useEffect(() => {
     const anyLoading = Object.values(loadingStates).some((status) => status);
@@ -33,7 +28,7 @@ const TokenDistributionSharePreview = React.forwardRef<
   return (
     <SharePreviewWrapper ref={ref}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <CirculatingSupplyCard />
+        <CirculatingSupplyCard onLoadingChange={handleLoadingChange("circulatingSupply")} />
         <PercentStakedOfTotalSupplyCard
           onLoadingChange={handleLoadingChange("percentStaked")}
           themeColors={secondaryThemeColors} // As used in TokenDistributionSection
