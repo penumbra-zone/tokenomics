@@ -19,6 +19,8 @@ interface ServerEnvVars {
   NODE_ENV: Env;
   NEXT_PUBLIC_NETWORK?: Network;
   NEXT_PUBLIC_SHOW_LIQUIDITY_TOURNAMENT?: string;
+  BASE_URL: string;
+  BLOB_READ_WRITE_TOKEN: string;
 }
 
 function getEnvVar(key: keyof ServerEnvVars): string {
@@ -38,4 +40,9 @@ export const env: ServerEnvVars = {
   NODE_ENV: getEnvVar("NODE_ENV") as Env,
   NEXT_PUBLIC_NETWORK: getOptionalEnvVar("NEXT_PUBLIC_NETWORK") as Network | undefined,
   NEXT_PUBLIC_SHOW_LIQUIDITY_TOURNAMENT: getOptionalEnvVar("NEXT_PUBLIC_SHOW_LIQUIDITY_TOURNAMENT"),
+  BLOB_READ_WRITE_TOKEN: getEnvVar("BLOB_READ_WRITE_TOKEN"),
+  BASE_URL:
+    getEnvVar("NODE_ENV") === Env.Production
+      ? "https://tokenomics-dashboard-sand.vercel.app/"
+      : getOptionalEnvVar("BASE_URL") || "http://localhost:3000",
 };

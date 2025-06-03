@@ -6,16 +6,24 @@ import { LoadingSpinner } from "@/common/components/LoadingSpinner";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BurnRateOverTimeChart } from "@/modules/tokenomics/components/charts/BurnRateOverTimeChart";
 import { useGetBurnMetricsQuery } from "@/store/api/tokenomicsApi";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface BurnRateDataPoint {
   date: string;
   value: number;
 }
 
-export function BurnRateOverTimeCard() {
+export interface BurnRateOverTimeCardProps {
+  onLoadingChange?: (isLoading: boolean) => void;
+}
+
+export function BurnRateOverTimeCard({ onLoadingChange }: BurnRateOverTimeCardProps) {
   const [selectedDays, setSelectedDays] = useState(30);
   const { data: burnMetrics, isLoading, isFetching } = useGetBurnMetricsQuery(selectedDays);
+
+  useEffect(() => {
+    onLoadingChange?.(isLoading || isFetching);
+  }, [isLoading, isFetching, onLoadingChange]);
 
   // Transform burn metrics data to chart format
   const chartData = useMemo((): BurnRateDataPoint[] => {

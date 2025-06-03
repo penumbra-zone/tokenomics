@@ -3,10 +3,18 @@ import AnimatedNumber from "@/components/AnimatedNumber";
 import { calculatePercentageOfSupplyBurned } from "@/lib/calculations";
 import { formatNumber } from "@/lib/utils";
 import { useGetSummaryMetricsQuery } from "@/store/api/tokenomicsApi";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
-export function TotalBurnedCard() {
+export interface TotalBurnedCardProps {
+  onLoadingChange?: (isLoading: boolean) => void;
+}
+
+export function TotalBurnedCard({ onLoadingChange }: TotalBurnedCardProps) {
   const { data: summaryMetrics, isLoading } = useGetSummaryMetricsQuery();
+
+  useEffect(() => {
+    onLoadingChange?.(isLoading);
+  }, [isLoading, onLoadingChange]);
 
   const totalBurned = summaryMetrics?.totalBurned ?? 0;
   const percentageOfTotalSupply = useMemo(() => {

@@ -7,14 +7,15 @@ import {
 
 interface SectionProps {
   handleShare: () => void;
+  isShareLoading: boolean;
 }
 
-export default function SupplyVisualizationSection({ handleShare }: SectionProps) {
+export default function SupplyVisualizationSection({ handleShare, isShareLoading }: SectionProps) {
   return (
     <section id="supply-visualization" className="mb-12 pt-16 -mt-16">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold text-white">SUPPLY VISUALIZATION</h2>
-        <ShareButton onClick={handleShare} />
+        <ShareButton onClick={handleShare} isContentLoading={isShareLoading} />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-4 lg:grid-rows-5 gap-6 mb-8">
         {/* Left Column for stacked cards - each card spans 2 rows */}

@@ -1,9 +1,18 @@
 import InfoCard from "@/common/components/cards/InfoCard";
 import { formatNumber } from "@/lib/utils";
 import { useGetSummaryMetricsQuery } from "@/store/api/tokenomicsApi";
+import { useEffect } from "react";
 
-export function MarketCapCard() {
+export interface MarketCapCardProps {
+  onLoadingChange?: (isLoading: boolean) => void;
+}
+
+export function MarketCapCard({ onLoadingChange }: MarketCapCardProps) {
   const { data: socialMetrics, isLoading } = useGetSummaryMetricsQuery();
+
+  useEffect(() => {
+    onLoadingChange?.(isLoading);
+  }, [isLoading, onLoadingChange]);
 
   return (
     <InfoCard
