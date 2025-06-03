@@ -55,27 +55,13 @@ export const prepareSharePreview = async (options: ShareOptions): Promise<boolea
     const formData = new FormData();
     formData.append("image", imageFile);
 
-    // Get the upload token (ensure this is securely managed and available client-side)
-    const uploadToken = process.env.NEXT_PUBLIC_UPLOAD_SECRET_TOKEN;
-    if (!uploadToken) {
-      console.error("Upload secret token is not configured. Set NEXT_PUBLIC_UPLOAD_SECRET_TOKEN.");
-      alert("Share feature is not configured correctly (missing upload token).");
-      return false;
-    }
-
     // Upload the image
     const uploadResponse = await fetch(`/api/upload-og-image/${sectionId}`, {
       method: "POST",
-      headers: {
-        "X-Upload-Token": uploadToken,
-      },
       body: formData,
     });
 
     if (!uploadResponse.ok) {
-      const errorResult = await uploadResponse.json();
-      console.error("Failed to upload share image:", errorResult);
-      alert(`Failed to upload share image: ${errorResult.error || "Server error"}`);
       return false;
     }
 

@@ -1,89 +1,40 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import Footer from "@/common/components/Footer";
 import { shouldShowLiquidityTournament } from "@/lib/env/client";
-import { useShare } from "@/lib/hooks/useShare";
-import { SECTION_IDS, SectionId } from "@/lib/types/sections";
-import { shareConfigs } from "@/lib/utils/types";
+import { SECTION_IDS } from "@/lib/types/sections";
 import BurnMetricsSection from "@/modules/tokenomics/components/sections/BurnMetricsSection";
 import IssuanceMetricsSection from "@/modules/tokenomics/components/sections/IssuanceMetricsSection";
 import LiquidityTournamentSection from "@/modules/tokenomics/components/sections/LiquidityTournamentSection";
 import SummarySection from "@/modules/tokenomics/components/sections/SummarySection";
 import SupplyVisualizationSection from "@/modules/tokenomics/components/sections/SupplyVisualizationSection";
 import TokenDistributionSection from "@/modules/tokenomics/components/sections/TokenDistributionSection";
-import SummarySharePreview from "@/modules/tokenomics/components/share/sections/SummarySharePreview";
-import SharePreviewModal from "@/modules/tokenomics/components/share/SharePreviewModal";
 import StickyNavbar from "@/modules/tokenomics/components/StickyNavbar";
-import BurnMetricsSharePreview from "../components/share/sections/BurnMetricsSharePreview";
-import IssuanceMetricsSharePreview from "../components/share/sections/IssuanceMetricsSharePreview";
-import LiquidityTournamentSharePreview from "../components/share/sections/LiquidityTournamentSharePreview";
-import SupplyVisualizationSharePreview from "../components/share/sections/SupplyVisualizationSharePreview";
-import TokenDistributionSharePreview from "../components/share/sections/TokenDistributionSharePreview";
+import {
+  SharePreviewProvider,
+  useSharePreview,
+} from "@/modules/tokenomics/context/SharePreviewContext";
 
-export default function Dashboard() {
+function DashboardContent() {
   const [showLQTSection, setShowLQTSection] = useState(false);
 
-  // Share preview loading states
-  const [isSummaryPreviewLoading, setIsSummaryPreviewLoading] = useState(true);
-  const [isSupplyVisualizationPreviewLoading, setIsSupplyVisualizationPreviewLoading] =
-    useState(true);
-  const [isIssuanceMetricsPreviewLoading, setIsIssuanceMetricsPreviewLoading] = useState(true);
-  const [isBurnMetricsPreviewLoading, setIsBurnMetricsPreviewLoading] = useState(true);
-  const [isTokenDistributionPreviewLoading, setIsTokenDistributionPreviewLoading] = useState(true);
-  const [isLiquidityTournamentPreviewLoading, setIsLiquidityTournamentPreviewLoading] =
-    useState(true);
-
-  // Share preview refs
-  const summaryShareRef = useRef<HTMLDivElement>(null);
-  const supplyVisualizationShareRef = useRef<HTMLDivElement>(null);
-  const issuanceMetricsShareRef = useRef<HTMLDivElement>(null);
-  const burnMetricsShareRef = useRef<HTMLDivElement>(null);
-  const tokenDistributionShareRef = useRef<HTMLDivElement>(null);
-  const liquidityTournamentShareRef = useRef<HTMLDivElement>(null);
-
   const {
-    isPreviewOpen,
-    previewData,
-    handleShare: triggerShareProcess,
-    handleClosePreview,
-    handleConfirmShare,
-    isSubmitting,
-  } = useShare();
-
-  const handleShareRequest = (sectionId: SectionId, elementRef: React.RefObject<HTMLElement>) => {
-    const config = shareConfigs[sectionId];
-    if (elementRef.current && config) {
-      triggerShareProcess({ elementRef, shareConfig: config });
-    } else {
-      console.error("Summary share configuration or ref not found.");
-      alert("Failed to prepare summary share preview: configuration missing.");
-    }
-  };
-
-  const handleSummaryPreviewLoadingChange = (isLoading: boolean, sectionId: SectionId) => {
-    switch (sectionId) {
-      case SECTION_IDS.SUMMARY:
-        setIsSummaryPreviewLoading(isLoading);
-        break;
-      case SECTION_IDS.SUPPLY_VISUALIZATION:
-        setIsSupplyVisualizationPreviewLoading(isLoading);
-        break;
-      case SECTION_IDS.ISSUANCE_METRICS:
-        setIsIssuanceMetricsPreviewLoading(isLoading);
-        break;
-      case SECTION_IDS.BURN_METRICS:
-        setIsBurnMetricsPreviewLoading(isLoading);
-        break;
-      case SECTION_IDS.TOKEN_DISTRIBUTION:
-        setIsTokenDistributionPreviewLoading(isLoading);
-        break;
-      case SECTION_IDS.LQT:
-        setIsLiquidityTournamentPreviewLoading(isLoading);
-        break;
-    }
-  };
+    isSummaryPreviewLoading,
+    isSupplyVisualizationPreviewLoading,
+    isIssuanceMetricsPreviewLoading,
+    isBurnMetricsPreviewLoading,
+    isTokenDistributionPreviewLoading,
+    isLiquidityTournamentPreviewLoading,
+    summaryShareRef,
+    supplyVisualizationShareRef,
+    issuanceMetricsShareRef,
+    burnMetricsShareRef,
+    tokenDistributionShareRef,
+    liquidityTournamentShareRef,
+    handleShareRequest,
+  } = useSharePreview();
 
   useEffect(() => {
     setShowLQTSection(shouldShowLiquidityTournament());
@@ -134,53 +85,14 @@ export default function Dashboard() {
         </div>
       </div>
       <Footer />
-
-      <div className="absolute -top-[9999px] left-0 pointer-events-none">
-        <SummarySharePreview
-          ref={summaryShareRef}
-          onAggregateLoadingChange={(isLoading) =>
-            handleSummaryPreviewLoadingChange(isLoading, SECTION_IDS.SUMMARY)
-          }
-        />
-        <SupplyVisualizationSharePreview
-          ref={supplyVisualizationShareRef}
-          onAggregateLoadingChange={(isLoading) =>
-            handleSummaryPreviewLoadingChange(isLoading, SECTION_IDS.SUPPLY_VISUALIZATION)
-          }
-        />
-        <IssuanceMetricsSharePreview
-          ref={issuanceMetricsShareRef}
-          onAggregateLoadingChange={(isLoading) =>
-            handleSummaryPreviewLoadingChange(isLoading, SECTION_IDS.ISSUANCE_METRICS)
-          }
-        />
-        <BurnMetricsSharePreview
-          ref={burnMetricsShareRef}
-          onAggregateLoadingChange={(isLoading) =>
-            handleSummaryPreviewLoadingChange(isLoading, SECTION_IDS.BURN_METRICS)
-          }
-        />
-        <TokenDistributionSharePreview
-          ref={tokenDistributionShareRef}
-          onAggregateLoadingChange={(isLoading) =>
-            handleSummaryPreviewLoadingChange(isLoading, SECTION_IDS.TOKEN_DISTRIBUTION)
-          }
-        />
-        <LiquidityTournamentSharePreview
-          ref={liquidityTournamentShareRef}
-          onAggregateLoadingChange={(isLoading) =>
-            handleSummaryPreviewLoadingChange(isLoading, SECTION_IDS.LQT)
-          }
-        />
-      </div>
-
-      <SharePreviewModal
-        isOpen={isPreviewOpen}
-        previewData={previewData}
-        onClose={handleClosePreview}
-        onShareToX={handleConfirmShare}
-        isSubmitting={isSubmitting}
-      />
     </>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <SharePreviewProvider>
+      <DashboardContent />
+    </SharePreviewProvider>
   );
 }

@@ -1,9 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import CustomXIcon from "@/components/ui/CustomXIcon";
 import { SharePreviewData } from "@/lib/utils/types";
 import { X } from "lucide-react";
-import CustomXIcon from "./CustomXIcon";
 
 interface SharePreviewModalProps {
   isOpen: boolean;

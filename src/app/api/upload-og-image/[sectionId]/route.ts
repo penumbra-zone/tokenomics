@@ -1,20 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
-
-export const runtime = 'nodejs';
-
-const UPLOAD_SECRET = process.env.UPLOAD_SECRET_TOKEN;
+import { env } from '@/lib/env/server';
 
 export async function POST(
   req: NextRequest,
   { params }: { params: { sectionId: string } }
 ) {
-  // Check for our custom secret token for API access
-  const requestToken = req.headers.get('X-Upload-Token');
-  if (!UPLOAD_SECRET || requestToken !== UPLOAD_SECRET) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   const { sectionId } = params;
 
   if (!sectionId) {
@@ -41,6 +32,7 @@ export async function POST(
       allowOverwrite: true,
       contentType: file.type,
       cacheControlMaxAge: 31536000,
+      token: env.BLOB_READ_WRITE_TOKEN,
     });
 
     return NextResponse.json({
@@ -51,7 +43,6 @@ export async function POST(
     });
 
   } catch (error) {
-    console.error('Error uploading image to Vercel Blob:', error);
     const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json({ error: 'Failed to upload image', details: errorMessage }, { status: 500 });
   }
