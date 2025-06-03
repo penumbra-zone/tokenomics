@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
 
-import { InflationCard } from "../cards/InflationCard";
-import { MarketCapCard } from "../cards/MarketCapCard";
-import { PercentStakedOfTotalSupplyCard } from "../cards/PercentStakedOfTotalSupplyCard";
-import { TotalBurnedCard } from "../cards/TotalBurnedCard";
-import { TotalSupplyCard } from "../cards/TotalSupplyCard";
-import SharePreviewWrapper from "./SharePreviewWrapper";
+import { InflationCard } from "../../cards/InflationCard";
+import { MarketCapCard } from "../../cards/MarketCapCard";
+import { PercentStakedOfTotalSupplyCard } from "../../cards/PercentStakedOfTotalSupplyCard";
+import { TotalBurnedCard } from "../../cards/TotalBurnedCard";
+import { TotalSupplyCard } from "../../cards/TotalSupplyCard";
+import SharePreviewWrapper from "../SharePreviewWrapper";
 
 interface SharePreviewProps {
   onAggregateLoadingChange?: (isLoading: boolean) => void;
 }
 
-const SharePreview = React.forwardRef<HTMLDivElement, SharePreviewProps>(
+const SummarySharePreview = React.forwardRef<HTMLDivElement, SharePreviewProps>(
   ({ onAggregateLoadingChange }, ref) => {
     const [loadingStates, setLoadingStates] = useState({
       totalSupply: true,
@@ -47,6 +47,6 @@ const SharePreview = React.forwardRef<HTMLDivElement, SharePreviewProps>(
   }
 );
 
-SharePreview.displayName = "SummarySharePreview";
+SummarySharePreview.displayName = "SummarySharePreview";
 
-export default SharePreview;
+export default SummarySharePreview;

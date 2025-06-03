@@ -6,15 +6,15 @@ import Footer from "@/common/components/Footer";
 import { shouldShowLiquidityTournament } from "@/lib/env/client";
 import { useShare } from "@/lib/hooks/useShare";
 import { shareConfigs } from "@/lib/utils/types";
-import StickyNavbar from "@/modules/tokenomics/components/StickyNavbar";
 import BurnMetricsSection from "@/modules/tokenomics/components/sections/BurnMetricsSection";
 import IssuanceMetricsSection from "@/modules/tokenomics/components/sections/IssuanceMetricsSection";
 import LiquidityTournamentSection from "@/modules/tokenomics/components/sections/LiquidityTournamentSection";
 import SummarySection from "@/modules/tokenomics/components/sections/SummarySection";
 import SupplyVisualizationSection from "@/modules/tokenomics/components/sections/SupplyVisualizationSection";
 import TokenDistributionSection from "@/modules/tokenomics/components/sections/TokenDistributionSection";
-import SharePreview from "@/modules/tokenomics/components/share/SharePreview";
+import SummarySharePreview from "@/modules/tokenomics/components/share/sections/SummarySharePreview";
 import SharePreviewModal from "@/modules/tokenomics/components/share/SharePreviewModal";
+import StickyNavbar from "@/modules/tokenomics/components/StickyNavbar";
 
 export default function Dashboard() {
   const [showLQTSection, setShowLQTSection] = useState(false);
@@ -63,7 +63,7 @@ export default function Dashboard() {
 
       {/* Hidden SharePreview for image capture */}
       <div className="absolute -top-[9999px] left-0 pointer-events-none">
-        <SharePreview ref={summaryShareRef} onAggregateLoadingChange={setIsContentLoading} />
+        <SummarySharePreview ref={summaryShareRef} onAggregateLoadingChange={setIsContentLoading} />
       </div>
 
       {/* Share Preview Modal */}
