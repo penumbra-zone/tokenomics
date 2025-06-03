@@ -1,5 +1,5 @@
 import { secondaryThemeColors } from "@/common/styles/themeColors"; // For InflationCard
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { AnnualIssuanceCard, CurrentIssuanceCard } from "../../cards"; // Adjusted path
 import { InflationCard } from "../../cards/InflationCard"; // Specific import for InflationCard
 import SharePreviewWrapper from "../SharePreviewWrapper";
@@ -18,9 +18,28 @@ const IssuanceMetricsSharePreview = React.forwardRef<
     inflation: true,
   });
 
-  const handleLoadingChange = (cardName: keyof typeof loadingStates) => (isLoading: boolean) => {
-    setLoadingStates((prev) => ({ ...prev, [cardName]: isLoading }));
-  };
+  const handleLoadingChange = useCallback(
+    (cardName: keyof typeof loadingStates) => (isLoading: boolean) => {
+      setLoadingStates((prev) => {
+        if (prev[cardName] === isLoading) return prev;
+        return { ...prev, [cardName]: isLoading };
+      });
+    },
+    []
+  );
+
+  const onCurrentIssuanceLoadingChange = useMemo(
+    () => handleLoadingChange("currentIssuance"),
+    [handleLoadingChange]
+  );
+  const onAnnualIssuanceLoadingChange = useMemo(
+    () => handleLoadingChange("annualIssuance"),
+    [handleLoadingChange]
+  );
+  const onInflationLoadingChange = useMemo(
+    () => handleLoadingChange("inflation"),
+    [handleLoadingChange]
+  );
 
   useEffect(() => {
     const anyLoading = Object.values(loadingStates).some((status) => status);
@@ -29,12 +48,13 @@ const IssuanceMetricsSharePreview = React.forwardRef<
 
   return (
     <SharePreviewWrapper ref={ref}>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <CurrentIssuanceCard onLoadingChange={handleLoadingChange("currentIssuance")} />
-        <AnnualIssuanceCard onLoadingChange={handleLoadingChange("annualIssuance")} />
+      <div className="grid grid-cols-2 gap-4">
+        <CurrentIssuanceCard onLoadingChange={onCurrentIssuanceLoadingChange} />
+        <AnnualIssuanceCard onLoadingChange={onAnnualIssuanceLoadingChange} />
         <InflationCard
-          onLoadingChange={handleLoadingChange("inflation")}
-          themeColors={secondaryThemeColors} // As used in IssuanceMetricsSection
+          cardClassName="col-span-2"
+          onLoadingChange={onInflationLoadingChange}
+          themeColors={secondaryThemeColors}
         />
       </div>
     </SharePreviewWrapper>

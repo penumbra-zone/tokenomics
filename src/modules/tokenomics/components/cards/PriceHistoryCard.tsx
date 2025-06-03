@@ -16,12 +16,10 @@ const DAY_OPTIONS = [7, 30, 90];
 const DEFAULT_DAYS = 30;
 
 export interface PriceHistoryCardProps {
-  // Remove external props since we're managing state internally now
   dayOptions?: number[];
 }
 
 export function PriceHistoryCard({ dayOptions = DAY_OPTIONS }: PriceHistoryCardProps) {
-  // Internal state management for days selection
   const [currentSelectedDay, setCurrentSelectedDay] = useState<number>(DEFAULT_DAYS);
 
   const handleDaysChange = (days: number) => {

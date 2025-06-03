@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { InflationCard } from "../../cards/InflationCard";
 import { MarketCapCard } from "../../cards/MarketCapCard";
@@ -21,9 +21,36 @@ const SummarySharePreview = React.forwardRef<HTMLDivElement, SharePreviewProps>(
       inflation: true,
     });
 
-    const handleLoadingChange = (cardName: keyof typeof loadingStates) => (isLoading: boolean) => {
-      setLoadingStates((prev) => ({ ...prev, [cardName]: isLoading }));
-    };
+    const handleLoadingChange = useCallback(
+      (cardName: keyof typeof loadingStates) => (isLoading: boolean) => {
+        setLoadingStates((prev) => {
+          if (prev[cardName] === isLoading) return prev;
+          return { ...prev, [cardName]: isLoading };
+        });
+      },
+      []
+    );
+
+    const onTotalSupplyLoadingChange = useMemo(
+      () => handleLoadingChange("totalSupply"),
+      [handleLoadingChange]
+    );
+    const onPercentStakedLoadingChange = useMemo(
+      () => handleLoadingChange("percentStaked"),
+      [handleLoadingChange]
+    );
+    const onMarketCapLoadingChange = useMemo(
+      () => handleLoadingChange("marketCap"),
+      [handleLoadingChange]
+    );
+    const onTotalBurnedLoadingChange = useMemo(
+      () => handleLoadingChange("totalBurned"),
+      [handleLoadingChange]
+    );
+    const onInflationLoadingChange = useMemo(
+      () => handleLoadingChange("inflation"),
+      [handleLoadingChange]
+    );
 
     useEffect(() => {
       const anyLoading = Object.values(loadingStates).some((status) => status);
@@ -33,14 +60,11 @@ const SummarySharePreview = React.forwardRef<HTMLDivElement, SharePreviewProps>(
     return (
       <SharePreviewWrapper ref={ref}>
         <div className="grid grid-cols-3 gap-4 row-auto">
-          <TotalSupplyCard onLoadingChange={handleLoadingChange("totalSupply")} />
-          <PercentStakedOfTotalSupplyCard onLoadingChange={handleLoadingChange("percentStaked")} />
-          <MarketCapCard onLoadingChange={handleLoadingChange("marketCap")} />
-          <TotalBurnedCard onLoadingChange={handleLoadingChange("totalBurned")} />
-          <InflationCard
-            cardClassName="col-span-2"
-            onLoadingChange={handleLoadingChange("inflation")}
-          />
+          <TotalSupplyCard onLoadingChange={onTotalSupplyLoadingChange} />
+          <PercentStakedOfTotalSupplyCard onLoadingChange={onPercentStakedLoadingChange} />
+          <MarketCapCard onLoadingChange={onMarketCapLoadingChange} />
+          <TotalBurnedCard onLoadingChange={onTotalBurnedLoadingChange} />
+          <InflationCard cardClassName="col-span-2" onLoadingChange={onInflationLoadingChange} />
         </div>
       </SharePreviewWrapper>
     );

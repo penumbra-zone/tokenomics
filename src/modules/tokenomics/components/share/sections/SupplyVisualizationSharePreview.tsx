@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { MarketCapCard, TotalSupplyCard } from "../../cards";
 import SharePreviewWrapper from "../SharePreviewWrapper";
 
@@ -15,9 +15,25 @@ const SupplyVisualizationSharePreview = React.forwardRef<
     marketCap: true,
   });
 
-  const handleLoadingChange = (cardName: keyof typeof loadingStates) => (isLoading: boolean) => {
-    setLoadingStates((prev) => ({ ...prev, [cardName]: isLoading }));
-  };
+  const handleLoadingChange = useCallback(
+    (cardName: keyof typeof loadingStates) => (isLoading: boolean) => {
+      setLoadingStates((prev) => {
+        if (prev[cardName] === isLoading) return prev;
+        return { ...prev, [cardName]: isLoading };
+      });
+    },
+    []
+  );
+
+  const onTotalSupplyLoadingChange = useMemo(
+    () => handleLoadingChange("totalSupply"),
+    [handleLoadingChange]
+  );
+
+  const onMarketCapLoadingChange = useMemo(
+    () => handleLoadingChange("marketCap"),
+    [handleLoadingChange]
+  );
 
   useEffect(() => {
     const anyLoading = Object.values(loadingStates).some((status) => status);
@@ -27,8 +43,8 @@ const SupplyVisualizationSharePreview = React.forwardRef<
   return (
     <SharePreviewWrapper ref={ref}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <TotalSupplyCard onLoadingChange={handleLoadingChange("totalSupply")} />
-        <MarketCapCard onLoadingChange={handleLoadingChange("marketCap")} />
+        <TotalSupplyCard onLoadingChange={onTotalSupplyLoadingChange} />
+        <MarketCapCard onLoadingChange={onMarketCapLoadingChange} />
       </div>
     </SharePreviewWrapper>
   );

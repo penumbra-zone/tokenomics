@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   BurnMetricsCard,
   BurnRateOverTimeCard,
   PercentBurnedOfTotalSupplyCard,
   TotalBurnedCard,
-  WhyBurningIsImportantCard,
 } from "../../cards";
 import SharePreviewWrapper from "../SharePreviewWrapper";
 
@@ -21,9 +20,32 @@ const BurnMetricsSharePreview = React.forwardRef<HTMLDivElement, BurnMetricsShar
       burnRateOverTime: true,
     });
 
-    const handleLoadingChange = (cardName: keyof typeof loadingStates) => (isLoading: boolean) => {
-      setLoadingStates((prev) => ({ ...prev, [cardName]: isLoading }));
-    };
+    const handleLoadingChange = useCallback(
+      (cardName: keyof typeof loadingStates) => (isLoading: boolean) => {
+        setLoadingStates((prev) => {
+          if (prev[cardName] === isLoading) return prev;
+          return { ...prev, [cardName]: isLoading };
+        });
+      },
+      []
+    );
+
+    const onBurnMetricsLoadingChange = useMemo(
+      () => handleLoadingChange("burnMetrics"),
+      [handleLoadingChange]
+    );
+    const onTotalBurnedLoadingChange = useMemo(
+      () => handleLoadingChange("totalBurned"),
+      [handleLoadingChange]
+    );
+    const onPercentBurnedLoadingChange = useMemo(
+      () => handleLoadingChange("percentBurned"),
+      [handleLoadingChange]
+    );
+    const onBurnRateOverTimeLoadingChange = useMemo(
+      () => handleLoadingChange("burnRateOverTime"),
+      [handleLoadingChange]
+    );
 
     useEffect(() => {
       const anyLoading = Object.values(loadingStates).some((status) => status);
@@ -33,17 +55,10 @@ const BurnMetricsSharePreview = React.forwardRef<HTMLDivElement, BurnMetricsShar
     return (
       <SharePreviewWrapper ref={ref}>
         <div className="grid grid-cols-2 gap-4">
-          <div className="col-span-2">
-            <BurnMetricsCard onLoadingChange={handleLoadingChange("burnMetrics")} />
-          </div>
-          <TotalBurnedCard onLoadingChange={handleLoadingChange("totalBurned")} />
-          <PercentBurnedOfTotalSupplyCard onLoadingChange={handleLoadingChange("percentBurned")} />
-          <div className="col-span-2">
-            <WhyBurningIsImportantCard />
-          </div>
-          <div className="col-span-2">
-            <BurnRateOverTimeCard onLoadingChange={handleLoadingChange("burnRateOverTime")} />
-          </div>
+          <BurnMetricsCard onLoadingChange={onBurnMetricsLoadingChange} />
+          <TotalBurnedCard onLoadingChange={onTotalBurnedLoadingChange} />
+          <PercentBurnedOfTotalSupplyCard onLoadingChange={onPercentBurnedLoadingChange} />
+          <BurnRateOverTimeCard onLoadingChange={onBurnRateOverTimeLoadingChange} />
         </div>
       </SharePreviewWrapper>
     );

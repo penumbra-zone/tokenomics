@@ -1,5 +1,5 @@
 import { secondaryThemeColors } from "@/common/styles/themeColors"; // For PercentStakedOfTotalSupplyCard
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { CirculatingSupplyCard, PercentStakedOfTotalSupplyCard } from "../../cards";
 import SharePreviewWrapper from "../SharePreviewWrapper";
 
@@ -16,9 +16,24 @@ const TokenDistributionSharePreview = React.forwardRef<
     percentStaked: true,
   });
 
-  const handleLoadingChange = (cardName: keyof typeof loadingStates) => (isLoading: boolean) => {
-    setLoadingStates((prev) => ({ ...prev, [cardName]: isLoading }));
-  };
+  const handleLoadingChange = useCallback(
+    (cardName: keyof typeof loadingStates) => (isLoading: boolean) => {
+      setLoadingStates((prev) => {
+        if (prev[cardName] === isLoading) return prev;
+        return { ...prev, [cardName]: isLoading };
+      });
+    },
+    []
+  );
+
+  const onCirculatingSupplyLoadingChange = useMemo(
+    () => handleLoadingChange("circulatingSupply"),
+    [handleLoadingChange]
+  );
+  const onPercentStakedLoadingChange = useMemo(
+    () => handleLoadingChange("percentStaked"),
+    [handleLoadingChange]
+  );
 
   useEffect(() => {
     const anyLoading = Object.values(loadingStates).some((status) => status);
@@ -28,10 +43,10 @@ const TokenDistributionSharePreview = React.forwardRef<
   return (
     <SharePreviewWrapper ref={ref}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <CirculatingSupplyCard onLoadingChange={handleLoadingChange("circulatingSupply")} />
+        <CirculatingSupplyCard onLoadingChange={onCirculatingSupplyLoadingChange} />
         <PercentStakedOfTotalSupplyCard
-          onLoadingChange={handleLoadingChange("percentStaked")}
-          themeColors={secondaryThemeColors} // As used in TokenDistributionSection
+          onLoadingChange={onPercentStakedLoadingChange}
+          themeColors={secondaryThemeColors}
         />
       </div>
     </SharePreviewWrapper>
