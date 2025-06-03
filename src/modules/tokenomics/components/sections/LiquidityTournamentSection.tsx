@@ -6,16 +6,17 @@ import { LQTPositionsTable } from "../LQTPositionsTable";
 
 interface SectionProps {
   handleShare: () => void;
+  isShareLoading: boolean;
 }
 
-export default function LiquidityTournamentSection({ handleShare }: SectionProps) {
+export default function LiquidityTournamentSection({ handleShare, isShareLoading }: SectionProps) {
   const { data: lqtMetrics, isLoading } = useGetLQTMetricsQuery();
 
   return (
     <section id="lqt" className="mb-12 pt-16 -mt-16">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold text-white">LIQUIDITY TOURNAMENT</h2>
-        <ShareButton onClick={handleShare} />
+        <ShareButton onClick={handleShare} isContentLoading={isShareLoading} />
       </div>
 
       {/* Metric Cards */}

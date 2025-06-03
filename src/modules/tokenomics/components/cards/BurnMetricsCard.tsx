@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic";
+import { useEffect } from "react";
 
 import { LoadingOverlay } from "@/common/components/LoadingOverlay";
 import { LoadingSpinner } from "@/common/components/LoadingSpinner";
@@ -14,8 +15,16 @@ const BurnMetricsChart = dynamic(
   }
 );
 
-export function BurnMetricsCard() {
+export interface BurnMetricsCardProps {
+  onLoadingChange?: (isLoading: boolean) => void;
+}
+
+export function BurnMetricsCard({ onLoadingChange }: BurnMetricsCardProps) {
   const { data: burnMetrics, isLoading, isFetching } = useGetBurnMetricsQuery(30);
+
+  useEffect(() => {
+    onLoadingChange?.(isLoading || isFetching);
+  }, [isLoading, isFetching, onLoadingChange]);
 
   const showLoadingOverlay = isFetching && !burnMetrics;
 

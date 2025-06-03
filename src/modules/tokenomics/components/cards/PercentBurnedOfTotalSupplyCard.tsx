@@ -2,10 +2,20 @@ import InfoCard from "@/common/components/cards/InfoCard";
 import { calculatePercentageOfSupplyBurned } from "@/lib/calculations";
 import { formatNumber } from "@/lib/utils";
 import { useGetSummaryMetricsQuery } from "@/store/api/tokenomicsApi";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
-export function PercentBurnedOfTotalSupplyCard() {
+export interface PercentBurnedOfTotalSupplyCardProps {
+  onLoadingChange?: (isLoading: boolean) => void;
+}
+
+export function PercentBurnedOfTotalSupplyCard({
+  onLoadingChange,
+}: PercentBurnedOfTotalSupplyCardProps) {
   const { data: summaryMetrics, isLoading } = useGetSummaryMetricsQuery();
+
+  useEffect(() => {
+    onLoadingChange?.(isLoading);
+  }, [isLoading, onLoadingChange]);
 
   const percentage = useMemo(() => {
     return calculatePercentageOfSupplyBurned(

@@ -1,9 +1,18 @@
 import InfoCard from "@/common/components/cards/InfoCard";
 import { formatNumber } from "@/lib/utils";
 import { useGetSummaryMetricsQuery } from "@/store/api/tokenomicsApi";
+import { useEffect } from "react";
 
-export function TotalSupplyCard() {
+export interface TotalSupplyCardProps {
+  onLoadingChange?: (isLoading: boolean) => void;
+}
+
+export function TotalSupplyCard({ onLoadingChange }: TotalSupplyCardProps) {
   const { data: summaryMetrics, isLoading } = useGetSummaryMetricsQuery();
+
+  useEffect(() => {
+    onLoadingChange?.(isLoading);
+  }, [isLoading, onLoadingChange]);
 
   return (
     <InfoCard

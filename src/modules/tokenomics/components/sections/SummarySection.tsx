@@ -4,11 +4,7 @@ import { PercentStakedOfTotalSupplyCard } from "../cards/PercentStakedOfTotalSup
 import { TotalBurnedCard } from "../cards/TotalBurnedCard";
 import { TotalSupplyCard } from "../cards/TotalSupplyCard";
 
-interface SectionProps {
-  handleShare: () => void;
-}
-
-export default function SummarySection({ handleShare }: SectionProps) {
+export default function SummarySection() {
   return (
     <section id="summary" className="mb-12 pt-16 -mt-16">
       <div className="flex justify-between items-center mb-6">

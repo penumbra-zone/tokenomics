@@ -8,14 +8,15 @@ import {
 
 interface SectionProps {
   handleShare: () => void;
+  isShareLoading: boolean;
 }
 
-export default function TokenDistributionSection({ handleShare }: SectionProps) {
+export default function TokenDistributionSection({ handleShare, isShareLoading }: SectionProps) {
   return (
     <section id="token-distribution" className="mb-12 pt-16 -mt-16">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold text-white">TOKEN DISTRIBUTION</h2>
-        <ShareButton onClick={handleShare} />
+        <ShareButton onClick={handleShare} isContentLoading={isShareLoading} />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Left column with info cards */}
