@@ -4,7 +4,7 @@ import { prepareSharePreview, shareToTwitter } from "@/lib/utils/shareUtils";
 import { ShareConfigEntry, SharePreviewData } from "@/lib/utils/types";
 import { useCallback, useState } from "react";
 
-interface UseShareOptions {
+interface HandleShareOptions {
   elementRef: React.RefObject<HTMLElement>;
   shareConfig: ShareConfigEntry;
 }
@@ -13,27 +13,25 @@ interface UseShareReturn {
   isGeneratingImage: boolean;
   isPreviewOpen: boolean;
   previewData: SharePreviewData | null;
-  handleShare: () => Promise<void>;
+  handleShare: (details: HandleShareOptions) => Promise<void>;
   handleClosePreview: () => void;
   handleConfirmShare: () => Promise<void>;
   isSubmitting: boolean;
 }
 
-export function useShare(options: UseShareOptions): UseShareReturn {
+export function useShare(): UseShareReturn {
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewData, setPreviewData] = useState<SharePreviewData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleShare = useCallback(async () => {
+  const handleShare = useCallback(async (details: HandleShareOptions) => {
     setIsGeneratingImage(true);
 
     try {
-      const { shareConfig } = options;
-
       const success = await prepareSharePreview({
-        ...options,
-        shareConfig,
+        elementRef: details.elementRef,
+        shareConfig: details.shareConfig,
         onShowPreview: (data) => {
           setPreviewData(data);
           setIsPreviewOpen(true);
@@ -48,7 +46,7 @@ export function useShare(options: UseShareOptions): UseShareReturn {
     } finally {
       setIsGeneratingImage(false);
     }
-  }, [options]);
+  }, []);
 
   const handleClosePreview = useCallback(() => {
     setIsPreviewOpen(false);
