@@ -3,7 +3,6 @@ import { SECTION_IDS } from "@/lib/types/sections";
 import { ShareOptions, SharePreviewData } from "@/lib/utils/types";
 import { toPng } from "html-to-image";
 
-
 async function dataURLtoFile(dataurl: string, filename: string): Promise<File> {
   const arr = dataurl.split(",");
   const mimeMatch = arr[0].match(/:(.*?);/);
