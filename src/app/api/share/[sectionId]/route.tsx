@@ -1,4 +1,5 @@
 import { SECTION_IDS, SectionId } from "@/lib/types/sections";
+import { list } from "@vercel/blob";
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
 
@@ -21,14 +22,17 @@ export async function GET(req: NextRequest, { params }: { params: { sectionId: s
 
   const baseUrl = req.nextUrl.origin;
 
-  const imageUrlToFetch = `${baseUrl}/og-images/${imageFile}`;
-
   try {
-    const response = await fetch(imageUrlToFetch);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch image ${imageUrlToFetch}: ${response.statusText}`);
+    const blobs = await list({
+      prefix: "og-images/",
+    });
+
+    const imageBlob = blobs.blobs.find((blob) => blob.pathname === `og-images/${imageFile}`);
+    if (!imageBlob) {
+      throw new Error(`Image file ${imageFile} not found`);
     }
-    const imageBuffer = await response.arrayBuffer();
+
+    const imageBuffer = await fetch(imageBlob.url).then((res) => res.arrayBuffer());
 
     let base64 = "";
     const bytes = new Uint8Array(imageBuffer);
