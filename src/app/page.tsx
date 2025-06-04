@@ -3,8 +3,9 @@ import { SECTION_IDS, SectionId } from "@/lib/types/sections";
 import { shareConfigs } from "@/lib/utils/types";
 import Dashboard from "@/modules/tokenomics/views/Dashboard";
 
-export const generateMetadata = async ({ params }: { params: { section: SectionId } }) => {
-  const section = params.section ?? SECTION_IDS.SUMMARY;
+export const generateMetadata = async (searchParams: { [key: string]: string | string[] | undefined }) => {
+  const section = searchParams.share ?? SECTION_IDS.SUMMARY;
+
   const imageUrl = `/api/share/${section}`;
 
   const siteUrl = serverEnv.BASE_URL;

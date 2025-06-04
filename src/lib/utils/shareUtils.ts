@@ -91,7 +91,7 @@ export const shareToTwitter = async (previewData: SharePreviewData): Promise<boo
 
   let shareUrl = appBaseUrl;
   if (sectionId && sectionId !== SECTION_IDS.SUMMARY) {
-    shareUrl = `${appBaseUrl}#${sectionId}`;
+    shareUrl = `${appBaseUrl}?share=${sectionId}`;
   }
 
   try {
