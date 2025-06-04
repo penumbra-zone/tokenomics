@@ -1,7 +1,8 @@
 import { secondaryThemeColors } from "@/common/styles/themeColors"; // For PercentStakedOfTotalSupplyCard
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { CirculatingSupplyCard, PercentStakedOfTotalSupplyCard } from "../../cards";
+import { CirculatingSupplyCard, PercentStakedOfTotalSupplyCard, TokenDistributionCard } from "../../cards";
 import SharePreviewWrapper from "../SharePreviewWrapper";
+import TokenDistributionChart from "../../charts/TokenDistributionChart";
 
 interface TokenDistributionSharePreviewProps {
   onAggregateLoadingChange?: (isLoading: boolean) => void;
@@ -14,6 +15,7 @@ const TokenDistributionSharePreview = React.forwardRef<
   const [loadingStates, setLoadingStates] = useState({
     circulatingSupply: true,
     percentStaked: true,
+    tokenDistribution: true,
   });
 
   const handleLoadingChange = useCallback(
@@ -34,6 +36,10 @@ const TokenDistributionSharePreview = React.forwardRef<
     () => handleLoadingChange("percentStaked"),
     [handleLoadingChange]
   );
+  const onTokenDistributionLoadingChange = useMemo(
+    () => handleLoadingChange("tokenDistribution"),
+    [handleLoadingChange]
+  );
 
   useEffect(() => {
     const anyLoading = Object.values(loadingStates).some((status) => status);
@@ -42,12 +48,16 @@ const TokenDistributionSharePreview = React.forwardRef<
 
   return (
     <SharePreviewWrapper ref={ref}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <CirculatingSupplyCard onLoadingChange={onCirculatingSupplyLoadingChange} />
         <PercentStakedOfTotalSupplyCard
           onLoadingChange={onPercentStakedLoadingChange}
           themeColors={secondaryThemeColors}
         />
+        <div className="col-span-2">
+          <TokenDistributionCard 
+            onLoadingChange={onTokenDistributionLoadingChange} />
+        </div>
       </div>
     </SharePreviewWrapper>
   );

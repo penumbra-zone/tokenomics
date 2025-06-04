@@ -16,9 +16,10 @@ interface SupplyAllocation {
 
 interface SupplyAllocationChartProps {
   data: SupplyAllocation[];
+  showAnimation?: boolean;
 }
 
-export default function SupplyAllocationChart({ data }: SupplyAllocationChartProps) {
+export default function SupplyAllocationChart({ data, showAnimation = true }: SupplyAllocationChartProps) {
   const chartRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -72,10 +73,10 @@ export default function SupplyAllocationChart({ data }: SupplyAllocationChartPro
           itemStyle: { borderRadius: 7 },
           label: { show: false },
           labelLine: { show: false },
-          hoverAnimation: false,
           data: chartData,
         },
       ],
+      animation: showAnimation,
       legend: {
         bottom: "10%",
         left: "center",

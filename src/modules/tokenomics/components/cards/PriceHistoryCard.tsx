@@ -1,6 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import InfoCard from "@/common/components/cards/InfoCard";
 import { secondaryThemeColors } from "@/common/styles/themeColors";
@@ -17,9 +17,10 @@ const DEFAULT_DAYS = 30;
 
 export interface PriceHistoryCardProps {
   dayOptions?: number[];
+  onLoadingChange?: (isLoading: boolean) => void;
 }
 
-export function PriceHistoryCard({ dayOptions = DAY_OPTIONS }: PriceHistoryCardProps) {
+export function PriceHistoryCard({ dayOptions = DAY_OPTIONS, onLoadingChange }: PriceHistoryCardProps) {
   const [currentSelectedDay, setCurrentSelectedDay] = useState<number>(DEFAULT_DAYS);
 
   const handleDaysChange = (days: number) => {
@@ -27,6 +28,10 @@ export function PriceHistoryCard({ dayOptions = DAY_OPTIONS }: PriceHistoryCardP
   };
 
   const { data: priceHistoryData, isLoading } = useGetPriceHistoryQuery(currentSelectedDay);
+
+  useEffect(() => {
+    onLoadingChange?.(isLoading);
+  }, [isLoading, onLoadingChange]);
 
   return (
     <div className="h-full flex flex-col gap-6">

@@ -19,6 +19,7 @@ export interface RoseChartProps {
   labelFormatter?: (params: any) => string;
   minHeight?: number;
   style?: React.CSSProperties;
+  showAnimation?: boolean;
 }
 
 const useIsMobile = () => {
@@ -44,6 +45,7 @@ export default function RoseChart({
   labelFormatter,
   minHeight = 320,
   style = {},
+  showAnimation = true,
 }: RoseChartProps) {
   const chartRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
@@ -92,6 +94,7 @@ export default function RoseChart({
           itemStyle: {
             borderRadius: isMobile ? 4 : 8,
           },
+          animation: showAnimation,
           minAngle: isMobile ? 15 : 10,
           avoidLabelOverlap: true,
           data: chartDataSource.map((item) => ({

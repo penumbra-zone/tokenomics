@@ -4,9 +4,10 @@ import { BurnMetrics } from "@/store/api/tokenomicsApi";
 
 interface BurnMetricsChartProps {
   data: BurnMetrics;
+  showAnimation?: boolean;
 }
 
-export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
+export default function BurnMetricsChart({ data, showAnimation = true }: BurnMetricsChartProps) {
   if (!data || !data.bySource) return null;
 
   const chartData: RoseChartDataItem[] = [
@@ -25,6 +26,7 @@ export default function BurnMetricsChart({ data }: BurnMetricsChartProps) {
       data={chartData}
       seriesName="Token Burned by Source"
       labelFormatter={labelFormatter}
+      showAnimation={showAnimation}
     />
   );
 }

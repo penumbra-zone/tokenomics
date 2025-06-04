@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { MarketCapCard, TotalSupplyCard } from "../../cards";
+import { MarketCapCard, SupplyAllocationCard, TotalSupplyCard } from "../../cards";
 import SharePreviewWrapper from "../SharePreviewWrapper";
 
 interface SupplyVisualizationSharePreviewProps {
@@ -11,6 +11,7 @@ const SupplyVisualizationSharePreview = React.forwardRef<
   SupplyVisualizationSharePreviewProps
 >(({ onAggregateLoadingChange }, ref) => {
   const [loadingStates, setLoadingStates] = useState({
+    genesisVsCirculating: true,
     totalSupply: true,
     marketCap: true,
   });
@@ -23,6 +24,11 @@ const SupplyVisualizationSharePreview = React.forwardRef<
       });
     },
     []
+  );
+
+  const onSupplyAllocationLoadingChange = useMemo(
+    () => handleLoadingChange("genesisVsCirculating"),
+    [handleLoadingChange]
   );
 
   const onTotalSupplyLoadingChange = useMemo(
@@ -42,7 +48,10 @@ const SupplyVisualizationSharePreview = React.forwardRef<
 
   return (
     <SharePreviewWrapper ref={ref}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="col-span-2"> 
+          <SupplyAllocationCard onLoadingChange={onSupplyAllocationLoadingChange} />
+        </div>
         <TotalSupplyCard onLoadingChange={onTotalSupplyLoadingChange} />
         <MarketCapCard onLoadingChange={onMarketCapLoadingChange} />
       </div>

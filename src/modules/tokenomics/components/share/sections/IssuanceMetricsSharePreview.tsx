@@ -1,6 +1,6 @@
 import { secondaryThemeColors } from "@/common/styles/themeColors"; // For InflationCard
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { AnnualIssuanceCard, CurrentIssuanceCard } from "../../cards"; // Adjusted path
+import { AnnualIssuanceCard, CurrentIssuanceCard, PriceHistoryCard } from "../../cards"; // Adjusted path
 import { InflationCard } from "../../cards/InflationCard"; // Specific import for InflationCard
 import SharePreviewWrapper from "../SharePreviewWrapper";
 
@@ -16,6 +16,7 @@ const IssuanceMetricsSharePreview = React.forwardRef<
     currentIssuance: true,
     annualIssuance: true,
     inflation: true,
+    priceHistory: true,
   });
 
   const handleLoadingChange = useCallback(
@@ -40,6 +41,10 @@ const IssuanceMetricsSharePreview = React.forwardRef<
     () => handleLoadingChange("inflation"),
     [handleLoadingChange]
   );
+  const onPriceHistoryLoadingChange = useMemo(
+    () => handleLoadingChange("priceHistory"),
+    [handleLoadingChange]
+  );
 
   useEffect(() => {
     const anyLoading = Object.values(loadingStates).some((status) => status);
@@ -48,14 +53,16 @@ const IssuanceMetricsSharePreview = React.forwardRef<
 
   return (
     <SharePreviewWrapper ref={ref}>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <CurrentIssuanceCard onLoadingChange={onCurrentIssuanceLoadingChange} />
         <AnnualIssuanceCard onLoadingChange={onAnnualIssuanceLoadingChange} />
         <InflationCard
-          cardClassName="col-span-2"
           onLoadingChange={onInflationLoadingChange}
           themeColors={secondaryThemeColors}
         />
+        <div className="col-span-3">
+          <PriceHistoryCard onLoadingChange={onPriceHistoryLoadingChange} />
+        </div>
       </div>
     </SharePreviewWrapper>
   );
