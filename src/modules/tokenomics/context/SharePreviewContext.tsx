@@ -21,9 +21,6 @@ import React, {
 } from "react";
 import { SharePreviewModal } from "../components/share";
 
-// Infer ShareConfig type if not explicitly exported
-type ShareConfigValue = (typeof shareConfigs)[SectionId];
-
 interface SharePreviewContextType {
   // Loading states
   isSummaryPreviewLoading: boolean;
@@ -79,6 +76,7 @@ export const SharePreviewProvider: React.FC<SharePreviewProviderProps> = ({ chil
   const liquidityTournamentShareRef = useRef<HTMLDivElement>(null);
 
   const {
+    isGeneratingImage,
     isPreviewOpen,
     previewData,
     handleClosePreview,
@@ -127,12 +125,14 @@ export const SharePreviewProvider: React.FC<SharePreviewProviderProps> = ({ chil
   return (
     <SharePreviewContext.Provider
       value={{
-        isSummaryPreviewLoading,
-        isSupplyVisualizationPreviewLoading,
-        isIssuanceMetricsPreviewLoading,
-        isBurnMetricsPreviewLoading,
-        isTokenDistributionPreviewLoading,
-        isLiquidityTournamentPreviewLoading,
+        isSummaryPreviewLoading: isSummaryPreviewLoading || isGeneratingImage,
+        isSupplyVisualizationPreviewLoading:
+          isSupplyVisualizationPreviewLoading || isGeneratingImage,
+        isIssuanceMetricsPreviewLoading: isIssuanceMetricsPreviewLoading || isGeneratingImage,
+        isBurnMetricsPreviewLoading: isBurnMetricsPreviewLoading || isGeneratingImage,
+        isTokenDistributionPreviewLoading: isTokenDistributionPreviewLoading || isGeneratingImage,
+        isLiquidityTournamentPreviewLoading:
+          isLiquidityTournamentPreviewLoading || isGeneratingImage,
         summaryShareRef,
         supplyVisualizationShareRef,
         issuanceMetricsShareRef,

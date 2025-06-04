@@ -55,7 +55,7 @@ export default function InflationRateChart({
           <LoadingSpinner size="lg" />
         </div>
       ) : (
-        <div className="h-[450px]">
+        <div className="h-[450px] relative">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-2">
             <DaySelector
               dayOptions={dayOptions}

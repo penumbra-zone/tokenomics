@@ -55,10 +55,14 @@ const BurnMetricsSharePreview = React.forwardRef<HTMLDivElement, BurnMetricsShar
     return (
       <SharePreviewWrapper ref={ref}>
         <div className="grid grid-cols-2 gap-4">
-          <BurnMetricsCard onLoadingChange={onBurnMetricsLoadingChange} />
+          <div className="col-span-2">
+            <BurnMetricsCard onLoadingChange={onBurnMetricsLoadingChange} />
+          </div>
           <TotalBurnedCard onLoadingChange={onTotalBurnedLoadingChange} />
           <PercentBurnedOfTotalSupplyCard onLoadingChange={onPercentBurnedLoadingChange} />
-          <BurnRateOverTimeCard onLoadingChange={onBurnRateOverTimeLoadingChange} />
+          <div className="col-span-2">
+            <BurnRateOverTimeCard onLoadingChange={onBurnRateOverTimeLoadingChange} />
+          </div>
         </div>
       </SharePreviewWrapper>
     );

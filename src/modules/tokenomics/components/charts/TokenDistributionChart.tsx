@@ -6,9 +6,13 @@ import { TokenDistribution } from "@/store/api/tokenomicsApi";
 
 interface TokenDistributionChartProps {
   data: TokenDistribution[];
+  showAnimation?: boolean;
 }
 
-export default function TokenDistributionChart({ data }: TokenDistributionChartProps) {
+export default function TokenDistributionChart({
+  data,
+  showAnimation = true,
+}: TokenDistributionChartProps) {
   if (!data || data.length === 0) return null;
 
   const chartData: RoseChartDataItem[] = data.map((item) => ({
@@ -21,6 +25,11 @@ export default function TokenDistributionChart({ data }: TokenDistributionChartP
   };
 
   return (
-    <RoseChart data={chartData} seriesName="Token Distribution" labelFormatter={labelFormatter} />
+    <RoseChart
+      data={chartData}
+      seriesName="Token Distribution"
+      labelFormatter={labelFormatter}
+      showAnimation={showAnimation}
+    />
   );
 }

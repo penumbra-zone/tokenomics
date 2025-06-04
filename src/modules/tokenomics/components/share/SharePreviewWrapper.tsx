@@ -13,7 +13,7 @@ const SharePreviewWrapper = React.forwardRef<HTMLDivElement, SharePreviewWrapper
       <div
         ref={ref}
         className={cn(
-          "bg-neutral-900 border border-neutral-800 rounded-lg p-6 min-h-[400px] flex flex-col justify-between",
+          "bg-neutral-900 border border-neutral-800 rounded-lg p-6 w-[1200px] h-[630px] flex flex-col justify-between",
           className
         )}
         {...props}

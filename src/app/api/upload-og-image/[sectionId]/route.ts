@@ -1,5 +1,4 @@
-import { env } from "@/lib/env/server";
-import { put } from "@vercel/blob";
+import { blobStorageService } from "@/lib/blob-storage";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest, { params }: { params: { sectionId: string } }) {
@@ -14,7 +13,7 @@ export async function POST(req: NextRequest, { params }: { params: { sectionId: 
     const file = formData.get("image") as File | null;
 
     if (!file) {
-      return NextResponse.json({ error: "No image file uploaded" }, { status: 400 });
+      return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
     if (!file.type.startsWith("image/")) {
@@ -27,20 +26,11 @@ export async function POST(req: NextRequest, { params }: { params: { sectionId: 
     const fileExtension = file.name.split(".").pop() || "png";
     const blobFilename = `og-images/${sectionId}.${fileExtension}`;
 
-    const blob = await put(blobFilename, file, {
-      access: "public",
-      allowOverwrite: true,
+    const blob = await blobStorageService.upload(blobFilename, file, {
       contentType: file.type,
-      cacheControlMaxAge: 31536000,
-      token: env.BLOB_READ_WRITE_TOKEN,
     });
 
-    return NextResponse.json({
-      message: "Image uploaded successfully to Vercel Blob",
-      filename: blobFilename,
-      url: blob.url,
-      path: new URL(blob.url).pathname,
-    });
+    return NextResponse.json({ url: blob.url, pathname: blob.pathname });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Internal server error";
     return NextResponse.json(

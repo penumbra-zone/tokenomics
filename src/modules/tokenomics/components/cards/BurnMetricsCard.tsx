@@ -37,7 +37,7 @@ export function BurnMetricsCard({ onLoadingChange }: BurnMetricsCardProps) {
           ) : (
             burnMetrics && (
               <>
-                <BurnMetricsChart data={burnMetrics} />
+                <BurnMetricsChart data={burnMetrics} showAnimation={!onLoadingChange} />
                 {showLoadingOverlay && <LoadingOverlay />}
               </>
             )
