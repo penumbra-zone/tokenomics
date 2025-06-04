@@ -1,7 +1,7 @@
 import { SECTION_IDS, SectionId } from "@/lib/types/sections";
-import { list } from "@vercel/blob";
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
+import { blobStorageService } from "@/lib/blob-storage";
 
 export const runtime = "edge";
 
@@ -23,16 +23,12 @@ export async function GET(req: NextRequest, { params }: { params: { sectionId: s
   const baseUrl = req.nextUrl.origin;
 
   try {
-    const blobs = await list({
-      prefix: "og-images/",
-    });
-
-    const imageBlob = blobs.blobs.find((blob) => blob.pathname === `og-images/${imageFile}`);
-    if (!imageBlob) {
+    const imageBlobData = await blobStorageService.get(`og-images/${imageFile}`);
+    if (!imageBlobData) {
       throw new Error(`Image file ${imageFile} not found`);
     }
 
-    const imageBuffer = await fetch(imageBlob.url).then((res) => res.arrayBuffer());
+    const imageBuffer = imageBlobData.content;
 
     let base64 = "";
     const bytes = new Uint8Array(imageBuffer);

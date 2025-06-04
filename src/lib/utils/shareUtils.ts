@@ -64,11 +64,8 @@ export const prepareSharePreview = async (options: ShareOptions): Promise<boolea
       return false;
     }
 
-    const uploadResult = await uploadResponse.json();
-    const serverImageUrl = uploadResult.url;
-
     const previewData: SharePreviewData = {
-      imageUrl: serverImageUrl,
+      imageUrl: URL.createObjectURL(imageFile),
       title,
       description,
       sectionName,
