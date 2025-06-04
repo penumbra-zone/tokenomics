@@ -148,7 +148,7 @@ export const serverEnvSchema = z
           path: ["BLOB_READ_WRITE_TOKEN"],
         });
       }
-      if (s3SomeSet && !s3AllSet) {
+      if (!data.BLOB_READ_WRITE_TOKEN && s3SomeSet && !s3AllSet) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message:
