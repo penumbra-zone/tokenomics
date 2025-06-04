@@ -14,15 +14,24 @@ importers:
       '@aws-sdk/lib-storage':
         specifier: ^3.823.0
         version: 3.823.0(@aws-sdk/client-s3@3.823.0)
+      '@bufbuild/protobuf':
+        specifier: 1.10.1
+        version: 1.10.1
+      '@connectrpc/connect':
+        specifier: ^1.6.1
+        version: 1.6.1(@bufbuild/protobuf@1.10.1)
+      '@connectrpc/connect-web':
+        specifier: ^1.6.1
+        version: 1.6.1(@bufbuild/protobuf@1.10.1)(@connectrpc/connect@1.6.1(@bufbuild/protobuf@1.10.1))
       '@penumbra-labs/registry':
         specifier: ^12.8.0
         version: 12.8.0
       '@penumbra-zone/client':
-        specifier: ^28.0.0
-        version: 28.0.0(@bufbuild/protobuf@1.10.1)(@connectrpc/connect@1.6.1(@bufbuild/protobuf@1.10.1))(@penumbra-zone/protobuf@10.1.0(@bufbuild/protobuf@1.10.1))(@penumbra-zone/transport-dom@7.5.1)
+        specifier: ^28.1.1
+        version: 28.1.1(@bufbuild/protobuf@1.10.1)(@connectrpc/connect@1.6.1(@bufbuild/protobuf@1.10.1))(@penumbra-zone/protobuf@10.1.1(@bufbuild/protobuf@1.10.1))(@penumbra-zone/transport-dom@7.5.1)
       '@penumbra-zone/protobuf':
-        specifier: ^10.1.0
-        version: 10.1.0(@bufbuild/protobuf@1.10.1)
+        specifier: ^10.1.1
+        version: 10.1.1(@bufbuild/protobuf@1.10.1)
       '@radix-ui/react-dialog':
         specifier: ^1.1.13
         version: 1.1.13(@types/react-dom@18.3.7(@types/react@18.3.21))(@types/react@18.3.21)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -352,6 +361,12 @@ packages:
   '@bufbuild/protobuf@1.10.1':
     resolution: {integrity: sha512-wJ8ReQbHxsAfXhrf9ixl0aYbZorRuOWpBNzm8pL8ftmSxQx/wnJD5Eg861NwJU/czy2VXFIebCeZnZrI9rktIQ==}
 
+  '@connectrpc/connect-web@1.6.1':
+    resolution: {integrity: sha512-GVfxQOmt3TtgTaKeXLS/EA2IHa3nHxwe2BCHT7X0Q/0hohM+nP5DDnIItGEjGrGdt3LTTqWqE4s70N4h+qIMlQ==}
+    peerDependencies:
+      '@bufbuild/protobuf': ^1.10.0
+      '@connectrpc/connect': 1.6.1
+
   '@connectrpc/connect@1.6.1':
     resolution: {integrity: sha512-KchMDNtU4CDTdkyf0qG7ugJ6qHTOR/aI7XebYn3OTCNagaDYWiZUVKgRgwH79yeMkpNgvEUaXSK7wKjaBK9b/Q==}
     peerDependencies:
@@ -532,16 +547,16 @@ packages:
   '@penumbra-labs/registry@12.8.0':
     resolution: {integrity: sha512-M5RIjyJr8pKTaqJRYSTdVFXu4gwi+C5M1WT08jNVExe+yOuLlq1YavkUEfxVvsgo0uCobjNPAEjrhR7BRS0onQ==}
 
-  '@penumbra-zone/client@28.0.0':
-    resolution: {integrity: sha512-K7eMg3kEWhbm5tQcFDoJ1RBq+FPdt/ylOPS8k6m1RqJ9NTOoJXfEbNp4f76lIxXGD9O/T13kbCbLp+m4uQJG7g==}
+  '@penumbra-zone/client@28.1.1':
+    resolution: {integrity: sha512-T/q8PhJKOjC8h2LuC58ki9/0vR6bKRfmti4BtLevJ4p+1Sh96Jb8Oa8CtATly2wYScvdveGy0akoxephpSM4lQ==}
     peerDependencies:
       '@bufbuild/protobuf': ^1.10.0
       '@connectrpc/connect': ^1.6.1
-      '@penumbra-zone/protobuf': 10.1.0
-      '@penumbra-zone/transport-dom': 7.5.1
+      '@penumbra-zone/protobuf': 10.1.1
+      '@penumbra-zone/transport-dom': 7.5.2
 
-  '@penumbra-zone/protobuf@10.1.0':
-    resolution: {integrity: sha512-SB5EWdxTTkwFET/cvGoeuhS4CjwuTas/mqgaWppLytF6KR8rhVXZYIoDt2pgmormHEDkh6hc+aCUXPX7QIX70A==}
+  '@penumbra-zone/protobuf@10.1.1':
+    resolution: {integrity: sha512-cMOKXpb8tG000wkCxFSXansswJoO1fxX/eOktjXwrfQDSm5y4uqkFqbSLhfvGK0yImHPbuj14Yx1eC4FnnV5Ig==}
     peerDependencies:
       '@bufbuild/protobuf': ^1.10.0
 
@@ -3734,6 +3749,11 @@ snapshots:
 
   '@bufbuild/protobuf@1.10.1': {}
 
+  '@connectrpc/connect-web@1.6.1(@bufbuild/protobuf@1.10.1)(@connectrpc/connect@1.6.1(@bufbuild/protobuf@1.10.1))':
+    dependencies:
+      '@bufbuild/protobuf': 1.10.1
+      '@connectrpc/connect': 1.6.1(@bufbuild/protobuf@1.10.1)
+
   '@connectrpc/connect@1.6.1(@bufbuild/protobuf@1.10.1)':
     dependencies:
       '@bufbuild/protobuf': 1.10.1
@@ -3898,14 +3918,14 @@ snapshots:
 
   '@penumbra-labs/registry@12.8.0': {}
 
-  '@penumbra-zone/client@28.0.0(@bufbuild/protobuf@1.10.1)(@connectrpc/connect@1.6.1(@bufbuild/protobuf@1.10.1))(@penumbra-zone/protobuf@10.1.0(@bufbuild/protobuf@1.10.1))(@penumbra-zone/transport-dom@7.5.1)':
+  '@penumbra-zone/client@28.1.1(@bufbuild/protobuf@1.10.1)(@connectrpc/connect@1.6.1(@bufbuild/protobuf@1.10.1))(@penumbra-zone/protobuf@10.1.1(@bufbuild/protobuf@1.10.1))(@penumbra-zone/transport-dom@7.5.1)':
     dependencies:
       '@bufbuild/protobuf': 1.10.1
       '@connectrpc/connect': 1.6.1(@bufbuild/protobuf@1.10.1)
-      '@penumbra-zone/protobuf': 10.1.0(@bufbuild/protobuf@1.10.1)
+      '@penumbra-zone/protobuf': 10.1.1(@bufbuild/protobuf@1.10.1)
       '@penumbra-zone/transport-dom': 7.5.1
 
-  '@penumbra-zone/protobuf@10.1.0(@bufbuild/protobuf@1.10.1)':
+  '@penumbra-zone/protobuf@10.1.1(@bufbuild/protobuf@1.10.1)':
     dependencies:
       '@bufbuild/protobuf': 1.10.1
 

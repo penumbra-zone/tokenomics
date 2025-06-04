@@ -3,8 +3,6 @@ import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
 import { blobStorageService } from "@/lib/blob-storage";
 
-export const runtime = "edge";
-
 const IMAGE_MAP: Record<SectionId, string> = {
   [SECTION_IDS.SUMMARY]: "summary.png",
   [SECTION_IDS.SUPPLY_VISUALIZATION]: "supply-visualization.png",

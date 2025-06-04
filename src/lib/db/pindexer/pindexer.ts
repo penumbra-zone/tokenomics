@@ -3,7 +3,6 @@ import { Kysely } from "kysely";
 
 import { dbClient as defaultDb } from "./client";
 import { DB } from "./schema";
-// Import service classes
 import { registryClient } from "@/lib/registry";
 import {
   calculateBurnMetrics,
@@ -194,7 +193,6 @@ export class Pindexer extends AbstractPindexerConnection {
       this.calculationContext
     );
 
-    // Get historical burn data
     const burnDataBySource: BurnDataBySource = await this.burnService.getBurnDataBySource();
 
     const totalSupply = Number(
@@ -236,14 +234,12 @@ export class Pindexer extends AbstractPindexerConnection {
   }
 
   async getTokenDistribution(): Promise<TokenDistribution[]> {
-    // Get current supply metrics to calculate distribution
     const supplyMetrics = await this.getSupplyMetrics();
     const totalSupply = supplyMetrics.totalSupply;
     const stakedSupply = supplyMetrics.totalStaked;
     const dexLiquiditySupply = supplyMetrics.unstakedSupply.dex;
     const communityPoolSupply = await this.getCommunityPoolSupply();
 
-    // Use centralized calculation for token distribution breakdown
     const distributionBreakdown = calculateTokenDistributionBreakdown(
       totalSupply,
       stakedSupply,
@@ -251,7 +247,6 @@ export class Pindexer extends AbstractPindexerConnection {
       communityPoolSupply
     );
 
-    // Convert to the expected TokenDistribution format
     return [
       {
         category: "Staked",
@@ -277,7 +272,6 @@ export class Pindexer extends AbstractPindexerConnection {
   }
 
   async getTokenMetrics(): Promise<TokenMetrics> {
-    // Get actual metrics from centralized calculations
     const { totalSupply, totalStaked, unstakedSupply } = await this.getSupplyMetrics();
     const { totalBurned: burnedTokens } = await this.getBurnMetrics(0);
     const { marketCap, price } = await this.getSummaryMetrics();
@@ -299,8 +293,13 @@ export class Pindexer extends AbstractPindexerConnection {
   }
 
   async getCommunityPoolSupply(): Promise<number> {
-    const { stakingAssetId } = registryClient.bundled.globals();
-    return await this.communityPoolService.getCommunityPoolSupply([stakingAssetId]);
+    try {
+      const { stakingAssetId } = registryClient.bundled.globals();
+      return await this.communityPoolService.getCommunityPoolSupply([stakingAssetId]);
+    } catch (error) {
+      console.error("Failed to fetch community pool supply:", error);
+      throw error;
+    }
   }
 
   async getLqtMetrics(): Promise<LqtMetrics> {
