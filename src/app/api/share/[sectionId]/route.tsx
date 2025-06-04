@@ -1,7 +1,7 @@
+import { blobStorageService } from "@/lib/blob-storage";
 import { SECTION_IDS, SectionId } from "@/lib/types/sections";
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
-import { blobStorageService } from "@/lib/blob-storage";
 
 const IMAGE_MAP: Record<SectionId, string> = {
   [SECTION_IDS.SUMMARY]: "summary.png",

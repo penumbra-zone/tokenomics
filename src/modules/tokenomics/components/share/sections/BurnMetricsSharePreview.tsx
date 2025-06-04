@@ -60,7 +60,7 @@ const BurnMetricsSharePreview = React.forwardRef<HTMLDivElement, BurnMetricsShar
           </div>
           <TotalBurnedCard onLoadingChange={onTotalBurnedLoadingChange} />
           <PercentBurnedOfTotalSupplyCard onLoadingChange={onPercentBurnedLoadingChange} />
-          <div className="col-span-2">  
+          <div className="col-span-2">
             <BurnRateOverTimeCard onLoadingChange={onBurnRateOverTimeLoadingChange} />
           </div>
         </div>

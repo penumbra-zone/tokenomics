@@ -1,12 +1,13 @@
-import { put, list, del } from "@vercel/blob";
-import type { PutBlobResult, ListBlobResult } from "@vercel/blob";
-import type { BlobStorageService } from ".";
 import type { VercelBlobConfig } from "@/lib/env/server"; // Import the shared type
+import type { ListBlobResult, PutBlobResult } from "@vercel/blob";
+import { del, list, put } from "@vercel/blob";
+import type { BlobStorageService } from ".";
 
 export class VercelBlobService implements BlobStorageService {
   private vercelToken: string; // Store the token
 
-  constructor(config: VercelBlobConfig) { // Use imported VercelBlobConfig
+  constructor(config: VercelBlobConfig) {
+    // Use imported VercelBlobConfig
     if (!config.token) {
       throw new Error("Vercel Blob token is not provided in configuration.");
     }
@@ -14,7 +15,7 @@ export class VercelBlobService implements BlobStorageService {
   }
 
   private getToken(options?: Record<string, any>): string | undefined {
-    // Prioritize token from options if provided (e.g., for specific operations), 
+    // Prioritize token from options if provided (e.g., for specific operations),
     // otherwise use the service's configured token.
     return options?.token || this.vercelToken;
   }
@@ -22,7 +23,7 @@ export class VercelBlobService implements BlobStorageService {
   async upload(
     pathname: string,
     body: File | string | ReadableStream | Blob,
-    options?: Record<string, any>,
+    options?: Record<string, any>
   ): Promise<PutBlobResult> {
     const token = this.getToken(options);
     return put(pathname, body, {
@@ -35,9 +36,11 @@ export class VercelBlobService implements BlobStorageService {
     });
   }
 
-  async get(pathname: string): Promise<{ content: ArrayBuffer; contentType: string | null } | null> {
+  async get(
+    pathname: string
+  ): Promise<{ content: ArrayBuffer; contentType: string | null } | null> {
     // List still needs a token, ensure it uses the instance token
-    const listResult = await this.list(pathname, { token: this.vercelToken }); 
+    const listResult = await this.list(pathname, { token: this.vercelToken });
     const blobItem = listResult.blobs.find((blob) => blob.pathname === pathname);
 
     if (!blobItem) {
@@ -54,12 +57,12 @@ export class VercelBlobService implements BlobStorageService {
   }
 
   async list(prefix: string, options?: Record<string, any>): Promise<ListBlobResult> {
-     const token = this.getToken(options);
-     return list({
-       prefix,
-       token, // Uses instance token or overridden token
-       ...options,
-     });
+    const token = this.getToken(options);
+    return list({
+      prefix,
+      token, // Uses instance token or overridden token
+      ...options,
+    });
   }
 
   async delete(url: string | string[], options?: Record<string, any>): Promise<void> {
@@ -69,4 +72,4 @@ export class VercelBlobService implements BlobStorageService {
       ...options,
     });
   }
-} 
+}

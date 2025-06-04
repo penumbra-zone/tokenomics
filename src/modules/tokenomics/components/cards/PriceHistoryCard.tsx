@@ -20,7 +20,10 @@ export interface PriceHistoryCardProps {
   onLoadingChange?: (isLoading: boolean) => void;
 }
 
-export function PriceHistoryCard({ dayOptions = DAY_OPTIONS, onLoadingChange }: PriceHistoryCardProps) {
+export function PriceHistoryCard({
+  dayOptions = DAY_OPTIONS,
+  onLoadingChange,
+}: PriceHistoryCardProps) {
   const [currentSelectedDay, setCurrentSelectedDay] = useState<number>(DEFAULT_DAYS);
 
   const handleDaysChange = (days: number) => {

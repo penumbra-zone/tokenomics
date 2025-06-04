@@ -1,8 +1,11 @@
 import { secondaryThemeColors } from "@/common/styles/themeColors"; // For PercentStakedOfTotalSupplyCard
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { CirculatingSupplyCard, PercentStakedOfTotalSupplyCard, TokenDistributionCard } from "../../cards";
+import {
+  CirculatingSupplyCard,
+  PercentStakedOfTotalSupplyCard,
+  TokenDistributionCard,
+} from "../../cards";
 import SharePreviewWrapper from "../SharePreviewWrapper";
-import TokenDistributionChart from "../../charts/TokenDistributionChart";
 
 interface TokenDistributionSharePreviewProps {
   onAggregateLoadingChange?: (isLoading: boolean) => void;
@@ -55,8 +58,7 @@ const TokenDistributionSharePreview = React.forwardRef<
           themeColors={secondaryThemeColors}
         />
         <div className="col-span-2">
-          <TokenDistributionCard 
-            onLoadingChange={onTokenDistributionLoadingChange} />
+          <TokenDistributionCard onLoadingChange={onTokenDistributionLoadingChange} />
         </div>
       </div>
     </SharePreviewWrapper>

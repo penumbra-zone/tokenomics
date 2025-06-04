@@ -49,7 +49,7 @@ const SupplyVisualizationSharePreview = React.forwardRef<
   return (
     <SharePreviewWrapper ref={ref}>
       <div className="grid grid-cols-2 gap-4">
-        <div className="col-span-2"> 
+        <div className="col-span-2">
           <SupplyAllocationCard onLoadingChange={onSupplyAllocationLoadingChange} />
         </div>
         <TotalSupplyCard onLoadingChange={onTotalSupplyLoadingChange} />

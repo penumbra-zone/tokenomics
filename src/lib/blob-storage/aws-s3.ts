@@ -1,19 +1,19 @@
+import type { S3BlobConfig } from "@/lib/env/server";
 import {
-  S3Client,
+  DeleteObjectCommand,
   GetObjectCommand,
   ListObjectsV2Command,
-  DeleteObjectCommand,
-  type _Object
+  S3Client,
+  type _Object,
 } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import { Readable } from "stream";
 import type { BlobStorageService } from ".";
-import type { S3BlobConfig } from "@/lib/env/server";
 
 export class AWSS3BlobService implements BlobStorageService {
   private s3Client: S3Client;
   private bucketName: string;
-  private region: string; 
+  private region: string;
 
   constructor(config: S3BlobConfig) {
     if (!config.accessKeyId || !config.secretAccessKey || !config.region || !config.bucketName) {
@@ -31,20 +31,26 @@ export class AWSS3BlobService implements BlobStorageService {
     this.region = config.region;
   }
 
-  async upload(pathname: string, body: File | string | ReadableStream | Blob, options?: Record<string, any>): Promise<{ url: string; pathname: string }> {
+  async upload(
+    pathname: string,
+    body: File | string | ReadableStream | Blob,
+    options?: Record<string, any>
+  ): Promise<{ url: string; pathname: string }> {
     let inputStream: Readable;
     let contentType: string | undefined = options?.contentType;
     let contentLength: number | undefined = options?.contentLength;
 
-    if (typeof body === 'string') {
+    if (typeof body === "string") {
       inputStream = Readable.from(body);
-      if (!contentType) contentType = 'text/plain';
-      contentLength = Buffer.byteLength(body, 'utf-8');
-    } else if (body instanceof Blob) { // Covers File as File is a Blob
+      if (!contentType) contentType = "text/plain";
+      contentLength = Buffer.byteLength(body, "utf-8");
+    } else if (body instanceof Blob) {
+      // Covers File as File is a Blob
       inputStream = Readable.fromWeb(body.stream() as any); // any for ReadableStream<Uint8Array>
       if (!contentType) contentType = body.type;
       contentLength = body.size;
-    } else if (body instanceof Readable) { // Node.js Readable stream
+    } else if (body instanceof Readable) {
+      // Node.js Readable stream
       inputStream = body;
       // contentType and contentLength should ideally be provided in options for streams
     } else {
@@ -60,12 +66,14 @@ export class AWSS3BlobService implements BlobStorageService {
           Body: inputStream,
           ContentType: contentType,
           ContentLength: contentLength,
-          CacheControl: options?.cacheControlMaxAge ? `max-age=${options.cacheControlMaxAge}` : undefined,
+          CacheControl: options?.cacheControlMaxAge
+            ? `max-age=${options.cacheControlMaxAge}`
+            : undefined,
         },
       });
 
       await upload.done();
-      
+
       const url = `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${pathname}`;
       return { url, pathname };
     } catch (error) {
@@ -74,14 +82,16 @@ export class AWSS3BlobService implements BlobStorageService {
     }
   }
 
-  async get(pathname: string): Promise<{ content: ArrayBuffer; contentType: string | null } | null> {
+  async get(
+    pathname: string
+  ): Promise<{ content: ArrayBuffer; contentType: string | null } | null> {
     try {
       const command = new GetObjectCommand({
         Bucket: this.bucketName,
         Key: pathname,
       });
       const response = await this.s3Client.send(command);
-      
+
       if (!response.Body) {
         return null;
       }
@@ -92,7 +102,7 @@ export class AWSS3BlobService implements BlobStorageService {
         contentType: response.ContentType || null,
       };
     } catch (error: any) {
-      if (error.name === 'NoSuchKey') {
+      if (error.name === "NoSuchKey") {
         return null;
       }
       console.error("S3 Get Error:", error);
@@ -107,18 +117,19 @@ export class AWSS3BlobService implements BlobStorageService {
         Prefix: prefix,
       });
       const response = await this.s3Client.send(command);
-      const blobs = response.Contents?.map((item: _Object) => {
-        const pathname = item.Key!;
-        const url = `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${pathname}`;
-        return { pathname, url };
-      }) || [];
+      const blobs =
+        response.Contents?.map((item: _Object) => {
+          const pathname = item.Key!;
+          const url = `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${pathname}`;
+          return { pathname, url };
+        }) || [];
       return { blobs };
     } catch (error) {
       console.error("S3 List Error:", error);
       throw error;
     }
   }
-  
+
   // Optional: Implement delete if it becomes part of the interface or is needed directly
   async delete(pathname: string): Promise<void> {
     try {
@@ -132,4 +143,4 @@ export class AWSS3BlobService implements BlobStorageService {
       throw error;
     }
   }
-} 
+}

@@ -19,7 +19,10 @@ interface SupplyAllocationChartProps {
   showAnimation?: boolean;
 }
 
-export default function SupplyAllocationChart({ data, showAnimation = true }: SupplyAllocationChartProps) {
+export default function SupplyAllocationChart({
+  data,
+  showAnimation = true,
+}: SupplyAllocationChartProps) {
   const chartRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

@@ -45,7 +45,7 @@ export default function Footer() {
               alt="Penumbra Logo"
               width={120}
               height={24}
-              style={{ height: 'auto' }}
+              style={{ height: "auto" }}
               className="mb-4"
             />
             <p className="text-neutral-400 text-sm leading-relaxed">

@@ -1,11 +1,11 @@
-import { AssetId } from "@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb";
-import { 
-  CommunityPoolAssetBalancesResponse,
-  CommunityPoolAssetBalancesRequest
-} from "@penumbra-zone/protobuf/penumbra/core/component/community_pool/v1/community_pool_pb";
-import { QueryService as CommunityPoolQueryService } from "@penumbra-zone/protobuf/penumbra/core/component/community_pool/v1/community_pool_connect";
 import { createClient } from "@connectrpc/connect";
 import { createGrpcWebTransport } from "@connectrpc/connect-web";
+import { AssetId } from "@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb";
+import { QueryService as CommunityPoolQueryService } from "@penumbra-zone/protobuf/penumbra/core/component/community_pool/v1/community_pool_connect";
+import {
+  CommunityPoolAssetBalancesRequest,
+  CommunityPoolAssetBalancesResponse,
+} from "@penumbra-zone/protobuf/penumbra/core/component/community_pool/v1/community_pool_pb";
 
 export class CommunityPoolService {
   private client: ReturnType<typeof createClient<typeof CommunityPoolQueryService>>;
@@ -28,12 +28,12 @@ export class CommunityPoolService {
         assetIds: assetIds,
       });
       const balances: CommunityPoolAssetBalancesResponse[] = [];
-      
+
       // The service returns a server stream, so we need to iterate through it
       for await (const response of this.client.communityPoolAssetBalances(request)) {
         balances.push(response);
       }
-      
+
       return balances;
     } catch (error) {
       console.error("Failed to fetch community pool balances:", error);

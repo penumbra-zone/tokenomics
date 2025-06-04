@@ -1,8 +1,6 @@
 import { AssetId } from "@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb";
 import { Kysely } from "kysely";
 
-import { dbClient as defaultDb } from "./client";
-import { DB } from "./schema";
 import { registryClient } from "@/lib/registry";
 import {
   calculateBurnMetrics,
@@ -19,7 +17,9 @@ import {
   SupplyData,
 } from "../../calculations";
 import { getDateRangeForDays, getDurationWindowForDays } from "../utils";
+import { dbClient as defaultDb } from "./client";
 import { MockPindexerConnection } from "./mock/mock-pindexer-connection";
+import { DB } from "./schema";
 import { BlockService } from "./services/block_service";
 import { BurnService } from "./services/burn_service";
 import { CommunityPoolService } from "./services/community_pool_service";

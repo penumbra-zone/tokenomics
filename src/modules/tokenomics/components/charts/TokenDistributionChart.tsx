@@ -9,7 +9,10 @@ interface TokenDistributionChartProps {
   showAnimation?: boolean;
 }
 
-export default function TokenDistributionChart({ data, showAnimation = true }: TokenDistributionChartProps) {
+export default function TokenDistributionChart({
+  data,
+  showAnimation = true,
+}: TokenDistributionChartProps) {
   if (!data || data.length === 0) return null;
 
   const chartData: RoseChartDataItem[] = data.map((item) => ({
@@ -22,7 +25,7 @@ export default function TokenDistributionChart({ data, showAnimation = true }: T
   };
 
   return (
-    <RoseChart 
+    <RoseChart
       data={chartData}
       seriesName="Token Distribution"
       labelFormatter={labelFormatter}

@@ -126,11 +126,13 @@ export const SharePreviewProvider: React.FC<SharePreviewProviderProps> = ({ chil
     <SharePreviewContext.Provider
       value={{
         isSummaryPreviewLoading: isSummaryPreviewLoading || isGeneratingImage,
-        isSupplyVisualizationPreviewLoading: isSupplyVisualizationPreviewLoading || isGeneratingImage,
+        isSupplyVisualizationPreviewLoading:
+          isSupplyVisualizationPreviewLoading || isGeneratingImage,
         isIssuanceMetricsPreviewLoading: isIssuanceMetricsPreviewLoading || isGeneratingImage,
         isBurnMetricsPreviewLoading: isBurnMetricsPreviewLoading || isGeneratingImage,
         isTokenDistributionPreviewLoading: isTokenDistributionPreviewLoading || isGeneratingImage,
-        isLiquidityTournamentPreviewLoading: isLiquidityTournamentPreviewLoading || isGeneratingImage,
+        isLiquidityTournamentPreviewLoading:
+          isLiquidityTournamentPreviewLoading || isGeneratingImage,
         summaryShareRef,
         supplyVisualizationShareRef,
         issuanceMetricsShareRef,

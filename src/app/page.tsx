@@ -4,9 +4,9 @@ import { shareConfigs } from "@/lib/utils/types";
 import Dashboard from "@/modules/tokenomics/views/Dashboard";
 
 type Props = {
-  params: Promise<{ id: string }>
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
 
 export const generateMetadata = async ({ searchParams }: Props) => {
   const section = (await searchParams).share ?? SECTION_IDS.SUMMARY;
