@@ -5,18 +5,11 @@ import { getDateGroupExpression } from "../../utils";
 import { DATA_SOURCES, DB_ERROR_MESSAGES, FIELD_TRANSFORMERS } from "../database-mappings";
 import { DB } from "../schema";
 import type { BurnDataBySource, DurationWindow } from "../types";
+import { AssetMetadataMap, BaseService } from "./base_service";
 
-interface RawBurnEntryRow {
-  height: number | string | null;
-  arb: number | string | null; // arbitrage burns
-  fees: number | string | null; // fee burns
-}
-
-export class BurnService {
-  private db: Kysely<DB>;
-
-  constructor(dbInstance: Kysely<DB>) {
-    this.db = dbInstance;
+export class BurnService extends BaseService {
+  constructor(dbInstance: Kysely<DB>, metadataMap: AssetMetadataMap) {
+    super(dbInstance, metadataMap);
   }
 
   /**
@@ -49,8 +42,8 @@ export class BurnService {
         .executeTakeFirstOrThrow();
 
       // Return raw aggregated values for burned categories only
-      const totalArbitrageBurns = FIELD_TRANSFORMERS.toTokenAmount(result.total_arbitrage_burns);
-      const totalFeeBurns = FIELD_TRANSFORMERS.toTokenAmount(result.total_fee_burns);
+      const totalArbitrageBurns = Number(this.formatAmount(result.total_arbitrage_burns, "um"));
+      const totalFeeBurns = Number(this.formatAmount(result.total_fee_burns, "um"));
 
       return {
         totalArbitrageBurns,
@@ -83,10 +76,10 @@ export class BurnService {
         ])
         .executeTakeFirstOrThrow();
 
-      const arbitrageBurns = FIELD_TRANSFORMERS.toTokenAmount(results.arbitrage_burns);
-      const feeBurns = FIELD_TRANSFORMERS.toTokenAmount(results.fee_burns);
-      const dexLocked = FIELD_TRANSFORMERS.toTokenAmount(Math.abs(results.dex_locked));
-      const auctionLocked = FIELD_TRANSFORMERS.toTokenAmount(results.auction_locked);
+      const arbitrageBurns = Number(this.formatAmount(results.arbitrage_burns, "um"));
+      const feeBurns = Number(this.formatAmount(results.fee_burns, "um"));
+      const dexLocked = Number(this.formatAmount(Math.abs(results.dex_locked), "um"));
+      const auctionLocked = Number(this.formatAmount(results.auction_locked, "um"));
 
       return {
         arbitrageBurns,
@@ -158,8 +151,8 @@ export class BurnService {
         .execute();
 
       return results.map((row) => ({
-        arbitrageBurns: FIELD_TRANSFORMERS.toTokenAmount(row.arbitrage_burns),
-        feeBurns: FIELD_TRANSFORMERS.toTokenAmount(row.fee_burns),
+        arbitrageBurns: Number(this.formatAmount(row.arbitrage_burns, "um")),
+        feeBurns: Number(this.formatAmount(row.fee_burns, "um")),
         timestamp: FIELD_TRANSFORMERS.toTimestamp(row.timestamp) || new Date(),
       }));
     } catch (error) {

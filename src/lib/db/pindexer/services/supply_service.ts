@@ -1,23 +1,31 @@
+import { createClient } from "@connectrpc/connect";
+import { createGrpcWebTransport } from "@connectrpc/connect-web";
+import { AssetId } from "@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb";
+import { QueryService as CommunityPoolQueryService } from "@penumbra-zone/protobuf/penumbra/core/component/community_pool/v1/community_pool_connect";
+import {
+  CommunityPoolAssetBalancesRequest,
+  CommunityPoolAssetBalancesResponse,
+} from "@penumbra-zone/protobuf/penumbra/core/component/community_pool/v1/community_pool_pb";
 import { Kysely, sql } from "kysely";
 
 import { getDateGroupExpression } from "../../utils";
 import { DATA_SOURCES, DB_ERROR_MESSAGES, FIELD_TRANSFORMERS } from "../database-mappings";
 import { DB } from "../schema";
 import type { DurationWindow, UnstakedSupplyComponents } from "../types";
+import { AssetMetadataMap, BaseService } from "./base_service";
+export class SupplyService extends BaseService {
+  private client: ReturnType<typeof createClient<typeof CommunityPoolQueryService>>;
 
-// Define an interface for the raw row structure from getDelegatedSupplyComponentsByHeight
-interface RawDelegatedSupplyRow {
-  um: number | string | null;
-  del_um: number | string | null;
-  rate_bps2: number | string | null;
-  validator_id?: number | string | null;
-}
-
-export class SupplyService {
-  private db: Kysely<DB>;
-
-  constructor(dbInstance: Kysely<DB>) {
-    this.db = dbInstance;
+  constructor(dbInstance: Kysely<DB>, metadataMap: AssetMetadataMap) {
+    super(dbInstance, metadataMap);
+    const transport = createGrpcWebTransport({
+      baseUrl: "https://penumbra.grpc.ghostinnet.com/",
+      fetch: (input, init) => fetch(input, { ...init, cache: "no-store" }),
+    });
+    this.client = createClient<typeof CommunityPoolQueryService>(
+      CommunityPoolQueryService,
+      transport,
+    );
   }
 
   /**
@@ -42,11 +50,11 @@ export class SupplyService {
       if (!result) return null;
 
       return {
-        um: FIELD_TRANSFORMERS.toTokenAmount(result.um),
-        auction: FIELD_TRANSFORMERS.toTokenAmount(result.auction),
-        dex: Math.abs(FIELD_TRANSFORMERS.toTokenAmount(result.dex)),
-        arb: FIELD_TRANSFORMERS.toTokenAmount(result.arb),
-        fees: FIELD_TRANSFORMERS.toTokenAmount(result.fees),
+        um: this.formatAmount(result.um, "um"),
+        auction: this.formatAmount(result.auction, "um"),
+        dex: this.formatAmount(result.dex, "um"),
+        arb: this.formatAmount(result.arb, "um"),
+        fees: this.formatAmount(Math.abs(Number(result.fees)), "um"),
       };
     } catch (error) {
       console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
@@ -62,7 +70,7 @@ export class SupplyService {
     height: string;
   }> {
     try {
-      const query = await this.db
+      const query = this.db
         .selectFrom(DATA_SOURCES.INSIGHTS_SUPPLY.name)
         .select([
           `${DATA_SOURCES.INSIGHTS_SUPPLY.fields.TOTAL_SUPPLY} as totalSupply`,
@@ -74,7 +82,16 @@ export class SupplyService {
         .where(DATA_SOURCES.INSIGHTS_SUPPLY.fields.HEIGHT, "=", blockHeight)
         .limit(1);
 
-      return query.executeTakeFirstOrThrow();
+      const { totalSupply, stakedSupply, marketCap, price, height } =
+        await query.executeTakeFirstOrThrow();
+
+      return {
+        totalSupply: this.formatAmount(totalSupply, "um"),
+        stakedSupply: this.formatAmount(stakedSupply, "um"),
+        marketCap: marketCap ? Number(this.formatAmount(marketCap, "um")) : null,
+        price,
+        height,
+      };
     } catch (error) {
       console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
       throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
@@ -100,8 +117,6 @@ export class SupplyService {
     }>
   > {
     try {
-      // For SQLite compatibility, we'll use a different approach
-      // Group by date intervals and take the latest value from each group
       const results = await this.db
         .selectFrom(DATA_SOURCES.INSIGHTS_SUPPLY.name)
         .innerJoin(
@@ -143,13 +158,53 @@ export class SupplyService {
 
       return results.map((row) => ({
         height: FIELD_TRANSFORMERS.toTokenAmount(row.height),
-        total: FIELD_TRANSFORMERS.toTokenAmount(row.total),
-        staked: FIELD_TRANSFORMERS.toTokenAmount(row.staked),
+        total: Number(this.formatAmount(row.total, "um")),
+        staked: Number(this.formatAmount(row.staked, "um")),
         timestamp: FIELD_TRANSFORMERS.toTimestamp(row.timestamp) || new Date(),
       }));
     } catch (error) {
       console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
       throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
+    }
+  }
+
+  async getCommunityPoolAssetBalances(
+    assetIds: AssetId[],
+  ): Promise<CommunityPoolAssetBalancesResponse[]> {
+    try {
+      const request = new CommunityPoolAssetBalancesRequest({
+        assetIds: assetIds,
+      });
+      const balances: CommunityPoolAssetBalancesResponse[] = [];
+
+      // The service returns a server stream, so we need to iterate through it
+      for await (const response of this.client.communityPoolAssetBalances(request)) {
+        balances.push(response);
+      }
+
+      return balances;
+    } catch (error) {
+      console.error("Failed to fetch community pool balances:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Fetches the current community pool supply for Penumbra (upenumbra)
+   * @returns The total amount of upenumbra in the community pool, formatted as a string.
+   */
+  async getCommunityPoolSupply(assetIds: AssetId[]): Promise<string> {
+    try {
+      const balances = await this.getCommunityPoolAssetBalances(assetIds);
+      // Sum up all balances
+      const total = balances.reduce((total, balance) => {
+        return total + BigInt(balance.balance?.amount?.lo ?? 0);
+      }, BigInt(0));
+
+      return this.formatAmount(total, "um");
+    } catch (error) {
+      console.error("Failed to fetch community pool supply:", error);
+      throw error;
     }
   }
 }

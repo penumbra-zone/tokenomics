@@ -109,9 +109,28 @@ export function calculateIssuanceMetrics(context: CalculationContext): IssuanceM
 export function calculateInflationTimeSeries(
   supplyDataPoints: SupplyData[]
 ): Array<{ date: string; inflationRate: number; absoluteAmount: number }> {
-  const subPeriodRates = calculateSubPeriodInflationRates(supplyDataPoints);
+  const subPeriodRates = (
+    supplyDataPoints: SupplyData[],
+  ): Array<{ timestamp: Date; inflationRate: number; absoluteAmount: number }> => {
+    const results: Array<{ timestamp: Date; inflationRate: number; absoluteAmount: number }> = [];
 
-  return subPeriodRates.map((point) => ({
+    for (let i = 1; i < supplyDataPoints.length; i++) {
+      const current = supplyDataPoints[i];
+      const previous = supplyDataPoints[i - 1];
+
+      const inflationRate = calculateInflationRate(current.total, previous.total);
+      const absoluteAmount = current.total - previous.total; // Absolute change in supply
+
+      results.push({
+        timestamp: current.timestamp,
+        inflationRate,
+        absoluteAmount,
+      });
+    }
+    return results;
+  };
+
+  return subPeriodRates(supplyDataPoints).map((point) => ({
     date: point.timestamp.toISOString().slice(0, 10),
     inflationRate: calculateAnnualizedInflationRate(point.inflationRate, 1), // Annualize daily rate
     absoluteAmount: point.absoluteAmount, // Keep absolute amount as-is (actual UM change)

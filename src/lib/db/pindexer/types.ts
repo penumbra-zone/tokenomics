@@ -99,11 +99,11 @@ export interface CurrentMarketData {
 }
 
 export interface UnstakedSupplyComponents {
-  um: number;
-  auction: number;
-  dex: number;
-  arb: number;
-  fees: number;
+  um: string;
+  auction: string;
+  dex: string;
+  arb: string;
+  fees: string;
 }
 
 export interface DelegatedSupplyComponent {
@@ -124,6 +124,17 @@ export interface BurnDataBySource {
   dexLocked: number; // DEX locked
   auctionLocked: number; // Auction locked
 }
+
+export interface CandleData {
+  start_time: Date;
+  open: number;
+  close: number;
+  low: number;
+  high: number;
+  swap_volume: number;
+  direct_volume: number;
+}
+
 
 export abstract class AbstractPindexerConnection {
   abstract getSummaryMetrics(): Promise<SummaryMetrics>;
