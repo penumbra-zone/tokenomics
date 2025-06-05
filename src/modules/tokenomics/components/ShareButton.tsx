@@ -1,4 +1,3 @@
-import { LoadingSpinner } from "@/common/components/LoadingSpinner";
 import { cn } from "@/common/helpers/utils";
 import { Button } from "@/components/ui/button";
 import { Share2 } from "lucide-react";
@@ -18,14 +17,8 @@ export default function ShareButton({ className, isContentLoading, ...props }: S
       className={cn("text-neutral-50 hover:bg-primary/60", className)}
       {...props}
     >
-      {isContentLoading ? (
-        <LoadingSpinner size="sm" />
-      ) : (
-        <>
-          <Share2 className="h-4 w-4" />
-          <span className="hidden md:inline md:ml-2">{props.text ?? "Share"}</span>
-        </>
-      )}
+      <Share2 className="h-4 w-4" />
+      <span className="hidden md:inline md:ml-2">{props.text ?? "Share"}</span>
     </Button>
   );
 }
