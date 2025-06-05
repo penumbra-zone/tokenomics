@@ -1,5 +1,5 @@
-import { Kysely } from "kysely";
 import { Metadata } from "@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb";
+import { Kysely } from "kysely";
 
 import { formatAssetAmount } from "@/lib/registry/utils";
 
@@ -21,7 +21,7 @@ export class BaseService {
 
   protected formatAmount(
     amount: string | bigint | number | null | undefined,
-    asset: keyof AssetMetadataMap,
+    asset: keyof AssetMetadataMap
   ): string {
     if (!this.metadataMap) {
       throw new Error("Metadata not initialized");
@@ -30,4 +30,4 @@ export class BaseService {
     const value = !amount ? BigInt(0) : BigInt(Math.trunc(Number(amount)));
     return formatAssetAmount(value, this.metadataMap[asset]);
   }
-} 
+}

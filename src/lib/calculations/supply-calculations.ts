@@ -1,7 +1,6 @@
 // Supply Visualization Calculations
 
 import { UnstakedSupplyComponents } from "../db/pindexer";
-import { CalculationContext, SupplyData, SupplyMetrics } from "./types";
 
 /**
  * Calculate market cap from total supply and current price

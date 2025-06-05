@@ -2,7 +2,7 @@
 
 import { BurnDataBySource } from "../db/pindexer/types";
 import { formatDateForChart } from "../utils";
-import { BurnData, BurnMetrics, CalculationContext } from "./types";
+import { BurnMetrics, CalculationContext } from "./types";
 
 /**
  * Calculate total permanently burned tokens from all sources
@@ -20,7 +20,7 @@ export function calculateTotalBurned(totalArbitrageBurns: number, totalFeeBurns:
  */
 export function calculatePercentageOfSupplyBurned(
   totalBurned: number,
-  currentTotalSupply: number,
+  currentTotalSupply: number
 ): number {
   const effectiveSupply = currentTotalSupply + totalBurned;
   if (effectiveSupply === 0) return 0;
@@ -31,7 +31,7 @@ export function calculatePercentageOfSupplyBurned(
  * Calculate burn rate time series for charts
  */
 export function calculateBurnRateTimeSeries(
-  burnData: { arbitrageBurns: number; feeBurns: number; timestamp: Date }[],
+  burnData: { arbitrageBurns: number; feeBurns: number; timestamp: Date }[]
 ): Array<{ timestamp: string; rate: number }> {
   // Calculate burn rate for each period
   const results: Array<{ timestamp: string; rate: number }> = [];
@@ -54,7 +54,7 @@ export function calculateBurnRateTimeSeries(
 export function calculateBurnMetrics(
   burnsBySource: BurnDataBySource,
   currentTotalSupply: number,
-  context: CalculationContext,
+  context: CalculationContext
 ): BurnMetrics {
   const { blocksPerDay } = context.config;
 
@@ -62,10 +62,7 @@ export function calculateBurnMetrics(
   const totalBurned = calculateTotalBurned(burnsBySource.arbitrageBurns, burnsBySource.feeBurns);
 
   // Calculate percentage of supply burned
-  const percentageOfSupplyBurned = (
-    totalBurned /
-    (currentTotalSupply + totalBurned)
-  ) * 100;
+  const percentageOfSupplyBurned = (totalBurned / (currentTotalSupply + totalBurned)) * 100;
 
   // Calculate burn rate per day (using latest data point for rate calculation)
   const burnRatePerBlock = totalBurned / context.currentHeight;

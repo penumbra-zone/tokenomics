@@ -1,8 +1,5 @@
 // Token Distribution Calculations
 
-import { UnstakedSupplyComponents } from "../db/pindexer";
-import { DistributionMetrics, SupplyData } from "./types";
-
 /**
  * Calculate circulating tokens (tokens not locked in specific categories)
  * Formula: CirculatingTokens = TotalSupply - (StakedSupply + DEXLiquiditySupply + CommunityPoolSupply)

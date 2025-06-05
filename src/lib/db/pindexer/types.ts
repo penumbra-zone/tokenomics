@@ -135,7 +135,6 @@ export interface CandleData {
   direct_volume: number;
 }
 
-
 export abstract class AbstractPindexerConnection {
   abstract getSummaryMetrics(): Promise<SummaryMetrics>;
   abstract getLqtMetrics(): Promise<LqtMetrics>;
