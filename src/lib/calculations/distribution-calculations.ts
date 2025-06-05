@@ -26,26 +26,6 @@ export function calculatePercentageStaked(stakedSupply: number, totalSupply: num
 }
 
 /**
- * Calculate total unstaked supply from components
- */
-export function calculateTotalUnstakedSupply(unstakedComponents: UnstakedSupplyComponents): number {
-  return (
-    Number(unstakedComponents.um) +
-    Number(unstakedComponents.auction) +
-    Number(unstakedComponents.dex) +
-    Number(unstakedComponents.arb) +
-    Number(unstakedComponents.fees)
-  );
-}
-
-/**
- * Calculate DEX liquidity supply from unstaked components
- */
-export function calculateDEXLiquiditySupply(unstakedComponents: UnstakedSupplyComponents): number {
-  return Number(unstakedComponents.dex);
-}
-
-/**
  * Calculate token distribution breakdown for pie charts
  */
 export function calculateTokenDistributionBreakdown(
@@ -86,70 +66,5 @@ export function calculateTokenDistributionBreakdown(
       amount: circulatingSupply,
       percentage: calculatePercentage(circulatingSupply),
     },
-  };
-}
-
-/**
- * Calculate comprehensive distribution metrics
- */
-export function calculateDistributionMetrics(
-  currentSupplyData: SupplyData,
-  unstakedComponents: UnstakedSupplyComponents,
-  communityPoolSupply: number
-): DistributionMetrics {
-  const { total: totalSupply, staked: stakedSupply } = currentSupplyData;
-
-  // Calculate DEX liquidity from unstaked components
-  const dexLiquidity = calculateDEXLiquiditySupply(unstakedComponents);
-
-  // Calculate circulating supply
-  const circulating = calculateCirculatingTokens(
-    totalSupply,
-    stakedSupply,
-    dexLiquidity,
-    communityPoolSupply
-  );
-
-  // Calculate percentage staked
-  const percentageStaked = calculatePercentageStaked(stakedSupply, totalSupply);
-
-  return {
-    staked: stakedSupply,
-    dexLiquidity,
-    communityPool: communityPoolSupply,
-    circulating,
-    percentageStaked,
-  };
-}
-
-/**
- * Validate distribution totals (should equal total supply)
- */
-export function validateDistributionTotals(
-  totalSupply: number,
-  distributionBreakdown: {
-    staked: { amount: number };
-    dexLiquidity: { amount: number };
-    communityPool: { amount: number };
-    circulating: { amount: number };
-  }
-): {
-  isValid: boolean;
-  calculatedTotal: number;
-  difference: number;
-} {
-  const calculatedTotal =
-    distributionBreakdown.staked.amount +
-    distributionBreakdown.dexLiquidity.amount +
-    distributionBreakdown.communityPool.amount +
-    distributionBreakdown.circulating.amount;
-
-  const difference = Math.abs(totalSupply - calculatedTotal);
-  const isValid = difference < 0.01; // Allow for small rounding errors
-
-  return {
-    isValid,
-    calculatedTotal,
-    difference,
   };
 }

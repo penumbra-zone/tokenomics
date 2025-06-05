@@ -1,49 +1,31 @@
+import { createClient } from "@connectrpc/connect";
+import { createGrpcWebTransport } from "@connectrpc/connect-web";
+import { AssetId } from "@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb";
+import { QueryService as CommunityPoolQueryService } from "@penumbra-zone/protobuf/penumbra/core/component/community_pool/v1/community_pool_connect";
+import {
+  CommunityPoolAssetBalancesRequest,
+  CommunityPoolAssetBalancesResponse,
+} from "@penumbra-zone/protobuf/penumbra/core/component/community_pool/v1/community_pool_pb";
 import { Kysely, sql } from "kysely";
-import { formatAssetAmount } from "@/lib/registry/utils";
-import { getUmAssetMetadata, getUSDCAssetMetadata } from "@/lib/registry/utils";
-import { Metadata } from "@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb";
 
 import { getDateGroupExpression } from "../../utils";
 import { DATA_SOURCES, DB_ERROR_MESSAGES, FIELD_TRANSFORMERS } from "../database-mappings";
 import { DB } from "../schema";
 import type { DurationWindow, UnstakedSupplyComponents } from "../types";
+import { AssetMetadataMap, BaseService } from "./base_service";
+export class SupplyService extends BaseService {
+  private client: ReturnType<typeof createClient<typeof CommunityPoolQueryService>>;
 
-interface AssetMetadataMap {
-  um: Metadata;
-  usdc: Metadata;
-}
-
-// Define an interface for the raw row structure from getDelegatedSupplyComponentsByHeight
-interface RawDelegatedSupplyRow {
-  um: number | string | null;
-  del_um: number | string | null;
-  rate_bps2: number | string | null;
-  validator_id?: number | string | null;
-}
-
-export class SupplyService {
-  private db: Kysely<DB>;
-  private metadataMap: AssetMetadataMap | null = null;
-
-  constructor(dbInstance: Kysely<DB>) {
-    this.db = dbInstance;
-    this.initializeMetadata();
-  }
-
-  private async initializeMetadata() {
-    const [umMetadata, usdcMetadata] = await Promise.all([
-      getUmAssetMetadata(),
-      getUSDCAssetMetadata(),
-    ]);
-
-    if (!umMetadata || !usdcMetadata) {
-      throw new Error("Failed to initialize asset metadata");
-    }
-
-    this.metadataMap = {
-      um: umMetadata,
-      usdc: usdcMetadata,
-    };
+  constructor(dbInstance: Kysely<DB>, metadataMap: AssetMetadataMap) {
+    super(dbInstance, metadataMap);
+    const transport = createGrpcWebTransport({
+      baseUrl: "https://penumbra.grpc.ghostinnet.com/",
+      fetch: (input, init) => fetch(input, { ...init, cache: "no-store" }),
+    });
+    this.client = createClient<typeof CommunityPoolQueryService>(
+      CommunityPoolQueryService,
+      transport,
+    );
   }
 
   /**
@@ -100,12 +82,15 @@ export class SupplyService {
         .where(DATA_SOURCES.INSIGHTS_SUPPLY.fields.HEIGHT, "=", blockHeight)
         .limit(1);
 
-      const result = await query.executeTakeFirstOrThrow();
+      const { totalSupply, stakedSupply, marketCap, price, height } =
+        await query.executeTakeFirstOrThrow();
 
       return {
-        ...result,
-        totalSupply: this.formatAmount(result.totalSupply, "um"),
-        stakedSupply: this.formatAmount(result.stakedSupply, "um"),
+        totalSupply: this.formatAmount(totalSupply, "um"),
+        stakedSupply: this.formatAmount(stakedSupply, "um"),
+        marketCap: marketCap ? Number(this.formatAmount(marketCap, "um")) : null,
+        price,
+        height,
       };
     } catch (error) {
       console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
@@ -183,10 +168,43 @@ export class SupplyService {
     }
   }
 
-  private formatAmount(amount: string | bigint | number, asset: keyof AssetMetadataMap): string {
-    if (!this.metadataMap) {
-      throw new Error("Metadata not initialized");
+  async getCommunityPoolAssetBalances(
+    assetIds: AssetId[],
+  ): Promise<CommunityPoolAssetBalancesResponse[]> {
+    try {
+      const request = new CommunityPoolAssetBalancesRequest({
+        assetIds: assetIds,
+      });
+      const balances: CommunityPoolAssetBalancesResponse[] = [];
+
+      // The service returns a server stream, so we need to iterate through it
+      for await (const response of this.client.communityPoolAssetBalances(request)) {
+        balances.push(response);
+      }
+
+      return balances;
+    } catch (error) {
+      console.error("Failed to fetch community pool balances:", error);
+      throw error;
     }
-    return formatAssetAmount(BigInt(amount), this.metadataMap[asset]);
+  }
+
+  /**
+   * Fetches the current community pool supply for Penumbra (upenumbra)
+   * @returns The total amount of upenumbra in the community pool, formatted as a string.
+   */
+  async getCommunityPoolSupply(assetIds: AssetId[]): Promise<string> {
+    try {
+      const balances = await this.getCommunityPoolAssetBalances(assetIds);
+      // Sum up all balances
+      const total = balances.reduce((total, balance) => {
+        return total + BigInt(balance.balance?.amount?.lo ?? 0);
+      }, BigInt(0));
+
+      return this.formatAmount(total, "um");
+    } catch (error) {
+      console.error("Failed to fetch community pool supply:", error);
+      throw error;
+    }
   }
 }

@@ -22,7 +22,6 @@ import { MockPindexerConnection } from "./mock/mock-pindexer-connection";
 import { DB } from "./schema";
 import { BlockService } from "./services/block_service";
 import { BurnService } from "./services/burn_service";
-import { CommunityPoolService } from "./services/community_pool_service";
 import { MarketService } from "./services/market_service";
 import { SupplyService } from "./services/supply_service";
 import {
@@ -40,22 +39,24 @@ import {
   TokenMetrics,
   UnstakedSupplyComponents,
 } from "./types";
+import { AssetMetadataMap } from './services/base_service';
+import { formatAssetAmount } from '@/lib/registry/utils';
 
 export class Pindexer extends AbstractPindexerConnection {
   private readonly blockService: BlockService;
   private readonly marketService: MarketService;
   private readonly supplyService: SupplyService;
   private readonly burnService: BurnService;
-  private readonly communityPoolService: CommunityPoolService;
   private readonly calculationContext: CalculationContext;
+  private readonly metadataMap: AssetMetadataMap;
 
-  constructor(protected dbInstance: Kysely<DB> = defaultDb) {
+  constructor(metadataMap: AssetMetadataMap, protected dbInstance: Kysely<DB> = defaultDb) {
     super();
-    this.blockService = new BlockService(dbInstance);
-    this.marketService = new MarketService(dbInstance);
-    this.supplyService = new SupplyService(dbInstance);
-    this.burnService = new BurnService(dbInstance);
-    this.communityPoolService = new CommunityPoolService();
+    this.metadataMap = metadataMap;
+    this.blockService = new BlockService(dbInstance, metadataMap);
+    this.marketService = new MarketService(dbInstance, metadataMap);
+    this.supplyService = new SupplyService(dbInstance, metadataMap);
+    this.burnService = new BurnService(dbInstance, metadataMap);
 
     // Initialize calculation context with current network config
     const config = getCurrentNetworkConfig();
@@ -122,7 +123,10 @@ export class Pindexer extends AbstractPindexerConnection {
     const { currentIssuance, projectedAnnualIssuance } = calculateIssuanceMetrics(
       this.calculationContext
     );
-    return { currentIssuance, annualIssuance: projectedAnnualIssuance };
+    return { 
+      currentIssuance: Number(formatAssetAmount(BigInt(currentIssuance), this.metadataMap.um)), 
+      annualIssuance: Number(formatAssetAmount(BigInt(projectedAnnualIssuance), this.metadataMap.um)) 
+    };
   }
 
   async getInflationTimeSeries(days: number): Promise<InflationTimeSeries> {
@@ -169,7 +173,7 @@ export class Pindexer extends AbstractPindexerConnection {
     const totalUnstaked = calculateTotalUnstakedSupply(unstakedComponents);
 
     // Use centralized calculation for issuance since launch
-    const { genesisAllocation } = this.calculationContext.config;
+    const genesisAllocation = Number(formatAssetAmount(BigInt(this.calculationContext.config.genesisAllocation), this.metadataMap.um));
     const issuedSinceLaunch = calculateIssuanceSinceLaunch(Number(totalSupply), genesisAllocation);
 
     return {
@@ -295,7 +299,7 @@ export class Pindexer extends AbstractPindexerConnection {
   async getCommunityPoolSupply(): Promise<number> {
     try {
       const { stakingAssetId } = registryClient.bundled.globals();
-      return await this.communityPoolService.getCommunityPoolSupply([stakingAssetId]);
+      return Number(await this.supplyService.getCommunityPoolSupply([stakingAssetId]));
     } catch (error) {
       console.error("Failed to fetch community pool supply:", error);
       throw error;

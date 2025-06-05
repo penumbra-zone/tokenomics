@@ -5,6 +5,8 @@ import { MockPindexerConnection } from "./mock/mock-pindexer-connection";
 import { Pindexer as PostgresPindexerConnection } from "./pindexer";
 import { DB } from "./schema";
 import { AbstractPindexerConnection } from "./types";
+import { getUmAssetMetadata, getUSDCAssetMetadata } from '@/lib/registry/utils';
+import { AssetMetadataMap } from './services/base_service';
 
 // Pindexer Database Module
 // Main exports for database operations and configuration
@@ -20,16 +22,20 @@ export * from "./database-mappings";
 // Service modules
 export * from "./services/block_service";
 export * from "./services/burn_service";
-export * from "./services/dex_service";
 export * from "./services/market_service";
 export * from "./services/supply_service";
 
-let PindexerConnection: new (db?: Kysely<DB>) => AbstractPindexerConnection =
+let PindexerConnection: new (metadataMap: AssetMetadataMap, db?: Kysely<DB>) => AbstractPindexerConnection =
   PostgresPindexerConnection;
 if (env.NODE_ENV === Env.Test) {
   PindexerConnection = MockPindexerConnection;
 }
 
-let pindexerInstance = new PindexerConnection();
+const [umMetadata, usdcMetadata] = await Promise.all([
+  getUmAssetMetadata(),
+  getUSDCAssetMetadata(),
+]);
+
+let pindexerInstance = new PindexerConnection({ um: umMetadata!, usdc: usdcMetadata! });
 
 export { pindexerInstance as pindexer };

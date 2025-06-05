@@ -125,6 +125,17 @@ export interface BurnDataBySource {
   auctionLocked: number; // Auction locked
 }
 
+export interface CandleData {
+  start_time: Date;
+  open: number;
+  close: number;
+  low: number;
+  high: number;
+  swap_volume: number;
+  direct_volume: number;
+}
+
+
 export abstract class AbstractPindexerConnection {
   abstract getSummaryMetrics(): Promise<SummaryMetrics>;
   abstract getLqtMetrics(): Promise<LqtMetrics>;

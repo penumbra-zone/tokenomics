@@ -7,8 +7,8 @@ import testnetGenesis from "../genesis/testnet.json";
 import { CalculationConfig } from "./types";
 
 // Parse genesis configurations
-const mainnetConfig = parseGenesisConfig(mainnetGenesis as any);
-const testnetConfig = parseGenesisConfig(testnetGenesis as any);
+export const mainnetConfig = parseGenesisConfig(mainnetGenesis as any);
+export const testnetConfig = parseGenesisConfig(testnetGenesis as any);
 
 /**
  * Default calculation configuration

@@ -5,6 +5,5 @@ export * from "./burn-calculations";
 export * from "./config";
 export * from "./distribution-calculations";
 export * from "./issuance-calculations";
-export * from "./lqt-calculations";
 export * from "./supply-calculations";
 export * from "./types";
