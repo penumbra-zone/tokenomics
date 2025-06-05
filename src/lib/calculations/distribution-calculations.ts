@@ -1,6 +1,7 @@
 // Token Distribution Calculations
 
-import { DistributionMetrics, SupplyData, UnstakedSupplyComponents } from "./types";
+import { UnstakedSupplyComponents } from "../db/pindexer";
+import { DistributionMetrics, SupplyData } from "./types";
 
 /**
  * Calculate circulating tokens (tokens not locked in specific categories)
@@ -29,11 +30,11 @@ export function calculatePercentageStaked(stakedSupply: number, totalSupply: num
  */
 export function calculateTotalUnstakedSupply(unstakedComponents: UnstakedSupplyComponents): number {
   return (
-    unstakedComponents.um +
-    unstakedComponents.auction +
-    unstakedComponents.dex +
-    unstakedComponents.arb +
-    unstakedComponents.fees
+    Number(unstakedComponents.um) +
+    Number(unstakedComponents.auction) +
+    Number(unstakedComponents.dex) +
+    Number(unstakedComponents.arb) +
+    Number(unstakedComponents.fees)
   );
 }
 
@@ -41,7 +42,7 @@ export function calculateTotalUnstakedSupply(unstakedComponents: UnstakedSupplyC
  * Calculate DEX liquidity supply from unstaked components
  */
 export function calculateDEXLiquiditySupply(unstakedComponents: UnstakedSupplyComponents): number {
-  return unstakedComponents.dex;
+  return Number(unstakedComponents.dex);
 }
 
 /**

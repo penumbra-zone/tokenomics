@@ -179,11 +179,11 @@ export class Pindexer extends AbstractPindexerConnection {
       genesisAllocation,
       issuedSinceLaunch,
       unstakedSupply: {
-        base: unstakedComponents.um,
-        auction: unstakedComponents.auction,
-        dex: unstakedComponents.dex,
-        arbitrage: unstakedComponents.arb,
-        fees: unstakedComponents.fees,
+        base: Number(unstakedComponents.um),
+        auction: Number(unstakedComponents.auction),
+        dex: Number(unstakedComponents.dex),
+        arbitrage: Number(unstakedComponents.arb),
+        fees: Number(unstakedComponents.fees),
       },
     };
   }

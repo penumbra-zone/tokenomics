@@ -99,11 +99,11 @@ export interface CurrentMarketData {
 }
 
 export interface UnstakedSupplyComponents {
-  um: number;
-  auction: number;
-  dex: number;
-  arb: number;
-  fees: number;
+  um: string;
+  auction: string;
+  dex: string;
+  arb: string;
+  fees: string;
 }
 
 export interface DelegatedSupplyComponent {

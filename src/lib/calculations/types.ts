@@ -19,14 +19,6 @@ export interface BurnData {
   timestamp: Date;
 }
 
-export interface UnstakedSupplyComponents {
-  um: number;
-  auction: number;
-  dex: number;
-  arb: number;
-  fees: number;
-}
-
 export interface DelegatedSupplyComponent {
   um: number;
   del_um: number;

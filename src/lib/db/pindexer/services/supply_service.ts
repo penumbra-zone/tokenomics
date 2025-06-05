@@ -1,9 +1,17 @@
 import { Kysely, sql } from "kysely";
+import { formatAssetAmount } from "@/lib/registry/utils";
+import { getUmAssetMetadata, getUSDCAssetMetadata } from "@/lib/registry/utils";
+import { Metadata } from "@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb";
 
 import { getDateGroupExpression } from "../../utils";
 import { DATA_SOURCES, DB_ERROR_MESSAGES, FIELD_TRANSFORMERS } from "../database-mappings";
 import { DB } from "../schema";
 import type { DurationWindow, UnstakedSupplyComponents } from "../types";
+
+interface AssetMetadataMap {
+  um: Metadata;
+  usdc: Metadata;
+}
 
 // Define an interface for the raw row structure from getDelegatedSupplyComponentsByHeight
 interface RawDelegatedSupplyRow {
@@ -15,9 +23,27 @@ interface RawDelegatedSupplyRow {
 
 export class SupplyService {
   private db: Kysely<DB>;
+  private metadataMap: AssetMetadataMap | null = null;
 
   constructor(dbInstance: Kysely<DB>) {
     this.db = dbInstance;
+    this.initializeMetadata();
+  }
+
+  private async initializeMetadata() {
+    const [umMetadata, usdcMetadata] = await Promise.all([
+      getUmAssetMetadata(),
+      getUSDCAssetMetadata(),
+    ]);
+
+    if (!umMetadata || !usdcMetadata) {
+      throw new Error("Failed to initialize asset metadata");
+    }
+
+    this.metadataMap = {
+      um: umMetadata,
+      usdc: usdcMetadata,
+    };
   }
 
   /**
@@ -42,11 +68,11 @@ export class SupplyService {
       if (!result) return null;
 
       return {
-        um: FIELD_TRANSFORMERS.toTokenAmount(result.um),
-        auction: FIELD_TRANSFORMERS.toTokenAmount(result.auction),
-        dex: Math.abs(FIELD_TRANSFORMERS.toTokenAmount(result.dex)),
-        arb: FIELD_TRANSFORMERS.toTokenAmount(result.arb),
-        fees: FIELD_TRANSFORMERS.toTokenAmount(result.fees),
+        um: this.formatAmount(result.um, "um"),
+        auction: this.formatAmount(result.auction, "um"),
+        dex: this.formatAmount(result.dex, "um"),
+        arb: this.formatAmount(result.arb, "um"),
+        fees: this.formatAmount(Math.abs(Number(result.fees)), "um"),
       };
     } catch (error) {
       console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
@@ -62,7 +88,7 @@ export class SupplyService {
     height: string;
   }> {
     try {
-      const query = await this.db
+      const query = this.db
         .selectFrom(DATA_SOURCES.INSIGHTS_SUPPLY.name)
         .select([
           `${DATA_SOURCES.INSIGHTS_SUPPLY.fields.TOTAL_SUPPLY} as totalSupply`,
@@ -74,7 +100,13 @@ export class SupplyService {
         .where(DATA_SOURCES.INSIGHTS_SUPPLY.fields.HEIGHT, "=", blockHeight)
         .limit(1);
 
-      return query.executeTakeFirstOrThrow();
+      const result = await query.executeTakeFirstOrThrow();
+
+      return {
+        ...result,
+        totalSupply: this.formatAmount(result.totalSupply, "um"),
+        stakedSupply: this.formatAmount(result.stakedSupply, "um"),
+      };
     } catch (error) {
       console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
       throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
@@ -100,8 +132,6 @@ export class SupplyService {
     }>
   > {
     try {
-      // For SQLite compatibility, we'll use a different approach
-      // Group by date intervals and take the latest value from each group
       const results = await this.db
         .selectFrom(DATA_SOURCES.INSIGHTS_SUPPLY.name)
         .innerJoin(
@@ -143,13 +173,20 @@ export class SupplyService {
 
       return results.map((row) => ({
         height: FIELD_TRANSFORMERS.toTokenAmount(row.height),
-        total: FIELD_TRANSFORMERS.toTokenAmount(row.total),
-        staked: FIELD_TRANSFORMERS.toTokenAmount(row.staked),
+        total: Number(this.formatAmount(row.total, "um")),
+        staked: Number(this.formatAmount(row.staked, "um")),
         timestamp: FIELD_TRANSFORMERS.toTimestamp(row.timestamp) || new Date(),
       }));
     } catch (error) {
       console.error(DB_ERROR_MESSAGES.QUERY_FAILED, error);
       throw new Error(DB_ERROR_MESSAGES.QUERY_FAILED);
     }
+  }
+
+  private formatAmount(amount: string | bigint | number, asset: keyof AssetMetadataMap): string {
+    if (!this.metadataMap) {
+      throw new Error("Metadata not initialized");
+    }
+    return formatAssetAmount(BigInt(amount), this.metadataMap[asset]);
   }
 }
