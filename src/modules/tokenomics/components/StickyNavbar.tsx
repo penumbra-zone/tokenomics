@@ -10,7 +10,9 @@ import { NAV_ITEM_BASE_STYLES, NAV_ITEM_INACTIVE_STYLES } from "@/common/styles/
 import { shouldShowLiquidityTournament } from "@/lib/env/client";
 import type { SectionId } from "@/lib/types/sections";
 import { SECTION_IDS } from "@/lib/types/sections";
-import ShareButton from "./ShareButton";
+import { SharePreviewProvider } from "../context/SharePreviewContext";
+import SummarySharePreview from "./share/sections/SummarySharePreview";
+import SharePreviewButton from "./SharePreviewButton";
 
 interface NavItem {
   id: SectionId;
@@ -28,12 +30,7 @@ if (shouldShowLiquidityTournament()) {
   NAV_ITEMS.push({ id: SECTION_IDS.LQT, label: "Liquidity Tournament" });
 }
 
-interface StickyNavbarProps {
-  onShare: () => void;
-  isContentLoading: boolean;
-}
-
-export default function StickyNavbar({ onShare, isContentLoading }: StickyNavbarProps) {
+export default function StickyNavbar() {
   const [activeSection, setActiveSection] = useState<SectionId>(NAV_ITEMS[0].id);
   const [showNavbar, setShowNavbar] = useState(true);
   const lastScrollY = useRef(typeof window !== "undefined" ? window.scrollY : 0);
@@ -95,37 +92,38 @@ export default function StickyNavbar({ onShare, isContentLoading }: StickyNavbar
   }, []);
 
   return (
-    <header
-      className={`sticky top-0 z-50 bg-black/80 backdrop-blur-lg transition-transform duration-300 will-change-transform ${
-        showNavbar ? "translate-y-0" : "-translate-y-full"
-      }`}
+    <SharePreviewProvider
+      sectionId={SECTION_IDS.SUMMARY}
+      SharePreviewComponent={SummarySharePreview}
     >
-      <div className="container mx-auto flex items-center justify-between px-6 py-4">
-        <Image src="/penumbra-logo.svg" alt="Penumbra Logo" width={120} height={24} priority />
-        <nav className="hidden md:flex items-center bg-neutral-800 rounded-full p-1 ml-4 mr-4">
-          {NAV_ITEMS.map((item, idx) => (
-            <a
-              key={item.id}
-              href={`#${item.id}`}
-              onClick={() => handleNavClick()}
-              className={cn(
-                NAV_ITEM_BASE_STYLES,
-                activeSection === item.id ? NAV_ACTIVE_WITH_UNDERLINE : NAV_ITEM_INACTIVE_STYLES,
-                idx === NAV_ITEMS.length - 1 ? "mr-1" : ""
-              )}
-            >
-              {item.label}
-            </a>
-          ))}
-        </nav>
-        <div className="flex items-center space-x-2">
-          <ShareButton
-            onClick={onShare}
-            text="Share Overview"
-            isContentLoading={isContentLoading}
-          />
+      <header
+        className={`sticky top-0 z-50 bg-black/80 backdrop-blur-lg transition-transform duration-300 will-change-transform ${
+          showNavbar ? "translate-y-0" : "-translate-y-full"
+        }`}
+      >
+        <div className="container mx-auto flex items-center justify-between px-6 py-4">
+          <Image src="/penumbra-logo.svg" alt="Penumbra Logo" width={120} height={24} priority />
+          <nav className="hidden md:flex items-center bg-neutral-800 rounded-full p-1 ml-4 mr-4">
+            {NAV_ITEMS.map((item, idx) => (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                onClick={() => handleNavClick()}
+                className={cn(
+                  NAV_ITEM_BASE_STYLES,
+                  activeSection === item.id ? NAV_ACTIVE_WITH_UNDERLINE : NAV_ITEM_INACTIVE_STYLES,
+                  idx === NAV_ITEMS.length - 1 ? "mr-1" : ""
+                )}
+              >
+                {item.label}
+              </a>
+            ))}
+          </nav>
+          <div className="flex items-center space-x-2">
+            <SharePreviewButton text="Share Overview" />
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </SharePreviewProvider>
   );
 }
