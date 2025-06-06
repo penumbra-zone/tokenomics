@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Penumbra Tokenomics
+
+The [Penumbra](https://penumbra.zone/) tokenomics dashboard for visualizing and analyzing network metrics.
+
+This is a Next.js-based dashboard that provides comprehensive visualization and analysis of Penumbra's tokenomics data. Built with modern web technologies, it offers an intuitive interface for exploring key metrics and trends.
+
+To participate in the test network, use a browser extension like [Prax](https://chrome.google.com/webstore/detail/penumbra-wallet/lkpmkhpnhknhmibgnmmhdhgdilepfghe) from the Chrome Web Store.
+
+You can talk to us on [Discord](https://discord.gg/hKvkrqa3zC).
+
+## Features
+
+- Real-time tokenomics data visualization
+- Interactive charts and graphs using ECharts
+- Responsive design with modern UI components
+- Data persistence with PostgreSQL
+- AWS S3 integration for file storage
+
+## Published Packages
+
+All have a `@penumbra-zone/` namespace prefix on npm.
+
+**🌘
+[bech32m](https://www.npmjs.com/package/@penumbra-zone/bech32m) 🌑
+[client](https://www.npmjs.com/package/@penumbra-zone/client) 🌑
+[constants](https://www.npmjs.com/package/@penumbra-zone/constants) 🌑
+[crypto](https://www.npmjs.com/package/@penumbra-zone/crypto) 🌑
+[getters](https://www.npmjs.com/package/@penumbra-zone/getters) 🌑
+[keys](https://www.npmjs.com/package/@penumbra-zone/keys) 🌑
+[perspective](https://www.npmjs.com/package/@penumbra-zone/perspective) 🌑
+[protobuf](https://www.npmjs.com/package/@penumbra-zone/protobuf) 🌑
+[services](https://www.npmjs.com/package/@penumbra-zone/services) 🌑
+[services-context](https://www.npmjs.com/package/@penumbra-zone/services-context) 🌑
+[storage](https://www.npmjs.com/package/@penumbra-zone/storage) 🌑
+[transport-chrome](https://www.npmjs.com/package/@penumbra-zone/transport-chrome) 🌑
+[transport-dom](https://www.npmjs.com/package/@penumbra-zone/transport-dom) 🌑
+[types](https://www.npmjs.com/package/@penumbra-zone/types) 🌑
+[wasm](https://www.npmjs.com/package/@penumbra-zone/wasm)
+🌒**
+
+## Tech Stack
+
+- Next.js 14
+- React 18
+- TypeScript
+- TailwindCSS
+- Radix UI
+- ECharts
+- Redux Toolkit
+- PostgreSQL
+- AWS SDK
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+Make sure you have the following tools installed:
+
+- [Node.js](https://nodejs.org/en/download/package-manager) – Recommended via [nvm](https://github.com/nvm-sh/nvm)
+- [pnpm](https://pnpm.io/installation) – Package manager, recommended via [corepack](https://pnpm.io/installation#using-corepack)
+- Git
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd tokenomics-dashboard
+```
+
+2. Install dependencies:
+```bash
+pnpm install
+```
+
+3. Set up environment variables:
+```bash
+cp .env.example .env
+```
+Edit the `.env` file with your specific configuration values.
+
+### Development
+
+Run the development server:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# Run in development mode
 pnpm dev
-# or
-bun dev
+
+# Run with mock data
+pnpm mock:dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Available Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `pnpm dev` - Start development server
+- `pnpm mock:dev` - Start development server with mock data
+- `pnpm build` - Build for production
+- `pnpm start` - Start production server
+- `pnpm lint` - Run ESLint
+- `pnpm format` - Format code with Prettier
+- `pnpm format:check` - Check code formatting
 
-## Learn More
+## Contributing
 
-To learn more about Next.js, take a look at the following resources:
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Security
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+If you believe you've found a security-related issue with Penumbra, please disclose responsibly by contacting the Penumbra Labs team at security@penumbralabs.xyz.
