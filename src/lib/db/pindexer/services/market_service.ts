@@ -1,6 +1,7 @@
 import { AssetId } from "@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb";
 import { Kysely, sql } from "kysely";
 
+import { mainnetConfig } from "@/lib/calculations";
 import {
   DATA_SOURCES,
   DB_CONFIG,
@@ -9,7 +10,6 @@ import {
 } from "../database-mappings";
 import { DB } from "../schema";
 import type { CandleData, DurationWindow, PriceHistoryResult } from "../types";
-import { mainnetConfig } from '@/lib/calculations';
 import { AssetMetadataMap, BaseService } from "./base_service";
 
 export class MarketService extends BaseService {

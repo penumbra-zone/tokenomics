@@ -110,7 +110,7 @@ export function calculateInflationTimeSeries(
   supplyDataPoints: SupplyData[]
 ): Array<{ date: string; inflationRate: number; absoluteAmount: number }> {
   const subPeriodRates = (
-    supplyDataPoints: SupplyData[],
+    supplyDataPoints: SupplyData[]
   ): Array<{ timestamp: Date; inflationRate: number; absoluteAmount: number }> => {
     const results: Array<{ timestamp: Date; inflationRate: number; absoluteAmount: number }> = [];
 

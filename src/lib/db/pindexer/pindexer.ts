@@ -2,6 +2,7 @@ import { AssetId } from "@penumbra-zone/protobuf/penumbra/core/asset/v1/asset_pb
 import { Kysely } from "kysely";
 
 import { registryClient } from "@/lib/registry";
+import { formatAssetAmount } from "@/lib/registry/utils";
 import {
   calculateBurnMetrics,
   calculateBurnRateTimeSeries,
@@ -20,6 +21,7 @@ import { getDateRangeForDays, getDurationWindowForDays } from "../utils";
 import { dbClient as defaultDb } from "./client";
 import { MockPindexerConnection } from "./mock/mock-pindexer-connection";
 import { DB } from "./schema";
+import { AssetMetadataMap } from "./services/base_service";
 import { BlockService } from "./services/block_service";
 import { BurnService } from "./services/burn_service";
 import { MarketService } from "./services/market_service";
@@ -39,8 +41,6 @@ import {
   TokenMetrics,
   UnstakedSupplyComponents,
 } from "./types";
-import { AssetMetadataMap } from './services/base_service';
-import { formatAssetAmount } from '@/lib/registry/utils';
 
 export class Pindexer extends AbstractPindexerConnection {
   private readonly blockService: BlockService;
@@ -50,7 +50,10 @@ export class Pindexer extends AbstractPindexerConnection {
   private readonly calculationContext: CalculationContext;
   private readonly metadataMap: AssetMetadataMap;
 
-  constructor(metadataMap: AssetMetadataMap, protected dbInstance: Kysely<DB> = defaultDb) {
+  constructor(
+    metadataMap: AssetMetadataMap,
+    protected dbInstance: Kysely<DB> = defaultDb
+  ) {
     super();
     this.metadataMap = metadataMap;
     this.blockService = new BlockService(dbInstance, metadataMap);
@@ -123,9 +126,11 @@ export class Pindexer extends AbstractPindexerConnection {
     const { currentIssuance, projectedAnnualIssuance } = calculateIssuanceMetrics(
       this.calculationContext
     );
-    return { 
-      currentIssuance: Number(formatAssetAmount(BigInt(currentIssuance), this.metadataMap.um)), 
-      annualIssuance: Number(formatAssetAmount(BigInt(projectedAnnualIssuance), this.metadataMap.um)) 
+    return {
+      currentIssuance: Number(formatAssetAmount(BigInt(currentIssuance), this.metadataMap.um)),
+      annualIssuance: Number(
+        formatAssetAmount(BigInt(projectedAnnualIssuance), this.metadataMap.um)
+      ),
     };
   }
 
@@ -173,7 +178,12 @@ export class Pindexer extends AbstractPindexerConnection {
     const totalUnstaked = calculateTotalUnstakedSupply(unstakedComponents);
 
     // Use centralized calculation for issuance since launch
-    const genesisAllocation = Number(formatAssetAmount(BigInt(this.calculationContext.config.genesisAllocation), this.metadataMap.um));
+    const genesisAllocation = Number(
+      formatAssetAmount(
+        BigInt(this.calculationContext.config.genesisAllocation),
+        this.metadataMap.um
+      )
+    );
     const issuedSinceLaunch = calculateIssuanceSinceLaunch(Number(totalSupply), genesisAllocation);
 
     return {

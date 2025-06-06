@@ -24,7 +24,7 @@ export class SupplyService extends BaseService {
     });
     this.client = createClient<typeof CommunityPoolQueryService>(
       CommunityPoolQueryService,
-      transport,
+      transport
     );
   }
 
@@ -169,7 +169,7 @@ export class SupplyService extends BaseService {
   }
 
   async getCommunityPoolAssetBalances(
-    assetIds: AssetId[],
+    assetIds: AssetId[]
   ): Promise<CommunityPoolAssetBalancesResponse[]> {
     try {
       const request = new CommunityPoolAssetBalancesRequest({
