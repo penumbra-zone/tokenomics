@@ -1,4 +1,4 @@
-import { env as serverEnv } from "@/lib/env/server";
+import { getEnv } from "@/lib/env/server";
 import { SECTION_IDS, SectionId } from "@/lib/types/sections";
 import { shareConfigs } from "@/lib/utils/types";
 import Dashboard from "@/modules/tokenomics/views/Dashboard";
@@ -13,7 +13,7 @@ export const generateMetadata = async ({ searchParams }: Props) => {
 
   const imageUrl = `/api/share/${section}`;
 
-  const siteUrl = serverEnv.BASE_URL;
+  const siteUrl = getEnv().BASE_URL;
   const ogImageUrl = new URL(imageUrl, siteUrl);
 
   const { title, description } = shareConfigs[section as SectionId];

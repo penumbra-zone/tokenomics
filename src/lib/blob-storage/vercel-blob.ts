@@ -1,13 +1,12 @@
-import type { VercelBlobConfig } from "@/lib/env/server"; // Import the shared type
+import type { VercelBlobConfig } from "@/lib/env/types";
 import type { ListBlobResult, PutBlobResult } from "@vercel/blob";
 import { del, list, put } from "@vercel/blob";
 import type { BlobStorageService } from ".";
 
 export class VercelBlobService implements BlobStorageService {
-  private vercelToken: string; // Store the token
+  private vercelToken: string;
 
   constructor(config: VercelBlobConfig) {
-    // Use imported VercelBlobConfig
     if (!config.token) {
       throw new Error("Vercel Blob token is not provided in configuration.");
     }
@@ -31,7 +30,7 @@ export class VercelBlobService implements BlobStorageService {
       allowOverwrite: true,
       contentType: options?.contentType,
       cacheControlMaxAge: options?.cacheControlMaxAge || 31536000, // 1 year
-      token, // This will now use the potentially overridden or instance token
+      token,
       ...options,
     });
   }
@@ -39,7 +38,6 @@ export class VercelBlobService implements BlobStorageService {
   async get(
     pathname: string
   ): Promise<{ content: ArrayBuffer; contentType: string | null } | null> {
-    // List still needs a token, ensure it uses the instance token
     const listResult = await this.list(pathname, { token: this.vercelToken });
     const blobItem = listResult.blobs.find((blob) => blob.pathname === pathname);
 

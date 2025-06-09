@@ -1,33 +1,37 @@
 import { Kysely, PostgresDialect } from "kysely";
 import { Pool } from "pg";
 
-import { env } from "@/lib/env/server";
+import { getEnv } from "@/lib/env/server";
 import type { DB } from "./schema";
 
-const connectionString = env.DATABASE_URL;
+let dbClient: Kysely<DB> | undefined;
 
-const poolConfig = {
-  connectionString,
-  ssl: connectionString?.includes("localhost") ? false : { rejectUnauthorized: false },
-};
+export function getDbClient() {
+  if (dbClient) return dbClient;
 
-let pool: Pool;
+  const connectionString = getEnv().DATABASE_URL;
 
-if (process.env.NODE_ENV === "production") {
-  pool = new Pool(poolConfig);
-} else {
-  // Ensure the pool is not recreated in development with hot reloads
-  if (!(global as any).pgPool) {
-    (global as any).pgPool = new Pool(poolConfig);
+  const poolConfig = {
+    connectionString,
+    ssl: connectionString?.includes("localhost") ? false : { rejectUnauthorized: false },
+  };
+
+  let pool: Pool;
+
+  if (process.env.NODE_ENV === "production") {
+    pool = new Pool(poolConfig);
+  } else {
+    // Ensure the pool is not recreated in development with hot reloads
+    if (!(global as any).pgPool) {
+      (global as any).pgPool = new Pool(poolConfig);
+    }
+    pool = (global as any).pgPool;
   }
-  pool = (global as any).pgPool;
-}
 
-const createDbClient = () => {
   const dialect = new PostgresDialect({
     pool,
   });
-  return new Kysely<DB>({ dialect });
-};
 
-export const dbClient = createDbClient();
+  dbClient = new Kysely<DB>({ dialect });
+  return dbClient;
+}

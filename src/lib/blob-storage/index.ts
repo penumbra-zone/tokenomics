@@ -1,4 +1,4 @@
-import { env } from "@/lib/env/server";
+import { getEnv } from '@/lib/env/server';
 import { AWSS3BlobService } from "./aws-s3";
 import { VercelBlobService } from "./vercel-blob";
 
@@ -35,6 +35,7 @@ const createNotConfiguredService = (): BlobStorageService => ({
 
 let serviceInstance: BlobStorageService;
 
+const env = getEnv();
 switch (env.blobStorageConfig?.provider) {
   case "s3":
     serviceInstance = new AWSS3BlobService(env.blobStorageConfig);
