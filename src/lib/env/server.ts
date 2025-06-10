@@ -40,10 +40,7 @@ export function getEnv() {
     NODE_ENV: process.env.NODE_ENV as Env,
     NEXT_PUBLIC_NETWORK: process.env.NEXT_PUBLIC_NETWORK as Network | undefined,
     NEXT_PUBLIC_SHOW_LIQUIDITY_TOURNAMENT: process.env.NEXT_PUBLIC_SHOW_LIQUIDITY_TOURNAMENT,
-    BASE_URL:
-      process.env.NODE_ENV === Env.Production
-        ? "https://tokenomics-dashboard-sand.vercel.app/"
-        : process.env.BASE_URL || "http://localhost:3000",
+    BASE_URL: process.env.BASE_URL ?? "https://tokenomics.penumbra.zone/",
     blobStorageConfig: buildBlobStorageConfig(),
   };
 
