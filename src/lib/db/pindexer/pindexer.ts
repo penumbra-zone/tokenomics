@@ -18,7 +18,7 @@ import {
   SupplyData,
 } from "../../calculations";
 import { getDateRangeForDays, getDurationWindowForDays } from "../utils";
-import { dbClient as defaultDb } from "./client";
+import { getDbClient } from "./client";
 import { MockPindexerConnection } from "./mock/mock-pindexer-connection";
 import { DB } from "./schema";
 import { AssetMetadataMap } from "./services/base_service";
@@ -52,7 +52,7 @@ export class Pindexer extends AbstractPindexerConnection {
 
   constructor(
     metadataMap: AssetMetadataMap,
-    protected dbInstance: Kysely<DB> = defaultDb
+    protected dbInstance: Kysely<DB> = getDbClient()
   ) {
     super();
     this.metadataMap = metadataMap;

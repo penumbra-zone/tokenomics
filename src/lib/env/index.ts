@@ -1,2 +1,4 @@
 // Client-side environment variables (safe to use in client components)
-export { Network as ClientNetwork, env, shouldShowLiquidityTournament } from "./client";
+export { env, shouldShowLiquidityTournament } from "./client";
+
+export * from "./types";

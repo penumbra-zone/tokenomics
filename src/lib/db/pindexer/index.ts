@@ -1,18 +1,19 @@
 import { Kysely } from "kysely";
 
-import { Env, env } from "@/lib/env/server";
+import { Env } from "@/lib/env/types";
 import { getUmAssetMetadata, getUSDCAssetMetadata } from "@/lib/registry/utils";
 import { MockPindexerConnection } from "./mock/mock-pindexer-connection";
 import { Pindexer as PostgresPindexerConnection } from "./pindexer";
 import { DB } from "./schema";
 import { AssetMetadataMap } from "./services/base_service";
 import { AbstractPindexerConnection } from "./types";
+import { getEnv } from "@/lib/env/server";
 
 // Pindexer Database Module
 // Main exports for database operations and configuration
 
 // Core database client and types
-export { dbClient } from "./client";
+export { getDbClient } from "./client";
 export * from "./schema";
 export type * from "./types";
 
@@ -29,7 +30,7 @@ let PindexerConnection: new (
   metadataMap: AssetMetadataMap,
   db?: Kysely<DB>
 ) => AbstractPindexerConnection = PostgresPindexerConnection;
-if (env.NODE_ENV === Env.Test) {
+if (getEnv().NODE_ENV === Env.Test) {
   PindexerConnection = MockPindexerConnection;
 }
 

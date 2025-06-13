@@ -1,4 +1,4 @@
-import type { S3BlobConfig } from "@/lib/env/server";
+import type { S3BlobConfig } from "@/lib/env/types";
 import {
   DeleteObjectCommand,
   GetObjectCommand,
