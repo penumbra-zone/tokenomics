@@ -103,6 +103,11 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - `pnpm format` - Format code with Prettier
 - `pnpm format:check` - Check code formatting
 
+## Deployment
+
+In order to deploy the application, you'll need to configure backend access to a [pindexer] database,
+as well as object storage buckets for social cards. Consult the `.env.example` file for reference.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -110,3 +115,5 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## Security
 
 If you believe you've found a security-related issue with Penumbra, please disclose responsibly by contacting the Penumbra Labs team at security@penumbralabs.xyz.
+
+[pindexer]: https://guide.penumbra.zone/event-indexing/pindexer
