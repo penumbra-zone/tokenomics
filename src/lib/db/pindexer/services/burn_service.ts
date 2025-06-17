@@ -31,10 +31,10 @@ export class BurnService extends BaseService {
         .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name)
         .select([
           // Sum only the permanently burned mechanisms up to the specified height
-          sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS)})`.as(
+          sql<number>`MAX(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS)})`.as(
             "total_arbitrage_burns"
           ),
-          sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS)})`.as(
+          sql<number>`MAX(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS)})`.as(
             "total_fee_burns"
           ),
         ])
@@ -61,10 +61,10 @@ export class BurnService extends BaseService {
    */
   async getBurnDataBySource(): Promise<BurnDataBySource> {
     try {
-      const arbitrageSumSQL = sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS)})`;
-      const feeSumSQL = sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS)})`;
-      const dexSumSQL = sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.DEX_LIQUIDITY)})`;
-      const auctionSumSQL = sql<number>`SUM(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.AUCTION_LOCKED)})`;
+      const arbitrageSumSQL = sql<number>`MAX(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.ARBITRAGE_BURNS)})`;
+      const feeSumSQL = sql<number>`MAX(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.FEE_BURNS)})`;
+      const dexSumSQL = sql<number>`MAX(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.DEX_LIQUIDITY)})`;
+      const auctionSumSQL = sql<number>`MAX(${sql.ref(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.fields.AUCTION_LOCKED)})`;
 
       const results = await this.db
         .selectFrom(DATA_SOURCES.SUPPLY_TOTAL_UNSTAKED.name)
